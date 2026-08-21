@@ -535,13 +535,8 @@
         // ================= 分類管理與前台導覽列 =================
         async function fetchCategories() {
             const { data, error } = await supabaseClient.from('categories').select('*');
-            if (error || !data || data.length === 0) {
-                // 若無資料，給予預設分類
-                categoriesCache = [
-                    { id: '1', name: '國內旅遊', parent_id: null },
-                    { id: '2', name: '中國旅遊', parent_id: null },
-                    { id: '3', name: '韓國旅遊', parent_id: null }
-                ];
+            if (error || !data) {
+                categoriesCache = [];
             } else {
                 categoriesCache = data;
             }
@@ -603,10 +598,17 @@
 
         async function addNewCategory() {
             const name = document.getElementById('new-cat-name').value.trim();
-            const parent_id = document.getElementById('new-cat-parent').value || null;
+            const parent_idVal = document.getElementById('new-cat-parent').value;
+            const parent_id = parent_idVal === "" ? null : parent_idVal;
+            
             if (!name) return alert('請輸入分類名稱');
 
-            const { error } = await supabaseClient.from('categories').insert([{ name, parent_id }]);
+            const payload = { name };
+            if (parent_id) {
+                payload.parent_id = parent_id;
+            }
+
+            const { error } = await supabaseClient.from('categories').insert([payload]);
             if (error) {
                 alert('新增分類失敗：' + error.message);
             } else {
