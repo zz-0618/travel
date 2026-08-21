@@ -1,727 +1,255 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <script src="https://rpzqioezweftrjtrneos.supabase.co/rest/v1/posts"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zz 的旅遊部落格</title>
-    <!-- 引入思源宋體 (Noto Serif TC) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-purple: #6b46c1;
-            --light-purple: #f3e8ff;
-            --dark-purple: #44337a;
-            --bg-color: #faf5ff;
-            --text-color: #2d3748;
-            --border-color: #e9d8fd;
-        }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  BookOpen,
+  CalendarDays,
+  ChevronRight,
+  Edit3,
+  Eye,
+  FileImage,
+  ImagePlus,
+  LayoutDashboard,
+  LogOut,
+  Menu as MenuIcon,
+  Plus,
+  Save,
+  Settings,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 
-        body {
-            font-family: 'Noto Serif TC', serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.8;
-        }
+const CATEGORIES = [
+  { id: "home", label: "首頁" },
+  { id: "taiwan", label: "國內旅遊" },
+  { id: "china", label: "中國旅遊" },
+  { id: "korea", label: "韓國旅遊" },
+];
 
-        /* 頂部 Logo 區塊 */
-        header {
-            text-align: center;
-            padding: 30px 20px;
-            background-color: white;
-            border-bottom: 1px solid var(--border-color);
-            position: relative;
-        }
+const seedPosts = [
+  {
+    id: "tainan-afternoon",
+    title: "在台南，留一個午後給窄巷與老屋",
+    slug: "tainan-afternoon",
+    category: "taiwan",
+    excerpt: "從微熱的午後走進巷弄，在老屋、樹影與甜味之間，收藏一段不趕路的時間。",
+    cover: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-08-18",
+    published: true,
+    content: [
+      { heading: "從一杯茶開始", body: "旅行有時不需要精密的計畫。選一間窗邊有光的店，讓冰塊慢慢融化，也讓城市的聲音逐漸清晰。" },
+      { heading: "穿過午後的巷子", body: "沿著老屋的牆面往前走，轉角可能是一株盛開的九重葛，也可能是一扇仍保留舊字樣的木門。" },
+      { heading: "把黃昏帶回家", body: "傍晚的風開始變輕，街燈一盞盞亮起。沒有完成什麼清單，卻記住了一座城市最柔軟的樣子。" },
+    ],
+  },
+  {
+    id: "xiamen-sea",
+    title: "廈門海風散步：從騎樓走向日落",
+    slug: "xiamen-sea",
+    category: "china",
+    excerpt: "把步調交給海風，在騎樓與島嶼之間，慢慢走進一場溫柔的黃昏。",
+    cover: "https://images.unsplash.com/photo-1537531383496-f4749b8032cf?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-07-24",
+    published: true,
+    content: [
+      { heading: "清晨的騎樓", body: "街道剛醒來，早餐店的蒸氣沿著騎樓飄散。老建築的線條，替日常留下從容的節奏。" },
+      { heading: "沿海慢行", body: "午後沿著海岸前進，不安排太多停靠點，只在喜歡的景色前多留幾分鐘。" },
+      { heading: "看一場日落", body: "夕陽將海面染成金紫色。旅程最動人的時刻，往往只是願意停下來。" },
+    ],
+  },
+  {
+    id: "seoul-autumn",
+    title: "首爾秋日：在宮牆與銀杏之間散步",
+    slug: "seoul-autumn",
+    category: "korea",
+    excerpt: "秋天的首爾有清透的光，適合用步行的速度，閱讀城市新舊交疊的表情。",
+    cover: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1600&q=80",
+    date: "2026-06-11",
+    published: true,
+    content: [
+      { heading: "宮牆外的早晨", body: "石牆旁的銀杏落了一地，晨光讓傳統建築與現代街景安靜地並置。" },
+      { heading: "市場裡的午餐", body: "熱湯、煎餅與此起彼落的招呼聲，讓味覺成為理解一座城市最快的方法。" },
+      { heading: "夜色中的街區", body: "入夜後，店鋪燈光映在街面。白天的秩序，換成夜晚自由流動的節奏。" },
+    ],
+  },
+];
 
-        .logo-container img {
-            max-height: 80px;
-            cursor: pointer;
-            object-fit: contain;
-        }
+const initialSettings = {
+  logo: "",
+  avatar: "",
+  authorName: "zz",
+  authorBio: "一個隨筆紀錄的人",
+  footer: "@zz 轉載請註明出處",
+};
 
-        .admin-trigger {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: var(--light-purple);
-            color: var(--primary-purple);
-            border: 1px solid var(--border-color);
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: 'Noto Serif TC', serif;
-            font-size: 14px;
-        }
+const styles = `
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap');
+:root{--ink:#34263e;--muted:#766a7e;--purple:#76508f;--deep:#4d315f;--pale:#f1e9f5;--line:#ded2e5;--paper:#fdfbfe}
+*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Serif TC','Source Han Serif TC','思源宋體 TC',serif}
+::selection{background:#d8c5e4}.hide-scroll::-webkit-scrollbar{display:none}.hide-scroll{scrollbar-width:none}
+.article-copy p{line-height:2.05;letter-spacing:.035em;color:#574c5e}.article-copy h2{scroll-margin-top:130px}
+`;
 
-        .admin-trigger:hover {
-            background: var(--primary-purple);
-            color: white;
-        }
+function fileToDataUrl(file, callback) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => callback(String(reader.result));
+  reader.readAsDataURL(file);
+}
 
-        /* 索引頁籤 */
-        nav {
-            background-color: var(--primary-purple);
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 12px 0;
-            box-shadow: 0 2px 4px rgba(107, 70, 193, 0.2);
-            flex-wrap: wrap; /* Added for mobile responsiveness */
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 600;
-            transition: opacity 0.2s;
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-
-        nav a:hover {
-            opacity: 0.8;
-        }
-
-        /* 中間主佈局 */
-        .main-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 40px;
-            padding: 0 20px;
-        }
-
-        @media (max-width: 768px) {
-            .main-container {
-                grid-template-columns: 1fr; /* Stack on mobile */
-            }
-        }
-
-        /* 文章閱讀區 */
-        .content-area {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.05);
-        }
-
-        .article-title {
-            font-size: 28px;
-            color: var(--dark-purple);
-            margin-bottom: 20px;
-        }
-
-        .article-body h2 {
-            font-size: 22px;
-            color: var(--primary-purple);
-            margin-top: 30px;
-            margin-bottom: 10px;
-            border-bottom: 2px solid var(--light-purple);
-            padding-bottom: 5px;
-        }
-
-        .article-body p {
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        /* 右側資訊欄 */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .profile-card {
-            background: white;
-            padding: 30px 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.05);
-        }
-
-        .avatar-container img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary-purple);
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-
-        .profile-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--dark-purple);
-        }
-
-        .profile-bio {
-            font-size: 14px;
-            color: #718096;
-            margin-top: 5px;
-        }
-
-        /* 段落目錄 */
-        .toc-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.05);
-        }
-
-        .toc-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--dark-purple);
-            margin-bottom: 12px;
-            border-left: 4px solid var(--primary-purple);
-            padding-left: 8px;
-        }
-
-        .toc-list {
-            list-style: none;
-        }
-
-        .toc-list li {
-            margin-bottom: 8px;
-        }
-
-        .toc-list a {
-            text-decoration: none;
-            color: var(--primary-purple);
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .toc-list a:hover {
-            color: var(--dark-purple);
-            text-decoration: underline;
-        }
-
-        /* 頁尾 */
-        footer {
-            text-align: center;
-            padding: 30px;
-            background: white;
-            border-top: 1px solid var(--border-color);
-            margin-top: 60px;
-            color: #718096;
-            font-size: 14px;
-        }
-
-        /* 後台管理 Modal 樣式 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .modal-content h3 {
-            color: var(--dark-purple);
-            margin-bottom: 15px;
-        }
-
-        .modal-content label {
-            display: block;
-            margin-top: 12px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .modal-content input, .modal-content textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-family: 'Noto Serif TC', serif;
-        }
-
-        .modal-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .modal-buttons button {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Noto Serif TC', serif;
-        }
-
-        .btn-save {
-            background: var(--primary-purple);
-            color: white;
-        }
-
-        .btn-cancel {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        /* Notification Toast */
-        #notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--primary-purple);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
-            display: none;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-weight: 600;
-        }
-
-        /* 隱藏管理員專屬元素 */
-        .admin-only {
-            display: none !important;
-        }
-    </style>
-</head>
-<body>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'zz-travel-blog-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        
-        let app, db, auth;
-        let currentUser = null;
-        let isAdmin = false;
-        
-        // --- ADMIN USER ID ---
-        // Replace this with your actual Firebase User ID once you know it.
-        // For testing in this environment, we'll expose a way to set it.
-        let ADMIN_USER_ID = "YOUR_ADMIN_UID_HERE"; 
-        
-        if (Object.keys(firebaseConfig).length > 0) {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            initAuth();
-        } else {
-            console.warn("Firebase config not found. Running in local-only mode.");
-            // Fallback for environment without Firebase
-            document.addEventListener('DOMContentLoaded', () => {
-                // In local mode, we'll just assume everyone is admin for demo purposes, 
-                // or you can set it to false to see the restricted view.
-                isAdmin = true; 
-                if (isAdmin) {
-                    showAdminControls();
-                }
-                loadLocalData();
-            });
-        }
-
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        // For the sake of this interactive environment, if ADMIN_USER_ID is not set, 
-                        // we will temporarily make the first user the admin to demonstrate functionality.
-                        if (ADMIN_USER_ID === "YOUR_ADMIN_UID_HERE") {
-                             ADMIN_USER_ID = user.uid;
-                             console.log("Setting temp admin ID to:", user.uid);
-                        }
-
-                        isAdmin = (user.uid === ADMIN_USER_ID);
-                        
-                        if (isAdmin) {
-                            showAdminControls();
-                        } else {
-                             hideAdminControls();
-                        }
-                        
-                        // Load data from Firestore
-                        loadFirestoreData();
-                    }
-                });
-            } catch (error) {
-                console.error("Authentication failed:", error);
-                showNotification("認證失敗，部分功能可能無法使用。");
-            }
-        }
-
-        function showAdminControls() {
-            const adminTrigger = document.querySelector('.admin-trigger');
-            if (adminTrigger) adminTrigger.classList.remove('admin-only');
-            
-            const logoImage = document.getElementById('logoImage');
-            if (logoImage) {
-                logoImage.style.cursor = 'pointer';
-                logoImage.title = '點擊更換 Logo';
-            }
-        }
-
-        function hideAdminControls() {
-            const adminTrigger = document.querySelector('.admin-trigger');
-            if (adminTrigger) adminTrigger.classList.add('admin-only');
-            
-            const logoImage = document.getElementById('logoImage');
-            if (logoImage) {
-                logoImage.style.cursor = 'default';
-                logoImage.title = '';
-                logoImage.onclick = null; // Remove the click handler
-            }
-        }
-
-        // --- Data Loading & Saving ---
-        
-        async function loadFirestoreData() {
-            if (!currentUser) return;
-            
-            try {
-                const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'blogConfig', 'settings');
-                const docSnap = await getDoc(configDocRef);
-                
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    
-                    if (data.logo) document.getElementById('logoImage').src = data.logo;
-                    if (data.avatar) document.getElementById('avatarImage').src = data.avatar;
-                    if (data.articles) {
-                        window.articlesData = data.articles;
-                        // Refresh current tab if data loaded
-                        const currentTab = document.querySelector('nav a[style*="opacity: 0.8"]')?.innerText || '首頁';
-                        switchTab(currentTab);
-                    }
-                } else {
-                    // Fallback to local data if no remote data exists yet
-                    loadLocalData();
-                }
-            } catch (error) {
-                console.error("Error loading data from Firestore:", error);
-                loadLocalData();
-            }
-        }
-
-        function loadLocalData() {
-             const savedLogo = localStorage.getItem('blog_logo');
-            if (savedLogo) document.getElementById('logoImage').src = savedLogo;
-
-            const savedAvatar = localStorage.getItem('blog_avatar');
-            if (savedAvatar) document.getElementById('avatarImage').src = savedAvatar;
-
-            const savedArticles = JSON.parse(localStorage.getItem('blog_custom_articles') || '{}');
-            window.articlesData = savedArticles;
-            refreshTOC();
-        }
-
-        // Expose global function for saving data to Firestore
-        window.saveDataToCloud = async function(type, data) {
-            if (!currentUser || !isAdmin) return;
-            
-            try {
-                const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'blogConfig', 'settings');
-                
-                // Fetch existing to merge
-                const docSnap = await getDoc(configDocRef);
-                let currentData = docSnap.exists() ? docSnap.data() : {};
-                
-                currentData[type] = data;
-                
-                await setDoc(configDocRef, currentData, { merge: true });
-                console.log(`Saved ${type} to cloud.`);
-            } catch (error) {
-                console.error(`Error saving ${type} to cloud:`, error);
-                showNotification("儲存至雲端失敗。");
-            }
-        };
-        
-        // Expose function to check admin status
-        window.checkIsAdmin = function() {
-            return isAdmin;
-        }
-
-    </script>
-
-    <!-- 頂部 Logo 區 -->
-    <header>
-        <button class="admin-trigger admin-only" onclick="openAdminModal()">⚙️ 後台管理</button>
-        <div class="logo-container">
-            <!-- Modified onclick to check admin status before triggering file input -->
-            <img id="logoImage" src="https://placehold.co/200x60/f3e8ff/6b46c1?text=LOGO" alt="網站 Logo" onclick="if(window.checkIsAdmin && window.checkIsAdmin()) document.getElementById('logoInput').click()">
-            <input type="file" id="logoInput" style="display:none" accept="image/*" onchange="uploadImage(event, 'logo')">
+function Logo({ settings, onHome }) {
+  return (
+    <button onClick={onHome} className="group mx-auto flex min-h-24 items-center justify-center bg-transparent px-4 py-5 border-0 cursor-pointer" aria-label="回首頁">
+      {settings.logo ? (
+        <img src={settings.logo} alt="網站 Logo" className="max-h-20 max-w-[270px] object-contain transition-transform group-hover:scale-[1.02]" />
+      ) : (
+        <div className="text-center">
+          <div className="text-[34px] font-black tracking-[.26em] text-[#4d315f]">ZZ</div>
+          <div className="mt-1 text-[10px] tracking-[.42em] text-[#967aa8]">TRAVEL NOTES</div>
         </div>
+      )}
+    </button>
+  );
+}
+
+function Header({ category, setCategory, settings, onAdmin }) {
+  return (
+    <header className="sticky top-0 z-30 border-b border-[#ded2e5] bg-[#fdfbfe]/95 backdrop-blur-xl">
+      <div className="relative mx-auto max-w-6xl">
+        <Logo settings={settings} onHome={() => setCategory("home")} />
+        <button onClick={onAdmin} className="absolute right-4 top-5 rounded-full border border-[#ded2e5] bg-white p-2 text-[#76508f] shadow-sm transition hover:bg-[#f1e9f5]" title="開啟後台">
+          <Settings size={17} />
+        </button>
+        <nav className="hide-scroll flex overflow-x-auto px-3" aria-label="文章分類">
+          <div className="mx-auto flex min-w-max items-center gap-1">
+            {CATEGORIES.map((item) => (
+              <button key={item.id} onClick={() => setCategory(item.id)} className={`relative border-0 bg-transparent px-5 pb-4 pt-2 text-sm font-semibold tracking-wider cursor-pointer ${category === item.id ? "text-[#5c3970]" : "text-[#766a7e] hover:text-[#5c3970]"}`}>
+                {item.label}
+                {category === item.id && <motion.span layoutId="nav-line" className="absolute inset-x-4 bottom-0 h-[2px] bg-[#76508f]" />}
+              </button>
+            ))}
+          </div>
+        </nav>
+      </div>
     </header>
+  );
+}
 
-    <!-- 索引頁籤 -->
-    <nav>
-        <a onclick="switchTab('首頁')">首頁</a>
-        <a onclick="switchTab('國內旅遊')">國內旅遊</a>
-        <a onclick="switchTab('中國旅遊')">中國旅遊</a>
-        <a onclick="switchTab('韓國旅遊')">韓國旅遊</a>
-    </nav>
+function AuthorCard({ settings, compact = false }) {
+  return (
+    <div className={`text-center ${compact ? "py-2" : "rounded-[28px] border border-[#ded2e5] bg-white px-6 py-8 shadow-[0_14px_45px_rgba(91,59,110,.08)]"}`}>
+      <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-[#e9dcef] shadow-[0_8px_25px_rgba(91,59,110,.18)]">
+        {settings.avatar ? <img src={settings.avatar} alt="作者頭像" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-4xl font-black text-[#76508f]">zz</div>}
+      </div>
+      <div className="mt-5 text-xl font-bold tracking-[.16em] text-[#4d315f]">{settings.authorName}</div>
+      <div className="mt-2 whitespace-pre-line text-sm leading-7 text-[#766a7e]">{settings.authorBio}</div>
+      <div className="mx-auto mt-5 h-px w-12 bg-[#c9b4d5]" />
+    </div>
+  );
+}
 
-    <!-- 中間頁面主體 -->
-    <div class="main-container">
-        <!-- 左側：文章內容 -->
-        <main class="content-area">
-            <h1 class="article-title" id="articleTitle">探索浪漫紫色之旅：初心者的隨筆</h1>
-            <div class="article-body" id="articleBody">
-                <h2 id="section1">一、 序言：旅行的意義</h2>
-                <p>旅行不只是從自己膩了的地方去到別人膩了的地方，而是一場重新認識內心風景的過程。當夕陽把古老的街道染成淡淡的紫色，步伐也變得輕盈。</p>
-                
-                <h2 id="section2">二、 當地特色與美食</h2>
-                <p>每到一個新地方，尋找巷弄裡的在地小吃總是最大樂趣。那些香氣與熱騰騰的煙火氣，拼湊成了這座城市獨有的記憶點。</p>
-                
-                <h2 id="section3">三、 隨筆結語</h2>
-                <p>把走過的風景化為字句，讓靈魂在不同的時空裡暫時安歇。期待下一次的背包行囊，再寫下全新的篇章。</p>
-            </div>
-        </main>
+function PostCard({ post, onOpen }) {
+  return (
+    <motion.article layout whileHover={{ y: -4 }} onClick={() => onOpen(post)} className="group cursor-pointer overflow-hidden rounded-[26px] border border-[#ded2e5] bg-white shadow-[0_15px_46px_rgba(82,53,99,.08)]">
+      <div className="aspect-[16/10] overflow-hidden bg-[#eee5f2]">
+        <img src={post.cover} alt={post.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+      </div>
+      <div className="p-6">
+        <div className="mb-3 flex items-center gap-3 text-xs tracking-widest text-[#967aa8]"><CalendarDays size={14}/>{post.date}</div>
+        <h2 className="text-xl font-bold leading-relaxed text-[#432d51]">{post.title}</h2>
+        <p className="mt-3 text-sm leading-7 text-[#766a7e]">{post.excerpt}</p>
+        <div className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#76508f]">繼續閱讀 <ChevronRight size={15}/></div>
+      </div>
+    </motion.article>
+  );
+}
 
-        <!-- 右側：側邊欄 (頭像與目錄) -->
-        <aside class="sidebar">
-            <!-- 頭像與個人資訊 -->
-            <div class="profile-card">
-                <div class="avatar-container">
-                    <img id="avatarImage" src="https://placehold.co/100x100/f3e8ff/6b46c1?text=Avatar" alt="頭像" onclick="document.getElementById('avatarInput').click()" title="點擊上傳更換頭像">
-                    <input type="file" id="avatarInput" style="display:none" accept="image/*" onchange="uploadImage(event, 'avatar')">
-                </div>
-                <div class="profile-name">zz</div>
-                <div class="profile-bio">一個隨筆紀錄的人</div>
-            </div>
+function Home({ posts, category, settings, onOpen }) {
+  const visible = posts.filter((p) => p.published && (category === "home" || p.category === category));
+  const label = CATEGORIES.find((x) => x.id === category)?.label || "首頁";
+  return (
+    <main className="mx-auto max-w-6xl px-5 py-10 md:py-14">
+      <div className="grid gap-10 lg:grid-cols-[1fr_280px]">
+        <section>
+          <div className="mb-9">
+            <div className="text-xs font-semibold tracking-[.35em] text-[#a185b1]">JOURNEY & MEMORY</div>
+            <h1 className="mt-3 text-3xl font-black tracking-wider text-[#432d51] md:text-4xl">{label === "首頁" ? "把旅行，寫成日常的註腳" : label}</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-8 text-[#766a7e]">記下沿途的光、氣味與細小心情。不是攻略，而是一份留給未來自己的旅行隨筆。</p>
+          </div>
+          {visible.length ? <div className="grid gap-7 md:grid-cols-2">{visible.map((post) => <PostCard key={post.id} post={post} onOpen={onOpen}/>)}</div> : <div className="rounded-3xl border border-dashed border-[#cbb8d6] bg-[#f7f1fa] p-14 text-center text-[#766a7e]">這個分類還沒有已發布的文章。</div>}
+        </section>
+        <aside className="lg:sticky lg:top-40 lg:self-start"><AuthorCard settings={settings}/></aside>
+      </div>
+    </main>
+  );
+}
 
-            <!-- 段落目錄 -->
-            <div class="toc-card">
-                <div class="toc-title">段落目錄</div>
-                <ul class="toc-list" id="tocList">
-                    <li><a href="#section1">一、 序言：旅行的意義</a></li>
-                    <li><a href="#section2">二、 當地特色與美食</a></li>
-                    <li><a href="#section3">三、 隨筆結語</a></li>
-                </ul>
-            </div>
+function Article({ post, settings, onBack }) {
+  const headings = post.content.map((section, i) => ({ id: `section-${i}`, title: section.heading }));
+  return (
+    <main className="mx-auto max-w-6xl px-5 py-10 md:py-14">
+      <button onClick={onBack} className="mb-7 border-0 bg-transparent text-sm font-semibold text-[#76508f] cursor-pointer">← 回文章列表</button>
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <article>
+          <div className="text-xs tracking-[.2em] text-[#967aa8]">{CATEGORIES.find((x) => x.id === post.category)?.label} ・ {post.date}</div>
+          <h1 className="mt-4 text-3xl font-black leading-relaxed tracking-wide text-[#432d51] md:text-5xl">{post.title}</h1>
+          <p className="mt-5 text-base leading-8 text-[#766a7e]">{post.excerpt}</p>
+          <img src={post.cover} alt={post.title} className="mt-8 aspect-[16/9] w-full rounded-[28px] object-cover shadow-[0_18px_50px_rgba(76,47,92,.13)]" />
+          <div className="article-copy mt-12">
+            {post.content.map((section, index) => <section key={index} className="mb-12"><h2 id={`section-${index}`} className="mb-5 flex items-center gap-3 text-2xl font-bold text-[#4d315f]"><span className="h-7 w-1 rounded-full bg-[#9a77ae]"/>{section.heading}</h2><p>{section.body}</p></section>)}
+          </div>
+        </article>
+        <aside className="space-y-6 lg:sticky lg:top-40 lg:self-start">
+          <AuthorCard settings={settings}/>
+          <div className="rounded-[24px] border border-[#ded2e5] bg-white p-6 shadow-[0_12px_35px_rgba(91,59,110,.06)]">
+            <div className="mb-4 flex items-center gap-2 text-sm font-bold tracking-widest text-[#4d315f]"><BookOpen size={16}/> 段落目錄</div>
+            <div className="space-y-1">{headings.map((h, i) => <button key={h.id} onClick={() => document.getElementById(h.id)?.scrollIntoView({behavior:"smooth"})} className="flex w-full items-start gap-3 rounded-xl border-0 bg-transparent px-2 py-2 text-left text-sm leading-6 text-[#766a7e] cursor-pointer hover:bg-[#f1e9f5] hover:text-[#5c3970]"><span className="text-[#b198be]">0{i+1}</span>{h.title}</button>)}</div>
+          </div>
         </aside>
-    </div>
+      </div>
+    </main>
+  );
+}
 
-    <!-- 頁尾 -->
-    <footer>
-        @zz 轉載請註明出處
-    </footer>
+function Field({ label, children }) { return <label className="block"><span className="mb-2 block text-xs font-bold tracking-wider text-[#5c3970]">{label}</span>{children}</label>; }
+const inputClass = "w-full rounded-xl border border-[#d8c9e0] bg-white px-3 py-2.5 font-serif text-sm text-[#34263e] outline-none focus:border-[#8c65a2] focus:ring-2 focus:ring-[#e5d7ec]";
 
-    <!-- 自訂提示框 -->
-    <div id="notification"></div>
+function ImageUpload({ label, value, onChange, round = false }) {
+  return <Field label={label}><div className="flex items-center gap-4"><div className={`${round ? "h-20 w-20 rounded-full" : "h-20 w-32 rounded-xl"} flex shrink-0 items-center justify-center overflow-hidden border border-[#d8c9e0] bg-[#f1e9f5]`}>{value ? <img src={value} alt={label} className="h-full w-full object-cover"/> : <FileImage className="text-[#a78ab7]"/>}</div><label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#76508f] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#65447a]"><Upload size={15}/>上傳圖片<input type="file" accept="image/*" className="hidden" onChange={(e)=>fileToDataUrl(e.target.files?.[0],onChange)}/></label></div></Field>;
+}
 
-    <!-- 後台文章上傳互動視窗 (Modal) -->
-    <div class="modal" id="adminModal">
-        <div class="modal-content">
-            <h3>後台：發布新文章</h3>
-            <label>文章標題</label>
-            <input type="text" id="newTitle" placeholder="輸入文章標題...">
-            
-            <label>文章內容（支援 HTML 標籤如 &lt;h2&gt;, &lt;p&gt;）</label>
-            <textarea id="newContent" rows="6" placeholder="<h2>標題</h2><p>內容...</p>"></textarea>
-            
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeAdminModal()">取消</button>
-                <button class="btn-save" onclick="saveNewArticle()">發布文章</button>
-            </div>
-        </div>
-    </div>
+function SettingsPanel({ settings, setSettings }) {
+  const [draft, setDraft] = useState(settings);
+  return <div className="space-y-6"><div><h2 className="text-2xl font-black text-[#432d51]">網站設定</h2><p className="mt-1 text-sm text-[#766a7e]">更新 Logo、作者頭像與頁尾資訊。</p></div><ImageUpload label="網站 Logo" value={draft.logo} onChange={(v)=>setDraft({...draft,logo:v})}/><ImageUpload label="作者頭像" round value={draft.avatar} onChange={(v)=>setDraft({...draft,avatar:v})}/><Field label="作者名稱"><input className={inputClass} value={draft.authorName} onChange={(e)=>setDraft({...draft,authorName:e.target.value})}/></Field><Field label="作者簡介"><textarea rows={3} className={inputClass} value={draft.authorBio} onChange={(e)=>setDraft({...draft,authorBio:e.target.value})}/></Field><Field label="頁尾文字"><input className={inputClass} value={draft.footer} onChange={(e)=>setDraft({...draft,footer:e.target.value})}/></Field><button onClick={()=>setSettings(draft)} className="flex items-center gap-2 rounded-xl border-0 bg-[#76508f] px-5 py-3 font-semibold text-white cursor-pointer hover:bg-[#65447a]"><Save size={16}/>儲存設定</button></div>;
+}
 
-    <!-- JavaScript 互動與資料保存邏輯 -->
-    <script>
-        // 自訂提示框函數 (取代 alert)
-        function showNotification(msg) {
-            const notif = document.getElementById('notification');
-            notif.innerText = msg;
-            notif.style.display = 'block';
-            // 強制重繪
-            void notif.offsetWidth;
-            notif.style.opacity = '1';
-            
-            setTimeout(() => {
-                notif.style.opacity = '0';
-                setTimeout(() => {
-                    notif.style.display = 'none';
-                }, 300);
-            }, 3000);
-        }
+const emptyPost = { title:"", slug:"", category:"taiwan", excerpt:"", cover:"", date:new Date().toISOString().slice(0,10), published:false, content:[{heading:"第一段",body:""}] };
+function PostEditor({ initial, onSave, onCancel }) {
+  const [post,setPost]=useState(initial || emptyPost);
+  const updateSection=(i,key,value)=>setPost({...post,content:post.content.map((s,idx)=>idx===i?{...s,[key]:value}:s)});
+  return <div className="space-y-5"><div><h2 className="text-2xl font-black text-[#432d51]">{initial?"編輯文章":"新增文章"}</h2><p className="mt-1 text-sm text-[#766a7e]">標題段落會自動成為文章右側目錄。</p></div><Field label="文章標題"><input className={inputClass} value={post.title} onChange={(e)=>setPost({...post,title:e.target.value,slug:post.slug || e.target.value.toLowerCase().replace(/\s+/g,"-")})}/></Field><div className="grid gap-4 md:grid-cols-2"><Field label="網址代稱 Slug"><input className={inputClass} value={post.slug} onChange={(e)=>setPost({...post,slug:e.target.value})}/></Field><Field label="分類"><select className={inputClass} value={post.category} onChange={(e)=>setPost({...post,category:e.target.value})}>{CATEGORIES.slice(1).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></Field></div><Field label="文章摘要"><textarea rows={3} className={inputClass} value={post.excerpt} onChange={(e)=>setPost({...post,excerpt:e.target.value})}/></Field><ImageUpload label="封面圖片" value={post.cover} onChange={(v)=>setPost({...post,cover:v})}/><div className="space-y-4"><div className="text-xs font-bold tracking-wider text-[#5c3970]">文章段落</div>{post.content.map((section,i)=><div key={i} className="rounded-2xl border border-[#ded2e5] bg-[#faf7fc] p-4"><div className="mb-3 flex gap-2"><input className={inputClass} value={section.heading} onChange={(e)=>updateSection(i,"heading",e.target.value)} placeholder="段落標題"/><button disabled={post.content.length===1} onClick={()=>setPost({...post,content:post.content.filter((_,idx)=>idx!==i)})} className="rounded-xl border border-[#e1d4e7] bg-white p-3 text-[#8f6571] disabled:opacity-30"><Trash2 size={16}/></button></div><textarea rows={5} className={inputClass} value={section.body} onChange={(e)=>updateSection(i,"body",e.target.value)} placeholder="段落內容"/></div>)}<button onClick={()=>setPost({...post,content:[...post.content,{heading:"新段落",body:""}]})} className="flex items-center gap-2 rounded-xl border border-[#cbb8d6] bg-white px-4 py-2.5 text-sm font-semibold text-[#76508f]"><Plus size={15}/>新增段落</button></div><label className="flex items-center gap-3 text-sm text-[#574c5e]"><input type="checkbox" checked={post.published} onChange={(e)=>setPost({...post,published:e.target.checked})}/>立即發布</label><div className="flex gap-3"><button onClick={()=>post.title && onSave({...post,id:post.id || `${Date.now()}`,cover:post.cover || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1600&q=80"})} className="flex items-center gap-2 rounded-xl border-0 bg-[#76508f] px-5 py-3 font-semibold text-white"><Save size={16}/>儲存文章</button><button onClick={onCancel} className="rounded-xl border border-[#d8c9e0] bg-white px-5 py-3 font-semibold text-[#5c3970]">取消</button></div></div>;
+}
 
-        // 頁面載入時套用儲存的設定（Local fallback handled in module script now）
-        window.addEventListener('DOMContentLoaded', () => {
-             // Initialization moved to the module script to handle Firebase Auth first.
-             // Just initialize the TOC for the default view.
-             refreshTOC();
-        });
+function PostsPanel({ posts, setPosts }) {
+  const [editing,setEditing]=useState(null); const [creating,setCreating]=useState(false);
+  if(creating || editing) return <PostEditor initial={editing} onCancel={()=>{setEditing(null);setCreating(false)}} onSave={(saved)=>{setPosts(posts.some(p=>p.id===saved.id)?posts.map(p=>p.id===saved.id?saved:p):[saved,...posts]);setEditing(null);setCreating(false)}}/>;
+  return <div><div className="flex items-start justify-between gap-4"><div><h2 className="text-2xl font-black text-[#432d51]">文章管理</h2><p className="mt-1 text-sm text-[#766a7e]">新增、編輯、發布或刪除旅行文章。</p></div><button onClick={()=>setCreating(true)} className="flex shrink-0 items-center gap-2 rounded-xl border-0 bg-[#76508f] px-4 py-2.5 text-sm font-semibold text-white"><Plus size={16}/>新增文章</button></div><div className="mt-7 space-y-3">{posts.map(post=><div key={post.id} className="flex items-center gap-4 rounded-2xl border border-[#ded2e5] bg-white p-3"><img src={post.cover} className="h-16 w-20 rounded-xl object-cover"/><div className="min-w-0 flex-1"><div className="truncate font-bold text-[#432d51]">{post.title}</div><div className="mt-1 text-xs text-[#967aa8]">{CATEGORIES.find(c=>c.id===post.category)?.label} ・ {post.published?"已發布":"草稿"}</div></div><button onClick={()=>setEditing(post)} className="rounded-lg border-0 bg-[#f1e9f5] p-2 text-[#76508f]"><Edit3 size={16}/></button><button onClick={()=>setPosts(posts.filter(p=>p.id!==post.id))} className="rounded-lg border-0 bg-[#f8eded] p-2 text-[#99616c]"><Trash2 size={16}/></button></div>)}</div></div>;
+}
 
-        // 圖片上傳轉 Base64 儲存
-        function uploadImage(event, type) {
-            // Additional check to prevent non-admins from uploading if they somehow trigger it
-            if (type === 'logo' && window.checkIsAdmin && !window.checkIsAdmin()) {
-                showNotification("權限不足：只有管理員能修改 Logo。");
-                return;
-            }
+function Admin({ open, onClose, posts, setPosts, settings, setSettings }) {
+  const [tab,setTab]=useState("posts");
+  return <AnimatePresence>{open&&<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 bg-[#281e2e]/55 p-0 backdrop-blur-sm md:p-5"><motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} exit={{y:20,opacity:0}} className="mx-auto flex h-full max-w-6xl overflow-hidden bg-[#fdfbfe] shadow-2xl md:rounded-[28px]"><aside className="w-20 shrink-0 bg-[#4d315f] p-3 text-white md:w-56 md:p-5"><div className="mb-8 hidden text-xl font-black tracking-[.2em] md:block">ZZ 後台</div><div className="mb-7 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-lg font-black md:hidden">Z</div><div className="space-y-2"><button onClick={()=>setTab("posts")} className={`flex w-full items-center gap-3 rounded-xl border-0 px-3 py-3 text-left text-sm font-semibold text-white ${tab==="posts"?"bg-white/20":"bg-transparent"}`}><LayoutDashboard size={18}/><span className="hidden md:inline">文章管理</span></button><button onClick={()=>setTab("settings")} className={`flex w-full items-center gap-3 rounded-xl border-0 px-3 py-3 text-left text-sm font-semibold text-white ${tab==="settings"?"bg-white/20":"bg-transparent"}`}><Settings size={18}/><span className="hidden md:inline">網站設定</span></button></div></aside><section className="relative flex-1 overflow-y-auto p-5 md:p-9"><button onClick={onClose} className="absolute right-4 top-4 rounded-full border border-[#ded2e5] bg-white p-2 text-[#76508f]"><X size={18}/></button><div className="mx-auto max-w-3xl pt-8 md:pt-0">{tab==="posts"?<PostsPanel posts={posts} setPosts={setPosts}/>:<SettingsPanel settings={settings} setSettings={setSettings}/>}</div></section></motion.div></motion.div>}</AnimatePresence>;
+}
 
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Data = e.target.result;
-                    if (type === 'logo') {
-                        document.getElementById('logoImage').src = base64Data;
-                        localStorage.setItem('blog_logo', base64Data);
-                        if(window.saveDataToCloud) window.saveDataToCloud('logo', base64Data);
-                        showNotification('Logo 更新成功！');
-                    } else if (type === 'avatar') {
-                        document.getElementById('avatarImage').src = base64Data;
-                        localStorage.setItem('blog_avatar', base64Data);
-                        if(window.saveDataToCloud) window.saveDataToCloud('avatar', base64Data);
-                        showNotification('頭像 更新成功！');
-                    }
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // 頁籤切換
-        function switchTab(category) {
-            const titleEl = document.getElementById('articleTitle');
-            const bodyEl = document.getElementById('articleBody');
-            const tocList = document.getElementById('tocList');
-
-            // 檢查是否有存在該分類自訂文章，沒有就顯示預設範例
-            if (window.articlesData && window.articlesData[category]) {
-                const art = window.articlesData[category];
-                titleEl.innerText = art.title;
-                bodyEl.innerHTML = art.content;
-            } else {
-                titleEl.innerText = `${category}：漫遊隨筆`;
-                bodyEl.innerHTML = `
-                    <h2 id="sec-intro">一、 初探${category}</h2>
-                    <p>這是關於${category}的第一篇隨筆記錄。在這裡，每一處風景都有著屬於自己的紫色浪漫與故事。</p>
-                    <h2 id="sec-details">二、 旅途風景</h2>
-                    <p>當地的風土民情與特色景點，總是讓人流連忘返，期待下一次的探訪。</p>
-                `;
-            }
-            refreshTOC();
-        }
-
-        // 動態抓取文章中的 h2 生成目錄
-        function refreshTOC() {
-            const headings = document.querySelectorAll('.article-body h2');
-            const tocList = document.getElementById('tocList');
-            tocList.innerHTML = '';
-            headings.forEach((h, index) => {
-                if(!h.id) h.id = 'generated-heading-' + index;
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#' + h.id;
-                a.innerText = h.innerText;
-                
-                // 添加平滑滾動效果
-                a.onclick = (e) => {
-                    e.preventDefault();
-                    document.getElementById(h.id).scrollIntoView({ behavior: 'smooth' });
-                };
-
-                li.appendChild(a);
-                tocList.appendChild(li);
-            });
-        }
-
-        // 後台互動視窗控制
-        function openAdminModal() {
-            document.getElementById('adminModal').style.display = 'flex';
-        }
-        function closeAdminModal() {
-            document.getElementById('adminModal').style.display = 'none';
-        }
-
-        // 發布新文章
-        function saveNewArticle() {
-            const title = document.getElementById('newTitle').value;
-            const content = document.getElementById('newContent').value;
-            
-            if(!title || !content) {
-                showNotification('請完整填寫標題與內容');
-                return;
-            }
-
-            // 預設將新文章存到目前點選的分類，或預設為「首頁」
-            // 這裡可以改為根據目前正在觀看的頁籤儲存
-            let activeTab = '首頁';
-            const navLinks = document.querySelectorAll('nav a');
-            navLinks.forEach(link => {
-                if (link.style.opacity === '0.8') {
-                    activeTab = link.innerText;
-                }
-            });
-            const currentCategory = activeTab;
-
-            if(!window.articlesData) window.articlesData = {};
-            window.articlesData[currentCategory] = { title, content };
-            
-            localStorage.setItem('blog_custom_articles', JSON.stringify(window.articlesData));
-            if (window.saveDataToCloud) window.saveDataToCloud('articles', window.articlesData);
-            
-            // 即時更新畫面
-            document.getElementById('articleTitle').innerText = title;
-            document.getElementById('articleBody').innerHTML = content;
-            refreshTOC();
-            
-            closeAdminModal();
-            
-            // 清空輸入框
-            document.getElementById('newTitle').value = '';
-            document.getElementById('newContent').value = '';
-            
-            showNotification('文章發布成功！');
-        }
-        
-        // 添加點擊高亮效果到頁籤
-        document.addEventListener('DOMContentLoaded', () => {
-             const navLinks = document.querySelectorAll('nav a');
-             navLinks.forEach(link => {
-                 link.addEventListener('click', function() {
-                     navLinks.forEach(l => l.style.opacity = '1');
-                     this.style.opacity = '0.8';
-                 });
-             });
-             // Set default active tab
-             if(navLinks.length > 0) navLinks[0].style.opacity = '0.8';
-        });
-    </script>
-</body>
-</html>
+export default function App() {
+  const [category,setCategory]=useState("home");
+  const [selected,setSelected]=useState(null);
+  const [admin,setAdmin]=useState(false);
+  const [posts,setPosts]=useState(()=>{try{return JSON.parse(localStorage.getItem("zz-posts"))||seedPosts}catch{return seedPosts}});
+  const [settings,setSettings]=useState(()=>{try{return JSON.parse(localStorage.getItem("zz-settings"))||initialSettings}catch{return initialSettings}});
+  useEffect(()=>{localStorage.setItem("zz-posts",JSON.stringify(posts))},[posts]);
+  useEffect(()=>{localStorage.setItem("zz-settings",JSON.stringify(settings))},[settings]);
+  const goCategory=(id)=>{setCategory(id);setSelected(null);window.scrollTo({top:0,behavior:"smooth"})};
+  return <div className="min-h-screen"><style>{styles}</style><Header category={category} setCategory={goCategory} settings={settings} onAdmin={()=>setAdmin(true)}/>{selected?<Article post={selected} settings={settings} onBack={()=>setSelected(null)}/>:<Home posts={posts} category={category} settings={settings} onOpen={(p)=>{setSelected(p);window.scrollTo(0,0)}}/>}<footer className="mt-10 border-t border-[#ded2e5] bg-[#f1e9f5] px-5 py-9 text-center text-sm tracking-wider text-[#65447a]">{settings.footer}</footer><Admin open={admin} onClose={()=>setAdmin(false)} posts={posts} setPosts={setPosts} settings={settings} setSettings={setSettings}/></div>;
+}
