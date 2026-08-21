@@ -4,48 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>zz 的旅遊部落格</title>
-    <!-- 引入思源宋體 (Noto Serif TC) -->
+    <!-- 引入思源宋體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        purple: {
-                            50: '#f5f3ff',
-                            100: '#ede9fe',
-                            600: '#7c3aed',
-                            700: '#6d28d9',
-                            900: '#4c1d95'
-                        }
+                        purple: { 50: '#f5f3ff', 100: '#ede9fe', 600: '#7c3aed', 700: '#6d28d9', 900: '#4c1d95' }
                     },
-                    fontFamily: {
-                        serif: ['"Noto Serif TC"', 'serif'],
-                    }
+                    fontFamily: { serif: ['"Noto Serif TC"', 'serif'] }
                 }
             }
         }
     </script>
     <style>
-        body {
-            font-family: 'Noto Serif TC', serif;
-            background-color: #faf5ff; /* 極淺紫色背景 */
-            color: #3b0764;
-        }
+        body { font-family: 'Noto Serif TC', serif; background-color: #faf5ff; color: #3b0764; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
     <div>
-        <!-- 最上方 Logo 區 -->
+        <!-- Logo 區 -->
         <header class="w-full py-6 bg-white shadow-sm border-b border-purple-100 flex flex-col items-center justify-center">
             <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain mb-3">
-            <!-- 後台上傳 Logo (簡易觸發) -->
-            <div class="text-xs text-purple-400 cursor-pointer hover:underline" onclick="toggleAdminPanel()">⚙️ 管理後台 / 上傳設定</div>
+            <div class="text-xs text-purple-400 cursor-pointer hover:underline" onclick="checkAdminAccess()">⚙️ 管理後台 / 上傳設定</div>
         </header>
 
         <!-- 索引頁籤 -->
@@ -58,27 +43,21 @@
             </ul>
         </nav>
 
-        <!-- 主體內容區 -->
+        <!-- 主體內容 -->
         <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-            
-            <!-- 左側/中間：文章列表與內容 (佔 3 欄) -->
             <section class="md:col-span-3 space-y-6" id="article-container">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
                     <h2 class="text-2xl font-bold mb-2 text-purple-900">載入中...</h2>
-                    <p class="text-purple-600">正在從 Supabase 取得文章內容，請稍候。</p>
                 </div>
             </section>
 
-            <!-- 右側：個人資訊與段落目錄 (佔 1 欄) -->
             <aside class="space-y-6">
-                <!-- 個人頭像與介紹 -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100 text-center flex flex-col items-center">
                     <img id="site-avatar" src="https://via.placeholder.com/100?text=Avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-purple-300">
                     <h3 class="text-xl font-bold text-purple-900">zz</h3>
                     <p class="text-sm text-purple-600 mt-1">一個隨筆紀錄的人</p>
                 </div>
 
-                <!-- 段落目錄 -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100 sticky top-4">
                     <h4 class="font-bold text-purple-900 border-b border-purple-100 pb-2 mb-3">📂 段落目錄</h4>
                     <ul id="table-of-contents" class="text-sm space-y-2 text-purple-700">
@@ -89,29 +68,29 @@
         </main>
     </div>
 
-    <!-- 隱藏式後台控制面板 (點擊上方設定開啟) -->
+    <!-- 後台面板 -->
     <div id="admin-panel" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 max-w-lg w-full space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b pb-2">
                 <h3 class="font-bold text-lg text-purple-900">後台管理與上傳</h3>
-                <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-black">✕</button>
+                <div>
+                    <button onclick="logoutAdmin()" class="text-xs text-red-500 hover:underline mr-3">登出</button>
+                    <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-black">✕</button>
+                </div>
             </div>
             
-            <!-- 上傳 Logo -->
             <div>
                 <label class="block text-sm font-semibold mb-1">變更 Logo</label>
                 <input type="file" id="logo-file" class="w-full text-sm border p-2 rounded">
                 <button onclick="uploadAsset('logo')" class="mt-2 bg-purple-600 text-white px-4 py-1 rounded text-sm hover:bg-purple-700">上傳並更新 Logo</button>
             </div>
 
-            <!-- 上傳頭像 -->
             <div>
                 <label class="block text-sm font-semibold mb-1">變更頭像</label>
                 <input type="file" id="avatar-file" class="w-full text-sm border p-2 rounded">
                 <button onclick="uploadAsset('avatar')" class="mt-2 bg-purple-600 text-white px-4 py-1 rounded text-sm hover:bg-purple-700">上傳並更新頭像</button>
             </div>
 
-            <!-- 發布新文章 -->
             <div class="border-t pt-3">
                 <label class="block text-sm font-semibold mb-1">發布新文章</label>
                 <input type="text" id="new-title" placeholder="文章標題" class="w-full text-sm border p-2 rounded mb-2">
@@ -126,45 +105,86 @@
         </div>
     </div>
 
-    <!-- 頁尾 -->
+    <!-- 密碼登入 Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full space-y-4 shadow-xl">
+            <h3 class="font-bold text-lg text-purple-900 text-center">後台管理者登入</h3>
+            <div>
+                <label class="block text-xs text-purple-700 mb-1">管理員信箱</label>
+                <input type="email" id="admin-email-input" class="w-full text-sm border p-2 rounded" placeholder="name@example.com">
+            </div>
+            <div>
+                <label class="block text-xs text-purple-700 mb-1">密碼</label>
+                <input type="password" id="admin-password-input" class="w-full text-sm border p-2 rounded" placeholder="••••••••">
+            </div>
+            <button onclick="loginWithEmail()" class="w-full bg-purple-900 text-white py-2 rounded-lg text-sm font-medium hover:bg-purple-800">登入後台</button>
+            <div class="text-center">
+                <button onclick="closeLoginModal()" class="text-xs text-gray-400 hover:text-gray-600">取消</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="w-full py-4 text-center text-xs text-purple-500 border-t border-purple-100 bg-white mt-12">
         @zz 轉載請註明出處
     </footer>
 
-    <!-- Supabase 邏輯串接 -->
     <script>
-        // 替換為你的 Supabase 專案設定
-        const SUPABASE_URL = 'https://rpzqioezweftrjtrneos.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye';
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function toggleAdminPanel() {
-            const panel = document.getElementById('admin-panel');
-            panel.classList.toggle('hidden');
-        }
-
-        // 初始化載入
         window.addEventListener('DOMContentLoaded', () => {
             fetchArticles();
             loadSettings();
         });
 
+        async function checkAdminAccess() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                document.getElementById('login-modal').classList.remove('hidden');
+            } else {
+                toggleAdminPanel();
+            }
+        }
+
+        async function loginWithEmail() {
+            const email = document.getElementById('admin-email-input').value;
+            const password = document.getElementById('admin-password-input').value;
+
+            if (!email || !password) return alert('請輸入帳號與密碼');
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert('登入失敗：' + error.message);
+            } else {
+                alert('登入成功！');
+                closeLoginModal();
+                toggleAdminPanel();
+            }
+        }
+
+        async function logoutAdmin() {
+            await supabaseClient.auth.signOut();
+            alert('已登出');
+            location.reload();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function toggleAdminPanel() {
+            document.getElementById('admin-panel').classList.toggle('hidden');
+        }
+
         async function fetchArticles(category = 'all') {
             const container = document.getElementById('article-container');
             let query = supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
-            
-            if (category !== 'all') {
-                query = query.eq('category', category);
-            }
+            if (category !== 'all') query = query.eq('category', category);
 
             const { data, error } = await query;
-            if (error) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-xl border text-red-500">載入失敗：請先設定 Supabase 資料庫與憑證。</div>`;
-                return;
-            }
-
-            if (data.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-xl border text-purple-700">目前尚無文章，請至後台新增。</div>`;
+            if (error || !data || data.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-xl border text-purple-700">目前尚無文章。</div>`;
                 return;
             }
 
@@ -176,13 +196,10 @@
                 </article>
             `).join('');
 
-            // 動態產生目錄範例
             generateTOC(data);
         }
 
-        function filterCategory(cat) {
-            fetchArticles(cat);
-        }
+        function filterCategory(cat) { fetchArticles(cat); }
 
         function generateTOC(articles) {
             const tocContainer = document.getElementById('table-of-contents');
@@ -192,7 +209,6 @@
         }
 
         async function loadSettings() {
-            // 從 Supabase 取得 Logo 與頭像設定 (假設存在 settings 資料表)
             const { data } = await supabaseClient.from('settings').select('*');
             if (data) {
                 data.forEach(item => {
@@ -208,16 +224,11 @@
             const file = fileInput.files[0];
             
             const { data, error } = await supabaseClient.storage.from('blog-assets').upload(`${type}_${Date.now()}`, file);
-            if (error) {
-                alert('上傳失敗：' + error.message);
-                return;
-            }
+            if (error) return alert('上傳失敗：' + error.message);
 
             const publicUrl = supabaseClient.storage.from('blog-assets').getPublicUrl(data.path).data.publicUrl;
-            
-            // 寫入設定表
             await supabaseClient.from('settings').upsert({ key: type, value: publicUrl });
-            alert('更新成功！重新整理後生效');
+            alert('更新成功！');
             location.reload();
         }
 
