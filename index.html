@@ -20,43 +20,53 @@
     <style>
         body { 
             font-family: 'Noto Serif TC', serif; 
-            background-color: #ffffff; /* 頁面底色白色 */
-            color: #452829; /* 全站字體顏色 */
+            background-color: #ffffff; 
+            color: #452829; 
         }
-        /* 自定義卡片背景色 */
         .custom-card {
             background-color: #EFE9E3;
+        }
+        /* 編輯器按鈕樣式 */
+        .editor-btn {
+            background-color: #EFE9E3;
+            border: 1px solid #C9B59C;
+            padding: 4px 8px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .editor-btn:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-    <div>
+    <!-- 前台畫面 -->
+    <div id="frontend-view">
         <!-- 最上方 Logo 區 -->
         <header class="w-full py-6 bg-white shadow-sm border-b border-[#EFE9E3] flex flex-col items-center justify-center">
             <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain">
         </header>
 
-        <!-- 索引頁籤 (底色 #C9B59C) -->
+        <!-- 索引頁籤 -->
         <nav style="background-color: #C9B59C;" class="text-white shadow-md">
             <ul class="flex justify-center space-x-8 py-3 text-lg font-semibold">
-                <li><a href="#" onclick="filterCategory('all')" class="hover:opacity-80 transition">首頁</a></li>
-                <li><a href="#" onclick="filterCategory('domestic')" class="hover:opacity-80 transition">國內旅遊</a></li>
-                <li><a href="#" onclick="filterCategory('china')" class="hover:opacity-80 transition">中國旅遊</a></li>
-                <li><a href="#" onclick="filterCategory('korea')" class="hover:opacity-80 transition">韓國旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('all')" class="hover:opacity-85 transition">首頁</a></li>
+                <li><a href="#" onclick="filterCategory('domestic')" class="hover:opacity-85 transition">國內旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('china')" class="hover:opacity-85 transition">中國旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('korea')" class="hover:opacity-85 transition">韓國旅遊</a></li>
             </ul>
         </nav>
 
         <!-- 主體內容 -->
         <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- 左側/中間：文章列表 -->
             <section class="md:col-span-3 space-y-6" id="article-container">
                 <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3]">
                     <h2 class="text-2xl font-bold mb-2">載入中...</h2>
                 </div>
             </section>
 
-            <!-- 右側：頭像與段落目錄 -->
             <aside class="space-y-6">
                 <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] text-center flex flex-col items-center">
                     <img id="site-avatar" src="https://via.placeholder.com/100?text=Avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]">
@@ -74,49 +84,140 @@
         </main>
     </div>
 
-    <!-- 右下角固定懸浮管理按鈕 -->
-    <button onclick="checkAdminAccess()" class="fixed bottom-6 right-6 text-white w-12 h-12 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center justify-center text-xl" style="background-color: #C9B59C;" title="管理後台">
-        ⚙️
-    </button>
+    <!-- 後台管理畫面 (預設隱藏) -->
+    <div id="admin-view" class="hidden min-h-screen bg-white flex flex-col">
+        <header class="bg-[#EFE9E3] px-8 py-4 border-b border-[#C9B59C] flex justify-between items-center">
+            <h1 class="text-xl font-bold text-[#452829]">⚙️ 網站後台管理系統</h1>
+            <div class="space-x-4">
+                <button onclick="switchView('frontend')" class="text-sm px-4 py-2 bg-white border border-[#C9B59C] rounded-lg hover:opacity-80">返回前台</button>
+                <button onclick="logoutAdmin()" class="text-sm px-4 py-2 bg-red-500 text-white rounded-lg hover:opacity-80">登出系統</button>
+            </div>
+        </header>
 
-    <!-- 後台面板 -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl p-6 max-w-lg w-full space-y-4 shadow-xl">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-bold text-lg">後台管理與上傳</h3>
-                <div>
-                    <button onclick="logoutAdmin()" class="text-xs text-red-500 hover:underline mr-3">登出</button>
-                    <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-black">✕</button>
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-5">
+            <!-- 左側頁籤 -->
+            <aside class="bg-[#F9F6F0] p-6 border-r border-[#EFE9E3] space-y-2">
+                <button onclick="switchAdminTab('avatar')" id="tab-avatar-btn" class="w-full text-left px-4 py-3 rounded-lg font-semibold transition bg-[#C9B59C] text-white">👤 頭像設定</button>
+                <button onclick="switchAdminTab('logo')" id="tab-logo-btn" class="w-full text-left px-4 py-3 rounded-lg font-semibold transition hover:bg-[#EFE9E3]">🖼️ Logo 設定</button>
+                <button onclick="switchAdminTab('articles')" id="tab-articles-btn" class="w-full text-left px-4 py-3 rounded-lg font-semibold transition hover:bg-[#EFE9E3]">📝 文章管理</button>
+            </aside>
+
+            <!-- 右側內容區 -->
+            <main class="md:col-span-4 p-8 max-w-4xl w-full">
+                <!-- 1. 頭像設定頁籤 -->
+                <div id="admin-tab-avatar" class="admin-tab-content space-y-4">
+                    <h2 class="text-2xl font-bold border-b pb-2">更換頭像</h2>
+                    <p class="text-sm opacity-80">請上傳您的個人頭像圖片 (建議方形尺寸)</p>
+                    <input type="file" id="admin-avatar-file" class="block w-full text-sm border p-2 rounded">
+                    <button onclick="uploadAsset('avatar')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新頭像</button>
                 </div>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-semibold mb-1">變更 Logo</label>
-                <input type="file" id="logo-file" class="w-full text-sm border p-2 rounded">
-                <button onclick="uploadAsset('logo')" class="mt-2 text-white px-4 py-1 rounded text-sm hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo</button>
-            </div>
 
-            <div>
-                <label class="block text-sm font-semibold mb-1">變更頭像</label>
-                <input type="file" id="avatar-file" class="w-full text-sm border p-2 rounded">
-                <button onclick="uploadAsset('avatar')" class="mt-2 text-white px-4 py-1 rounded text-sm hover:opacity-90" style="background-color: #C9B59C;">上傳並更新頭像</button>
-            </div>
+                <!-- 2. Logo 設定頁籤 -->
+                <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
+                    <h2 class="text-2xl font-bold border-b pb-2">更換 Logo</h2>
+                    <p class="text-sm opacity-80">請上傳網站頂部的 Logo 圖片</p>
+                    <input type="file" id="admin-logo-file" class="block w-full text-sm border p-2 rounded">
+                    <button onclick="uploadAsset('logo')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo</button>
+                </div>
 
-            <div class="border-t pt-3">
-                <label class="block text-sm font-semibold mb-1">發布新文章</label>
-                <input type="text" id="new-title" placeholder="文章標題" class="w-full text-sm border p-2 rounded mb-2">
-                <select id="new-category" class="w-full text-sm border p-2 rounded mb-2">
-                    <option value="domestic">國內旅遊</option>
-                    <option value="china">中國旅遊</option>
-                    <option value="korea">韓國旅遊</option>
-                </select>
-                <textarea id="new-content" placeholder="文章內容 (支援 HTML)" class="w-full text-sm border p-2 rounded h-24 mb-2"></textarea>
-                <button onclick="publishArticle()" class="text-white px-4 py-2 rounded text-sm hover:opacity-90 w-full" style="background-color: #C9B59C;">確認發布文章</button>
-            </div>
+                <!-- 3. 文章管理頁籤 -->
+                <div id="admin-tab-articles" class="admin-tab-content space-y-6 hidden">
+                    <h2 class="text-2xl font-bold border-b pb-2">文章管理</h2>
+                    
+                    <!-- 功能切換按鈕：新增 vs 維護舊文章 -->
+                    <div class="flex space-x-4 border-b pb-4">
+                        <button onclick="switchArticleSubTab('new')" id="subtab-new-btn" class="px-4 py-2 font-bold rounded bg-[#C9B59C] text-white">新增新文章</button>
+                        <button onclick="switchArticleSubTab('manage')" id="subtab-manage-btn" class="px-4 py-2 font-bold rounded bg-[#EFE9E3] hover:opacity-80">維護舊文章</button>
+                    </div>
+
+                    <!-- 子區塊 A：新增新文章 -->
+                    <div id="sub-article-new" class="space-y-4">
+                        <h3 class="text-lg font-semibold">發布新文章</h3>
+                        <div>
+                            <label class="block text-sm mb-1 font-semibold">文章標題</label>
+                            <input type="text" id="new-article-title" class="w-full border p-2 rounded text-sm" placeholder="請輸入標題...">
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1 font-semibold">分類</label>
+                            <select id="new-article-category" class="w-full border p-2 rounded text-sm">
+                                <option value="domestic">國內旅遊</option>
+                                <option value="china">中國旅遊</option>
+                                <option value="korea">韓國旅遊</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1 font-semibold">內文編輯器</label>
+                            <!-- 編輯器工具列 -->
+                            <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#F9F6F0] border rounded">
+                                <button type="button" class="editor-btn" onclick="formatText('bold')"><b>B</b></button>
+                                <button type="button" class="editor-btn" onclick="formatText('italic')"><i>I</i></button>
+                                <button type="button" class="editor-btn" onclick="formatText('underline')"><u>U</u></button>
+                                <button type="button" class="editor-btn" onclick="insertLink()">🔗 超連結</button>
+                                <select class="editor-btn" onchange="formatSize(this.value)">
+                                    <option value="">字型大小</option>
+                                    <option value="1">小</option>
+                                    <option value="3">中</option>
+                                    <option value="5">大</option>
+                                    <option value="7">特大</option>
+                                </select>
+                                <input type="color" class="w-8 h-8 p-0 border rounded cursor-pointer" onchange="formatColor(this.value)" title="字體顏色">
+                            </div>
+                            <!-- 編輯內容區域 (contenteditable) -->
+                            <div id="new-article-editor" contenteditable="true" class="w-full h-64 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed"></div>
+                        </div>
+                        <!-- 右下方提交按鈕 -->
+                        <div class="flex justify-end pt-2">
+                            <button onclick="publishNewArticle()" class="text-white px-6 py-2 rounded-lg font-medium hover:opacity-90" style="background-color: #C9B59C;">提交發布</button>
+                        </div>
+                    </div>
+
+                    <!-- 子區塊 B：維護舊文章 -->
+                    <div id="sub-article-manage" class="space-y-4 hidden">
+                        <h3 class="text-lg font-semibold">選擇要修改的文章</h3>
+                        <div id="admin-articles-list" class="space-y-2">
+                            <p class="text-sm opacity-75">載入中...</p>
+                        </div>
+
+                        <!-- 編輯舊文章表單 (點擊文章後展開) -->
+                        <div id="edit-article-form" class="hidden space-y-4 border-t pt-4 mt-4">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-md text-[#452829]" id="edit-form-heading">編輯文章</h4>
+                                <button onclick="closeEditForm()" class="text-xs text-red-500 hover:underline">取消編輯</button>
+                            </div>
+                            <input type="hidden" id="edit-article-id">
+                            <div>
+                                <label class="block text-sm mb-1 font-semibold">文章標題</label>
+                                <input type="text" id="edit-article-title" class="w-full border p-2 rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1 font-semibold">內文編輯器</label>
+                                <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#F9F6F0] border rounded">
+                                    <button type="button" class="editor-btn" onclick="formatTextEdit('bold')"><b>B</b></button>
+                                    <button type="button" class="editor-btn" onclick="formatTextEdit('italic')"><i>I</i></button>
+                                    <button type="button" class="editor-btn" onclick="formatTextEdit('underline')"><u>U</u></button>
+                                    <button type="button" class="editor-btn" onclick="insertLinkEdit()">🔗 超連結</button>
+                                    <select class="editor-btn" onchange="formatSizeEdit(this.value)">
+                                        <option value="">字型大小</option>
+                                        <option value="1">小</option>
+                                        <option value="3">中</option>
+                                        <option value="5">大</option>
+                                        <option value="7">特大</option>
+                                    </select>
+                                    <input type="color" class="w-8 h-8 p-0 border rounded cursor-pointer" onchange="formatColorEdit(this.value)" title="字體顏色">
+                                </div>
+                                <div id="edit-article-editor" contenteditable="true" class="w-full h-64 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed"></div>
+                            </div>
+                            <div class="flex justify-end pt-2">
+                                <button onclick="updateExistingArticle()" class="text-white px-6 py-2 rounded-lg font-medium hover:opacity-90" style="background-color: #C9B59C;">提交修改</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <!-- 密碼登入 Modal -->
+    <!-- 登入 Modal (點擊右下角按鈕前跳出) -->
     <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 max-w-sm w-full space-y-4 shadow-xl">
             <h3 class="font-bold text-lg text-center">後台管理者登入</h3>
@@ -135,35 +236,51 @@
         </div>
     </div>
 
+    <!-- 右下角懸浮管理按鈕 (預設隱藏，驗證登入後才顯示) -->
+    <button id="floating-admin-btn" onclick="openAdminPanel()" class="hidden fixed bottom-6 right-6 text-white w-12 h-12 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center justify-center text-xl" style="background-color: #C9B59C;" title="管理後台">
+        ⚙️
+    </button>
+
     <!-- 頁尾 -->
     <footer class="w-full py-4 text-center text-xs border-t border-[#EFE9E3] bg-white mt-12 opacity-80">
         @zz 轉載請註明出處
     </footer>
 
-    <!-- Supabase 邏輯串接 -->
+    <!-- Supabase 與互動邏輯 -->
     <script>
         const SUPABASE_URL = 'https://rpzqioezweftrjtrneos.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             fetchArticles();
             loadSettings();
+            checkSessionState();
         });
 
-        async function checkAdminAccess() {
+        // 檢查是否已登入，若已登入則顯示右下角按鈕
+        async function checkSessionState() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                document.getElementById('floating-admin-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('floating-admin-btn').classList.add('hidden');
+            }
+        }
+
+        // 點擊右下角按鈕：未登入跳出登入框，已登入直接進入後台
+        async function openAdminPanel() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
                 document.getElementById('login-modal').classList.remove('hidden');
             } else {
-                toggleAdminPanel();
+                switchView('admin');
             }
         }
 
         async function loginWithEmail() {
             const email = document.getElementById('admin-email-input').value;
             const password = document.getElementById('admin-password-input').value;
-
             if (!email || !password) return alert('請輸入帳號與密碼');
 
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -172,24 +289,87 @@
             } else {
                 alert('登入成功！');
                 closeLoginModal();
-                toggleAdminPanel();
+                document.getElementById('floating-admin-btn').classList.remove('hidden');
+                switchView('admin');
             }
         }
 
         async function logoutAdmin() {
             await supabaseClient.auth.signOut();
             alert('已登出');
-            location.reload();
+            document.getElementById('floating-admin-btn').classList.add('hidden');
+            switchView('frontend');
         }
 
         function closeLoginModal() {
             document.getElementById('login-modal').classList.add('hidden');
         }
 
-        function toggleAdminPanel() {
-            document.getElementById('admin-panel').classList.toggle('hidden');
+        // 切換前台與後台畫面
+        function switchView(view) {
+            if (view === 'admin') {
+                document.getElementById('frontend-view').classList.add('hidden');
+                document.getElementById('admin-view').classList.remove('hidden');
+                loadManageArticlesList();
+            } else {
+                document.getElementById('admin-view').classList.add('hidden');
+                document.getElementById('frontend-view').classList.remove('hidden');
+                fetchArticles();
+                loadSettings();
+            }
         }
 
+        // 後台左側頁籤切換
+        function switchAdminTab(tabName) {
+            ['avatar', 'logo', 'articles'].forEach(t => {
+                document.getElementById(`admin-tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}-btn`).classList.remove('bg-[#C9B59C]', 'text-white');
+                document.getElementById(`tab-${t}-btn`).classList.add('hover:bg-[#EFE9E3]');
+            });
+            document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}-btn`).classList.add('bg-[#C9B59C]', 'text-white');
+            document.getElementById(`tab-${tabName}-btn`).classList.remove('hover:bg-[#EFE9E3]');
+        }
+
+        // 文章管理子頁籤：新增 vs 維護
+        function switchArticleSubTab(sub) {
+            if (sub === 'new') {
+                document.getElementById('sub-article-new').classList.remove('hidden');
+                document.getElementById('sub-article-manage').classList.add('hidden');
+                document.getElementById('subtab-new-btn').classList.add('bg-[#C9B59C]', 'text-white');
+                document.getElementById('subtab-new-btn').classList.remove('bg-[#EFE9E3]');
+                document.getElementById('subtab-manage-btn').classList.remove('bg-[#C9B59C]', 'text-white');
+                document.getElementById('subtab-manage-btn').classList.add('bg-[#EFE9E3]');
+            } else {
+                document.getElementById('sub-article-manage').classList.remove('hidden');
+                document.getElementById('sub-article-new').classList.add('hidden');
+                document.getElementById('subtab-manage-btn').classList.add('bg-[#C9B59C]', 'text-white');
+                document.getElementById('subtab-manage-btn').classList.remove('bg-[#EFE9E3]');
+                document.getElementById('subtab-new-btn').classList.remove('bg-[#C9B59C]', 'text-white');
+                document.getElementById('subtab-new-btn').classList.add('bg-[#EFE9E3]');
+                loadManageArticlesList();
+            }
+        }
+
+        // 內文修改器輔助工具 (新增文章)
+        function formatText(command) { document.execCommand(command, false, null); }
+        function formatSize(size) { if(size) document.execCommand('fontSize', false, size); }
+        function formatColor(color) { document.execCommand('foreColor', false, color); }
+        function insertLink() {
+            const url = prompt('請輸入超連結網址 (URL):');
+            if (url) document.execCommand('createLink', false, url);
+        }
+
+        // 內文修改器輔助工具 (編輯文章)
+        function formatTextEdit(command) { document.execCommand(command, false, null); }
+        function formatSizeEdit(size) { if(size) document.execCommand('fontSize', false, size); }
+        function formatColorEdit(color) { document.execCommand('foreColor', false, color); }
+        function insertLinkEdit() {
+            const url = prompt('請輸入超連結網址 (URL):');
+            if (url) document.execCommand('createLink', false, url);
+        }
+
+        // 前台：取得文章與目錄
         async function fetchArticles(category = 'all') {
             const container = document.getElementById('article-container');
             let query = supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
@@ -221,6 +401,7 @@
             `).join('');
         }
 
+        // 前台：載入設定 (Logo, 頭像)
         async function loadSettings() {
             const { data } = await supabaseClient.from('settings').select('*');
             if (data) {
@@ -231,8 +412,9 @@
             }
         }
 
+        // 上傳 Logo 或頭像
         async function uploadAsset(type) {
-            const fileInput = document.getElementById(`${type}-file`);
+            const fileInput = document.getElementById(`admin-${type}-file`);
             if (fileInput.files.length === 0) return alert('請先選擇檔案');
             const file = fileInput.files[0];
             
@@ -241,23 +423,80 @@
 
             const publicUrl = supabaseClient.storage.from('blog-assets').getPublicUrl(data.path).data.publicUrl;
             await supabaseClient.from('settings').upsert({ key: type, value: publicUrl });
-            alert('更新成功！');
-            location.reload();
+            alert('上傳並更新成功！');
+            loadSettings();
         }
 
-        async function publishArticle() {
-            const title = document.getElementById('new-title').value;
-            const category = document.getElementById('new-category').value;
-            const content = document.getElementById('new-content').value;
+        // 提交新文章
+        async function publishNewArticle() {
+            const title = document.getElementById('new-article-title').value;
+            const category = document.getElementById('new-article-category').value;
+            const content = document.getElementById('new-article-editor').innerHTML;
 
-            if (!title || !content) return alert('標題與內容不得為空');
+            if (!title || !content.trim()) return alert('標題與內文不得為空');
 
             const { error } = await supabaseClient.from('articles').insert([{ title, category, content }]);
             if (error) {
                 alert('發布失敗：' + error.message);
             } else {
                 alert('發布成功！');
-                location.reload();
+                document.getElementById('new-article-title').value = '';
+                document.getElementById('new-article-editor').innerHTML = '';
+            }
+        }
+
+        // 載入舊文章列表供維護
+        async function loadManageArticlesList() {
+            const listContainer = document.getElementById('admin-articles-list');
+            const { data, error } = await supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                listContainer.innerHTML = `<p class="text-sm opacity-75">目前尚無文章可供維護。</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = data.map(art => `
+                <div class="p-3 bg-[#F9F6F0] border border-[#EFE9E3] rounded flex justify-between items-center">
+                    <div>
+                        <span class="text-xs opacity-70 uppercase">[${art.category}]</span>
+                        <h4 class="font-bold text-sm">${art.title}</h4>
+                    </div>
+                    <button onclick="loadArticleToEdit('${art.id}', '${encodeURIComponent(art.title)}', encodeURIComponent('${btoa(unescape(encodeURIComponent(art.content)))}'))" class="text-xs bg-[#C9B59C] text-white px-3 py-1.5 rounded hover:opacity-80">修改</button>
+                </div>
+            `).join('');
+        }
+
+        // 點擊修改舊文章，帶入編輯器
+        function loadArticleToEdit(id, encodedTitle, encodedContent) {
+            const title = decodeURIComponent(encodedTitle);
+            const content = decodeURIComponent(escape(atob(decodeURIComponent(encodedContent))));
+
+            document.getElementById('edit-article-id').value = id;
+            document.getElementById('edit-article-title').value = title;
+            document.getElementById('edit-article-editor').innerHTML = content;
+            document.getElementById('edit-form-heading').innerText = `編輯文章：${title}`;
+            document.getElementById('edit-article-form').classList.remove('hidden');
+        }
+
+        function closeEditForm() {
+            document.getElementById('edit-article-form').classList.add('hidden');
+        }
+
+        // 提交修改後的舊文章
+        async function updateExistingArticle() {
+            const id = document.getElementById('edit-article-id').value;
+            const title = document.getElementById('edit-article-title').value;
+            const content = document.getElementById('edit-article-editor').innerHTML;
+
+            if (!title || !content.trim()) return alert('標題與內文不得為空');
+
+            const { error } = await supabaseClient.from('articles').update({ title, content }).eq('id', id);
+            if (error) {
+                alert('更新失敗：' + error.message);
+            } else {
+                alert('文章更新成功！');
+                closeEditForm();
+                loadManageArticlesList();
             }
         }
     </script>
