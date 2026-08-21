@@ -341,9 +341,10 @@
         </div>
     </div>
 
-    <!-- 右下角懸浮管理按鈕 -->
-    <button id="floating-admin-btn" onclick="openAdminPanel()" class="hidden fixed bottom-6 right-6 text-white w-12 h-12 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center justify-center text-xl" style="background-color: #C9B59C;" title="管理後台">
-        ⚙️
+    <!-- 右下角懸浮管理按鈕 (強制永遠顯示「管理員登入」或「管理後台」) -->
+    <button id="floating-admin-btn" onclick="openAdminPanel()" class="fixed bottom-6 right-6 text-white px-4 py-3 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center space-x-2 text-sm font-semibold" style="background-color: #C9B59C;" title="管理員登入">
+        <span>⚙️</span>
+        <span id="floating-btn-text">管理員登入</span>
     </button>
 
     <!-- 頁尾 -->
@@ -369,10 +370,11 @@
 
         async function checkSessionState() {
             const { data: { session } } = await supabaseClient.auth.getSession();
+            const btnText = document.getElementById('floating-btn-text');
             if (session) {
-                document.getElementById('floating-admin-btn').classList.remove('hidden');
+                btnText.innerText = '管理後台';
             } else {
-                document.getElementById('floating-admin-btn').classList.add('hidden');
+                btnText.innerText = '管理員登入';
             }
         }
 
@@ -396,7 +398,7 @@
             } else {
                 alert('登入成功！');
                 closeLoginModal();
-                document.getElementById('floating-admin-btn').classList.remove('hidden');
+                checkSessionState();
                 switchView('admin');
             }
         }
@@ -404,7 +406,7 @@
         async function logoutAdmin() {
             await supabaseClient.auth.signOut();
             alert('已登出');
-            document.getElementById('floating-admin-btn').classList.add('hidden');
+            checkSessionState();
             switchView('frontend');
         }
 
