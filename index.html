@@ -115,7 +115,7 @@
 
     <!-- 前台畫面 -->
     <div id="frontend-view">
-        <!-- Logo 改為滿版鋪滿的背景圖片區塊 (高度可透過 h-32 md:h-44 調整) -->
+        <!-- Logo 滿版鋪滿背景圖片區塊 -->
         <header id="site-header-bg" class="w-full h-32 md:h-44 bg-cover bg-center shadow-sm border-b border-[#EFE9E3] flex items-center justify-center" style="background-image: url('https://via.placeholder.com/1200x300?text=Header+Background');">
         </header>
 
@@ -135,10 +135,11 @@
                     <p class="text-sm mt-1 opacity-90">一個隨筆紀錄的人</p>
                 </div>
 
-                <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] sticky top-4">
+                <!-- 側邊欄目錄容器 (僅在單篇文章檢視時填入內容，首頁維持隱藏或空白) -->
+                <div id="sidebar-toc-container" class="hidden custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] sticky top-4">
                     <h4 class="font-bold border-b border-[#C9B59C] pb-2 mb-3">📂 文章目錄</h4>
                     <ul id="table-of-contents" class="text-sm space-y-2">
-                        <li><span class="opacity-75">點擊文章查看目錄</span></li>
+                        <li><span class="opacity-75">載入中...</span></li>
                     </ul>
                 </div>
             </aside>
@@ -249,6 +250,22 @@
                                     <option value="h4">第四階標題</option>
                                     <option value="p">一般內文</option>
                                 </select>
+
+                                <!-- 字型大小調整 (含預設選項與手動輸入支援) -->
+                                <div class="flex items-center space-x-1">
+                                    <select class="editor-btn font-semibold" onchange="changeFontSize('new', this.value); this.value='';">
+                                        <option value="">字型大小</option>
+                                        <option value="12px">12</option>
+                                        <option value="18px">18</option>
+                                        <option value="24px">24</option>
+                                        <option value="36px">36</option>
+                                        <option value="48px">48</option>
+                                        <option value="60px">60</option>
+                                        <option value="72px">72</option>
+                                    </select>
+                                    <input type="number" id="new-custom-fontsize" class="w-16 text-xs border p-1 rounded bg-white" placeholder="自訂px" title="輸入數字後按右側按鈕" min="8" max="200">
+                                    <button type="button" class="editor-btn" onclick="applyCustomFontSize('new')">套用</button>
+                                </div>
                             </div>
                             <div id="new-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed article-content-style" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
                         </div>
@@ -307,6 +324,22 @@
                                         <option value="h4">第四階標題</option>
                                         <option value="p">一般內文</option>
                                     </select>
+
+                                    <!-- 字型大小調整 (含預設選項與手動輸入支援) -->
+                                    <div class="flex items-center space-x-1">
+                                        <select class="editor-btn font-semibold" onchange="changeFontSize('edit', this.value); this.value='';">
+                                            <option value="">字型大小</option>
+                                            <option value="12px">12</option>
+                                            <option value="18px">18</option>
+                                            <option value="24px">24</option>
+                                            <option value="36px">36</option>
+                                            <option value="48px">48</option>
+                                            <option value="60px">60</option>
+                                            <option value="72px">72</option>
+                                        </select>
+                                        <input type="number" id="edit-custom-fontsize" class="w-16 text-xs border p-1 rounded bg-white" placeholder="自訂px" title="輸入數字後按右側按鈕" min="8" max="200">
+                                        <button type="button" class="editor-btn" onclick="applyCustomFontSize('edit')">套用</button>
+                                    </div>
                                 </div>
                                 <div id="edit-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed article-content-style" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
                             </div>
@@ -516,6 +549,28 @@
             const editor = document.getElementById('edit-article-editor');
             editor.focus();
             document.execCommand('formatBlock', false, `<${tag}>`);
+        }
+
+        function changeFontSize(type, size) {
+            if (!size) return;
+            const editor = document.getElementById(`${type}-article-editor`);
+            editor.focus();
+            document.execCommand('fontSize', false, '7'); // 先設為最高級數以便置換行內樣式
+            const fontElements = editor.querySelectorAll('font[size="7"]');
+            fontElements.forEach(el => {
+                const span = document.createElement('span');
+                span.style.fontSize = size;
+                span.innerHTML = el.innerHTML;
+                el.parentNode.replaceChild(span, el);
+            });
+        }
+
+        function applyCustomFontSize(type) {
+            const customVal = document.getElementById(`${type}-custom-fontsize`).value.trim();
+            if (!customVal) return alert('請輸入自訂字體大小數字');
+            const size = `${customVal}px`;
+            changeFontSize(type, size);
+            document.getElementById(`${type}-custom-fontsize`).value = '';
         }
 
         function triggerImageUpload(type) {
@@ -762,6 +817,11 @@
         // ================= 文章取得與列表 =================
         async function fetchArticles(category = 'all') {
             const container = document.getElementById('main-content-area');
+            const tocSidebar = document.getElementById('sidebar-toc-container');
+            
+            // 主頁不顯示目錄側邊欄
+            if (tocSidebar) tocSidebar.classList.add('hidden');
+
             const { data, error } = await supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
             
             if (error || !data || data.length === 0) {
@@ -788,25 +848,32 @@
                 return;
             }
 
-            container.innerHTML = filteredData.map(article => `
-                <article class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs uppercase tracking-wider opacity-70 space-x-1">
-                            <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
-                            ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
+            container.innerHTML = filteredData.map(article => {
+                const createdDate = article.created_at ? new Date(article.created_at).toLocaleString('zh-TW', { hour12: false }) : '';
+                const updatedDate = article.updated_at && article.updated_at !== article.created_at ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
+                
+                return `
+                    <article class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs uppercase tracking-wider opacity-70 space-x-1">
+                                <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
+                                ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
+                            </div>
+                            <h2 class="text-2xl font-bold mt-1 mb-1 cursor-pointer hover:underline" onclick="viewSingleArticle('${article.id}')" style="color: #452829;">${article.title}</h2>
+                            <div class="text-xs opacity-75 mb-3 space-x-3">
+                                <span>撰寫時間：${createdDate}</span>
+                                ${updatedDate ? `<span>最後更新：${updatedDate}</span>` : ''}
+                            </div>
+                            <div class="line-clamp-2 leading-relaxed space-y-2 text-sm article-content-style">${article.content}</div>
                         </div>
-                        <h2 class="text-2xl font-bold mt-1 mb-3 cursor-pointer hover:underline" onclick="viewSingleArticle('${article.id}')" style="color: #452829;">${article.title}</h2>
-                        <div class="line-clamp-2 leading-relaxed space-y-2 text-sm article-content-style">${article.content}</div>
-                    </div>
-                    <div class="flex justify-end mt-4">
-                        <button onclick="viewSingleArticle('${article.id}')" class="text-sm font-semibold hover:opacity-75 transition" style="color: #452829;">
-                            ...查看更多
-                        </button>
-                    </div>
-                </article>
-            `).join('');
-
-            document.getElementById('table-of-contents').innerHTML = `<li><span class="opacity-75">點擊文章查看目錄</span></li>`;
+                        <div class="flex justify-end mt-4">
+                            <button onclick="viewSingleArticle('${article.id}')" class="text-sm font-semibold hover:opacity-75 transition" style="color: #452829;">
+                                ...查看更多
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
         }
 
         function viewSingleArticle(id) {
@@ -814,16 +881,28 @@
             if (!article) return;
 
             const container = document.getElementById('main-content-area');
+            const tocSidebar = document.getElementById('sidebar-toc-container');
+            
+            // 進入單篇文章時顯示側邊欄目錄
+            if (tocSidebar) tocSidebar.classList.remove('hidden');
+
+            const createdDate = article.created_at ? new Date(article.created_at).toLocaleString('zh-TW', { hour12: false }) : '';
+            const updatedDate = article.updated_at && article.updated_at !== article.created_at ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
+
             container.innerHTML = `
                 <div class="mb-4">
                     <button onclick="fetchArticles('all')" class="text-sm px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg hover:opacity-85 font-semibold">← 返回文章列表</button>
                 </div>
-                <article class="space-y-4">
+                <article class="space-y-3">
                     <div class="text-xs uppercase tracking-wider opacity-70 space-x-1 font-semibold">
                         <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
                         ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
                     </div>
                     <h2 class="text-3xl font-bold" style="color: #452829;">${article.title}</h2>
+                    <div class="text-xs opacity-75 border-b pb-3 space-x-4 border-[#C9B59C]">
+                        <span>撰寫時間：${createdDate}</span>
+                        ${updatedDate ? `<span>最後更新：${updatedDate}</span>` : ''}
+                    </div>
                     <div id="article-body-content" class="leading-relaxed space-y-4 text-base pt-2 article-content-style">${article.content}</div>
                 </article>
             `;
@@ -890,8 +969,6 @@
 
             alert('上傳並更新成功！');
             fileInput.value = '';
-            
-            // 立即重新載入設定，更新前端畫面
             loadSettings();
         }
 
@@ -900,11 +977,20 @@
             const category = document.getElementById('new-article-parent-select').value;
             const subcategory = document.getElementById('new-article-child-select').value;
             const content = document.getElementById('new-article-editor').innerHTML.trim();
+            const nowIso = new Date().toISOString();
 
             if (!title) return alert('請輸入文章標題');
             if (!category) return alert('母標籤為必選項目');
 
-            const { error } = await supabaseClient.from('articles').insert([{ title, category, subcategory, content }]);
+            const { error } = await supabaseClient.from('articles').insert([{ 
+                title, 
+                category, 
+                subcategory, 
+                content,
+                created_at: nowIso,
+                updated_at: nowIso
+            }]);
+
             if (error) {
                 alert('發布失敗：' + error.message);
             } else {
@@ -974,6 +1060,7 @@
 
                 const originalArticle = allArticlesCache.find(art => art.id == id);
                 const created_at = originalArticle ? originalArticle.created_at : new Date().toISOString();
+                const updated_at = new Date().toISOString(); // 自動更新最後修改時間
 
                 const { error } = await supabaseClient.from('articles').upsert({ 
                     id: id, 
@@ -981,7 +1068,8 @@
                     category, 
                     subcategory, 
                     content,
-                    created_at 
+                    created_at,
+                    updated_at
                 });
 
                 if (error) {
