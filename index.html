@@ -876,8 +876,17 @@
             if (error) return alert('上傳失敗：' + error.message);
 
             const publicUrl = supabaseClient.storage.from('blog-assets').getPublicUrl(data.path).data.publicUrl;
-            await supabaseClient.from('settings').upsert({ key: type, value: publicUrl });
+            
+            const { error: upsertError } = await supabaseClient.from('settings').upsert({ key: type, value: publicUrl });
+            if (upsertError) {
+                alert('儲存設定失敗：' + upsertError.message);
+                return;
+            }
+
             alert('上傳並更新成功！');
+            fileInput.value = '';
+            
+            // 立即重新載入設定，更新前端畫面
             loadSettings();
         }
 
@@ -947,7 +956,6 @@
             document.getElementById('edit-article-form').classList.add('hidden');
         }
 
-        // 使用 upsert 取代 patch/update 避開 502 與 CORS 衝突
         async function updateExistingArticle() {
             try {
                 const id = document.getElementById('edit-article-id').value;
@@ -959,7 +967,6 @@
                 if (!title) return alert('請輸入文章標題');
                 if (!category) return alert('母標籤為必選項目');
 
-                // 保留原本的建立時間與 id 進行 upsert
                 const originalArticle = allArticlesCache.find(art => art.id == id);
                 const created_at = originalArticle ? originalArticle.created_at : new Date().toISOString();
 
