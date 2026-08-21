@@ -45,6 +45,21 @@
         .dropdown-parent:hover .dropdown-child {
             display: block;
         }
+        /* 內文與標題字體、顏色一致性設定 */
+        .article-content-style, 
+        .article-content-style p, 
+        .article-content-style span, 
+        .article-content-style div {
+            font-family: 'Noto Serif TC', serif;
+            color: #452829;
+        }
+        /* 段落階層標題樣式支援 (讓 h1 ~ h4 在內文中正常呈現大小與粗體) */
+        .article-content-style h1 { font-size: 2.25rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; line-height: 1.2; }
+        .article-content-style h2 { font-size: 1.875rem; font-weight: bold; margin-top: 0.875rem; margin-bottom: 0.5rem; line-height: 1.3; }
+        .article-content-style h3 { font-size: 1.5rem; font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.4rem; line-height: 1.4; }
+        .article-content-style h4 { font-size: 1.25rem; font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.3rem; line-height: 1.4; }
+        .article-content-style p { margin-bottom: 0.75rem; }
+
         /* 內文自訂元素樣式 */
         .article-alert-box {
             background-color: #F2EAE0;
@@ -52,11 +67,15 @@
             border-radius: 12px;
             padding: 16px;
             margin: 16px 0;
+            font-family: 'Noto Serif TC', serif;
+            color: #452829;
         }
         .article-table {
             width: 100%;
             border-collapse: collapse;
             margin: 16px 0;
+            font-family: 'Noto Serif TC', serif;
+            color: #452829;
         }
         .article-table th, .article-table td {
             border: 1px solid #C9B59C;
@@ -72,6 +91,8 @@
             background-color: #F9F6F0;
             margin: 16px 0;
             overflow: hidden;
+            font-family: 'Noto Serif TC', serif;
+            color: #452829;
         }
         .article-summary {
             padding: 10px 14px;
@@ -221,14 +242,14 @@
                                 
                                 <select class="editor-btn font-semibold" onchange="formatParagraphStyle(this.value); this.value='';">
                                     <option value="">段落階層</option>
-                                    <option value="h1">第一階標題 (48px)</option>
-                                    <option value="h2">第二階標題 (36px)</option>
-                                    <option value="h3">第三階標題 (24px)</option>
-                                    <option value="h4">第四階標題 (18px)</option>
-                                    <option value="p">一般內文 (12px)</option>
+                                    <option value="h1">第一階標題</option>
+                                    <option value="h2">第二階標題</option>
+                                    <option value="h3">第三階標題</option>
+                                    <option value="h4">第四階標題</option>
+                                    <option value="p">一般內文</option>
                                 </select>
                             </div>
-                            <div id="new-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
+                            <div id="new-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed article-content-style" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
                         </div>
                         <div class="flex justify-end pt-2">
                             <button onclick="publishNewArticle()" class="text-white px-6 py-2 rounded-lg font-medium hover:opacity-90" style="background-color: #C9B59C;">提交發布</button>
@@ -276,8 +297,17 @@
                                     <button type="button" class="editor-btn" onclick="insertAlertBox('edit')">💡 提醒框</button>
                                     <button type="button" class="editor-btn" onclick="openTableModal('edit')">📊 表格</button>
                                     <button type="button" class="editor-btn" onclick="insertDetailsBlock('edit')">📂 收放列表</button>
+                                    
+                                    <select class="editor-btn font-semibold" onchange="formatParagraphStyleEdit(this.value); this.value='';">
+                                        <option value="">段落階層</option>
+                                        <option value="h1">第一階標題</option>
+                                        <option value="h2">第二階標題</option>
+                                        <option value="h3">第三階標題</option>
+                                        <option value="h4">第四階標題</option>
+                                        <option value="p">一般內文</option>
+                                    </select>
                                 </div>
-                                <div id="edit-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
+                                <div id="edit-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed article-content-style" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
                             </div>
                             <div class="flex justify-end pt-2">
                                 <button onclick="updateExistingArticle()" class="text-white px-6 py-2 rounded-lg font-medium hover:opacity-90" style="background-color: #C9B59C;">提交修改</button>
@@ -341,7 +371,7 @@
         </div>
     </div>
 
-    <!-- 右下角懸浮管理按鈕 (強制永遠顯示「管理員登入」或「管理後台」) -->
+    <!-- 右下角懸浮管理按鈕 -->
     <button id="floating-admin-btn" onclick="openAdminPanel()" class="fixed bottom-6 right-6 text-white px-4 py-3 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center space-x-2 text-sm font-semibold" style="background-color: #C9B59C;" title="管理員登入">
         <span>⚙️</span>
         <span id="floating-btn-text">管理員登入</span>
@@ -472,9 +502,20 @@
             const url = prompt('請輸入超連結網址 (URL):');
             if (url) document.execCommand('createLink', false, url);
         }
+
+        // 修復段落階層套用（使用標準 DOM 或正確的 block tag 格式）
         function formatParagraphStyle(tag) {
             if (!tag) return;
-            document.execCommand('formatBlock', false, tag);
+            const editor = document.getElementById('new-article-editor');
+            editor.focus();
+            document.execCommand('formatBlock', false, `<${tag}>`);
+        }
+
+        function formatParagraphStyleEdit(tag) {
+            if (!tag) return;
+            const editor = document.getElementById('edit-article-editor');
+            editor.focus();
+            document.execCommand('formatBlock', false, `<${tag}>`);
         }
 
         function triggerImageUpload(type) {
@@ -718,7 +759,7 @@
             }
         }
 
-        // ================= 文章取得與列表 =================
+        // ================= 文章取得與列表 (套用思源宋體與主題顏色) =================
         async function fetchArticles(category = 'all') {
             const container = document.getElementById('main-content-area');
             const { data, error } = await supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
@@ -754,8 +795,8 @@
                             <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
                             ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
                         </div>
-                        <h2 class="text-2xl font-bold mt-1 mb-3 cursor-pointer hover:underline" onclick="viewSingleArticle('${article.id}')">${article.title}</h2>
-                        <div class="line-clamp-2 leading-relaxed space-y-2 opacity-90 text-sm">${article.content}</div>
+                        <h2 class="text-2xl font-bold mt-1 mb-3 cursor-pointer hover:underline" onclick="viewSingleArticle('${article.id}')" style="color: #452829;">${article.title}</h2>
+                        <div class="line-clamp-2 leading-relaxed space-y-2 text-sm article-content-style">${article.content}</div>
                     </div>
                     <div class="flex justify-end mt-4">
                         <button onclick="viewSingleArticle('${article.id}')" class="text-sm font-semibold hover:opacity-75 transition" style="color: #452829;">
@@ -782,8 +823,8 @@
                         <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
                         ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
                     </div>
-                    <h2 class="text-3xl font-bold text-[#452829]">${article.title}</h2>
-                    <div id="article-body-content" class="leading-relaxed space-y-4 text-base pt-2">${article.content}</div>
+                    <h2 class="text-3xl font-bold" style="color: #452829;">${article.title}</h2>
+                    <div id="article-body-content" class="leading-relaxed space-y-4 text-base pt-2 article-content-style">${article.content}</div>
                 </article>
             `;
 
@@ -885,7 +926,7 @@
                 <div class="p-3 bg-[#F9F6F0] border border-[#EFE9E3] rounded flex justify-between items-center">
                     <div>
                         <span class="text-xs opacity-70">[${art.category}${art.subcategory ? ' / ' + art.subcategory : ''}]</span>
-                        <h4 class="font-bold text-sm">${art.title}</h4>
+                        <h4 class="font-bold text-sm" style="color: #452829;">${art.title}</h4>
                     </div>
                     <div class="space-x-2">
                         <button onclick="loadArticleToEdit('${art.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1.5 rounded hover:opacity-80">修改</button>
@@ -934,7 +975,7 @@
 
             const { error } = await supabaseClient.from('articles').update({ title, category, subcategory, content }).eq('id', id);
             if (error) {
-                alert('更新失敗：' + error.message);
+                alert('更新失敗：` + error.message);
             } else {
                 alert('文章更新成功！');
                 closeEditForm();
