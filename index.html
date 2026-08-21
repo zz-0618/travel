@@ -45,15 +45,19 @@
         .dropdown-parent:hover .dropdown-child {
             display: block;
         }
-        /* 內文與標題字體、顏色一致性設定 */
+        /* 內文與各階層標題統一使用思源宋體與相同顏色 */
         .article-content-style, 
         .article-content-style p, 
         .article-content-style span, 
-        .article-content-style div {
+        .article-content-style div,
+        .article-content-style h1,
+        .article-content-style h2,
+        .article-content-style h3,
+        .article-content-style h4 {
             font-family: 'Noto Serif TC', serif;
             color: #452829;
         }
-        /* 段落階層標題樣式支援 (讓 h1 ~ h4 在內文中正常呈現大小與粗體) */
+        /* 段落階層標題樣式支援 (確保字體、顏色統一，並維持適當大小與粗體) */
         .article-content-style h1 { font-size: 2.25rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; line-height: 1.2; }
         .article-content-style h2 { font-size: 1.875rem; font-weight: bold; margin-top: 0.875rem; margin-bottom: 0.5rem; line-height: 1.3; }
         .article-content-style h3 { font-size: 1.5rem; font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.4rem; line-height: 1.4; }
@@ -372,7 +376,7 @@
     </div>
 
     <!-- 右下角懸浮管理按鈕 -->
-    <button id="floating-admin-btn" onclick="openAdminPanel()" class="fixed bottom-6 right-6 text-white px-4 py-3 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center space-x-2 text-sm font-semibold" style="background-color: #C9B59C;" title="管理員登入">
+    <button id="floating-admin-btn" onclick="openAdminPanel()" class="fixed bottom-6 right-6 text-white px-4 py-3 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center space-x-2 text-sm font-semibold pointer-events-auto" style="background-color: #C9B59C;" title="管理員登入">
         <span>⚙️</span>
         <span id="floating-btn-text">管理員登入</span>
     </button>
@@ -503,7 +507,6 @@
             if (url) document.execCommand('createLink', false, url);
         }
 
-        // 修復段落階層套用（使用標準 DOM 或正確的 block tag 格式）
         function formatParagraphStyle(tag) {
             if (!tag) return;
             const editor = document.getElementById('new-article-editor');
