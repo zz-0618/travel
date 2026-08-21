@@ -1,270 +1,241 @@
-import React, { useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Camera,
-  ChevronRight,
-  FileImage,
-  Home,
-  ImagePlus,
-  LockKeyhole,
-  LogOut,
-  Map,
-  MapPin,
-  Plus,
-  Save,
-  Settings,
-  Sparkles,
-  Upload,
-  X,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zz 的旅遊部落格</title>
+    <!-- 引入思源宋體 (Noto Serif TC) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #faf5ff; /* 極淺紫色背景 */
+            color: #3b0764;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
 
-const initialPosts = [
-  {
-    id: 1,
-    category: "國內旅遊",
-    title: "台南午後，沿著巷弄收集光影",
-    excerpt: "從小西門走進老城，沒有必看的清單，只留下幾段風、幾杯茶與午後的光。",
-    cover: "https://images.unsplash.com/photo-1577702312706-e23ff063064f?auto=format&fit=crop&w=1400&q=80",
-    date: "2026.08.18",
-    location: "臺南",
-    content: [
-      { heading: "沒有行程的出發", body: "午後才慢慢走出門。旅行有時不需要完整的目的地，只要願意對日常多看一眼，熟悉的街道也會成為新的風景。" },
-      { heading: "巷弄裡的老房子", body: "陽光從屋簷落下，老窗框、磨石子地板和騎樓的陰影，把時間切成一格一格。轉個彎，便遇見一間安靜的小店。" },
-      { heading: "把城市帶回筆記裡", body: "回家前記下幾個片段：風的溫度、茶杯邊緣的水氣，以及巷口那株在牆邊長得很好的植物。" },
-    ],
-  },
-  {
-    id: 2,
-    category: "中國旅遊",
-    title: "海風與紅磚：廈門散步日記",
-    excerpt: "沿著海岸慢慢行走，在紅磚建築與潮聲之間，記下島嶼城市的溫柔輪廓。",
-    cover: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1400&q=80",
-    date: "2026.07.24",
-    location: "廈門",
-    content: [
-      { heading: "抵達海邊", body: "城市的第一印象是帶著鹹味的風。行李放下後，先沿海散步，讓腳步適應這座城市的節奏。" },
-      { heading: "紅磚與樹影", body: "午後的光落在紅磚牆上，街道被樹影切成深淺不同的綠。適合慢慢走，也適合偶爾停下。" },
-      { heading: "旅行備忘", body: "比起趕景點，更喜歡把一段時間留給沒有名字的小路。真正記得的，往往就是那些不在清單裡的部分。" },
-    ],
-  },
-  {
-    id: 3,
-    category: "韓國旅遊",
-    title: "首爾秋日：在銀杏轉黃以前",
-    excerpt: "清晨咖啡、緩慢地鐵與微涼晚風，這是一篇寫給首爾秋天的短箋。",
-    cover: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1400&q=80",
-    date: "2026.06.09",
-    location: "首爾",
-    content: [
-      { heading: "清晨的咖啡店", body: "推開門時店裡還很安靜。靠窗的位置看得到行人匆匆經過，旅行也在這一杯咖啡之後正式開始。" },
-      { heading: "銀杏大道", body: "銀杏還未完全轉黃，綠色與金色交錯。沿路沒有特別安排，只跟著光線決定下一個方向。" },
-      { heading: "晚風裡回程", body: "夜晚的風比預想更涼。搭上地鐵前買了一份熱食，帶著一天收集的畫面回到住處。" },
-    ],
-  },
-];
+    <div>
+        <!-- 最上方 Logo 區 -->
+        <header class="w-full py-6 bg-white shadow-sm border-b border-purple-100 flex flex-col items-center justify-center">
+            <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain mb-3">
+            <!-- 後台上傳 Logo (簡易觸發) -->
+            <div class="text-xs text-purple-400 cursor-pointer hover:underline" onclick="toggleAdminPanel()">⚙️ 管理後台 / 上傳設定</div>
+        </header>
 
-const tabs = ["首頁", "國內旅遊", "中國旅遊", "韓國旅遊"];
-const purple = "#6f4a8e";
-
-export default function TravelBlog() {
-  const [posts, setPosts] = useState(initialPosts);
-  const [activeTab, setActiveTab] = useState("首頁");
-  const [activePost, setActivePost] = useState(null);
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [logo, setLogo] = useState("");
-  const [avatar, setAvatar] = useState("https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=480&q=80");
-  const [draft, setDraft] = useState({ title: "", category: "國內旅遊", excerpt: "", location: "", cover: "", body: "" });
-  const logoInput = useRef(null);
-  const avatarInput = useRef(null);
-  const coverInput = useRef(null);
-
-  const visiblePosts = useMemo(
-    () => activeTab === "首頁" ? posts : posts.filter((post) => post.category === activeTab),
-    [activeTab, posts]
-  );
-
-  const readImage = (file, setter) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setter(reader.result);
-    reader.readAsDataURL(file);
-  };
-
-  const publishPost = () => {
-    if (!draft.title.trim() || !draft.body.trim()) return;
-    const sections = draft.body.split(/\n\s*\n/).filter(Boolean).map((block, index) => ({
-      heading: index === 0 ? "旅程開始" : `旅途片段 ${index + 1}`,
-      body: block.trim(),
-    }));
-    setPosts((current) => [{
-      id: Date.now(),
-      title: draft.title,
-      category: draft.category,
-      excerpt: draft.excerpt || draft.body.slice(0, 56) + "…",
-      location: draft.location || "旅行途中",
-      cover: draft.cover || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80",
-      date: new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "."),
-      content: sections,
-    }, ...current]);
-    setDraft({ title: "", category: "國內旅遊", excerpt: "", location: "", cover: "", body: "" });
-    setAdminOpen(false);
-    setActiveTab("首頁");
-  };
-
-  const jumpTo = (heading) => {
-    document.getElementById(`section-${heading}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  return (
-    <div className="min-h-screen bg-[#fbf8fc] text-[#30263a] font-['Source_Han_Serif_TC','Noto_Serif_TC','PMingLiU',serif] selection:bg-[#d9c2e9]">
-      <header className="bg-gradient-to-b from-[#f2eaf6] to-[#fbf8fc] pt-8 sm:pt-12">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="relative flex min-h-24 items-center justify-center">
-            {logo ? (
-              <img src={logo} alt="zz 旅遊隨筆標誌" className="max-h-24 max-w-[260px] object-contain" />
-            ) : (
-              <button onClick={() => setActivePost(null)} className="group text-center" aria-label="回到首頁">
-                <div className="text-[2.6rem] font-black tracking-[0.22em] text-[#5f3d7b] sm:text-6xl">zz</div>
-                <div className="mt-1 text-xs tracking-[0.42em] text-[#8f70a8]">TRAVEL NOTES</div>
-              </button>
-            )}
-            <Button variant="ghost" size="icon" onClick={() => setAdminOpen(true)} className="absolute right-0 top-0 rounded-full text-[#7b5a91] hover:bg-white/70" aria-label="開啟後台">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-
-        <nav className="sticky top-0 z-30 mt-7 border-y border-[#dfd0e8] bg-[#fbf8fc]/95 shadow-sm backdrop-blur">
-          <div className="mx-auto flex max-w-6xl overflow-x-auto px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {tabs.map((tab) => (
-              <button key={tab} onClick={() => { setActiveTab(tab); setActivePost(null); }} className={`relative min-w-max flex-1 px-4 py-4 text-sm font-semibold tracking-[0.12em] transition sm:text-base ${activeTab === tab && !activePost ? "text-[#5f3d7b]" : "text-[#796b80] hover:text-[#5f3d7b]"}`}>
-                {tab}
-                {activeTab === tab && !activePost && <motion.span layoutId="nav-underline" className="absolute inset-x-4 bottom-0 h-0.5 bg-[#74528c]" />}
-              </button>
-            ))}
-          </div>
+        <!-- 索引頁籤 -->
+        <nav class="bg-purple-900 text-purple-100 shadow-md">
+            <ul class="flex justify-center space-x-8 py-3 text-lg font-semibold">
+                <li><a href="#" onclick="filterCategory('all')" class="hover:text-white transition">首頁</a></li>
+                <li><a href="#" onclick="filterCategory('domestic')" class="hover:text-white transition">國內旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('china')" class="hover:text-white transition">中國旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('korea')" class="hover:text-white transition">韓國旅遊</a></li>
+            </ul>
         </nav>
-      </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-14">
-          <section>
-            <AnimatePresence mode="wait">
-              {activePost ? (
-                <motion.article key={`post-${activePost.id}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <button onClick={() => setActivePost(null)} className="mb-5 text-sm font-semibold text-[#76548d] hover:underline">← 返回文章列表</button>
-                  <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_60px_rgba(87,55,108,0.10)]">
-                    <img src={activePost.cover} alt={activePost.title} className="h-64 w-full object-cover sm:h-[430px]" />
-                    <div className="p-6 sm:p-10">
-                      <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-[#816e8b]">
-                        <span className="rounded-full bg-[#eee3f4] px-3 py-1 font-semibold text-[#66437f]">{activePost.category}</span>
-                        <span>{activePost.date}</span><span>·</span><span>{activePost.location}</span>
-                      </div>
-                      <h1 className="text-3xl font-black leading-tight tracking-wide text-[#4c315f] sm:text-5xl">{activePost.title}</h1>
-                      <p className="mt-5 border-l-2 border-[#a888bc] pl-4 text-base leading-8 text-[#725f7c]">{activePost.excerpt}</p>
-                      <div className="mt-10 space-y-12">
-                        {activePost.content.map((section, index) => (
-                          <section key={section.heading} id={`section-${section.heading}`} className="scroll-mt-24">
-                            <div className="mb-4 flex items-center gap-3"><span className="text-xs font-bold text-[#a58ab5]">0{index + 1}</span><h2 className="text-2xl font-bold text-[#5c3c70]">{section.heading}</h2></div>
-                            <p className="text-[1.05rem] leading-9 text-[#493f4e]">{section.body}</p>
-                          </section>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </motion.article>
-              ) : (
-                <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <div className="mb-8 flex items-end justify-between gap-4">
-                    <div><p className="mb-2 text-xs font-bold tracking-[0.28em] text-[#9b7aae]">JOURNAL</p><h1 className="text-3xl font-black text-[#523566] sm:text-4xl">{activeTab === "首頁" ? "最近的旅行隨筆" : activeTab}</h1></div>
-                    <span className="hidden text-sm text-[#8a788f] sm:block">共 {visiblePosts.length} 篇</span>
-                  </div>
-                  <div className="space-y-7">
-                    {visiblePosts.map((post, index) => (
-                      <motion.button key={post.id} onClick={() => setActivePost(post)} whileHover={{ y: -4 }} className="group block w-full text-left">
-                        <Card className="overflow-hidden rounded-[1.7rem] border-[#eadfee] bg-white shadow-[0_12px_36px_rgba(79,52,96,0.07)] transition-shadow group-hover:shadow-[0_18px_50px_rgba(79,52,96,0.14)]">
-                          <CardContent className="grid p-0 sm:grid-cols-[42%_1fr]">
-                            <div className="h-56 overflow-hidden sm:h-full sm:min-h-64"><img src={post.cover} alt={post.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" /></div>
-                            <div className="flex flex-col justify-center p-6 sm:p-8">
-                              <div className="mb-4 flex items-center gap-3 text-xs text-[#8d7699]"><span className="font-bold text-[#76508e]">{post.category}</span><span>·</span><span>{post.date}</span></div>
-                              <h2 className="text-2xl font-extrabold leading-snug text-[#4f345f] sm:text-3xl">{post.title}</h2>
-                              <p className="mt-4 line-clamp-3 leading-7 text-[#77687d]">{post.excerpt}</p>
-                              <div className="mt-6 flex items-center justify-between text-sm"><span className="flex items-center gap-1.5 text-[#8b7892]"><MapPin className="h-4 w-4" />{post.location}</span><span className="flex items-center gap-1 font-bold text-[#67427f]">閱讀文章 <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span></div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </section>
+        <!-- 主體內容區 -->
+        <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            
+            <!-- 左側/中間：文章列表與內容 (佔 3 欄) -->
+            <section class="md:col-span-3 space-y-6" id="article-container">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
+                    <h2 class="text-2xl font-bold mb-2 text-purple-900">載入中...</h2>
+                    <p class="text-purple-600">正在從 Supabase 取得文章內容，請稍候。</p>
+                </div>
+            </section>
 
-          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <Card className="rounded-[1.8rem] border-[#e6d9eb] bg-white/90 shadow-[0_14px_40px_rgba(91,62,108,0.08)]">
-              <CardContent className="p-7 text-center">
-                <div className="mx-auto h-36 w-36 overflow-hidden rounded-full border-4 border-white shadow-[0_8px_30px_rgba(101,67,124,0.22)]"><img src={avatar} alt="zz 頭像" className="h-full w-full object-cover" /></div>
-                <h2 className="mt-5 text-3xl font-black tracking-wider text-[#57386b]">zz</h2>
-                <p className="mt-2 text-sm tracking-[0.12em] text-[#7f6c87]">一個隨筆紀錄的人</p>
-                <div className="mx-auto mt-5 h-px w-12 bg-[#c9b2d7]" />
-                <p className="mt-5 text-sm leading-7 text-[#89758f]">把沿途遇見的人、風景與細小心情，慢慢收進文字裡。</p>
-              </CardContent>
-            </Card>
+            <!-- 右側：個人資訊與段落目錄 (佔 1 欄) -->
+            <aside class="space-y-6">
+                <!-- 個人頭像與介紹 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100 text-center flex flex-col items-center">
+                    <img id="site-avatar" src="https://via.placeholder.com/100?text=Avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-purple-300">
+                    <h3 class="text-xl font-bold text-purple-900">zz</h3>
+                    <p class="text-sm text-purple-600 mt-1">一個隨筆紀錄的人</p>
+                </div>
 
-            {activePost && (
-              <Card className="rounded-[1.5rem] border-[#e4d5e9] bg-[#f4edf7]">
-                <CardContent className="p-6">
-                  <p className="mb-4 flex items-center gap-2 text-xs font-bold tracking-[0.22em] text-[#76508d]"><Map className="h-4 w-4" />段落目錄</p>
-                  <div className="space-y-1">
-                    {activePost.content.map((section, index) => <button key={section.heading} onClick={() => jumpTo(section.heading)} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-[#66546f] transition hover:bg-white hover:text-[#513365]"><span className="text-xs text-[#aa8aba]">0{index + 1}</span>{section.heading}</button>)}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </aside>
-        </div>
-      </main>
-
-      <footer className="mt-10 border-t border-[#e3d6e8] bg-[#f1e9f4] px-4 py-10 text-center text-sm tracking-wider text-[#735f7c]">@zz 轉載請註明出處</footer>
-
-      <AnimatePresence>
-        {adminOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-[#2f2038]/55 p-4 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setAdminOpen(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-[#fbf9fc] shadow-2xl">
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#e6d9eb] bg-[#fbf9fc]/95 px-6 py-5 backdrop-blur sm:px-8">
-                <div><p className="flex items-center gap-2 text-xs font-bold tracking-widest text-[#8a6a9e]"><LockKeyhole className="h-4 w-4" />BLOG ADMIN</p><h2 className="mt-1 text-2xl font-black text-[#533568]">內容管理後台</h2></div>
-                <Button variant="ghost" size="icon" onClick={() => setAdminOpen(false)} className="rounded-full"><X className="h-5 w-5" /></Button>
-              </div>
-              <div className="space-y-8 p-6 sm:p-8">
-                <section>
-                  <h3 className="mb-4 flex items-center gap-2 font-bold text-[#604177]"><ImagePlus className="h-5 w-5" />網站圖片</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <button onClick={() => logoInput.current?.click()} className="rounded-2xl border border-dashed border-[#b99fc7] bg-white p-5 text-left transition hover:bg-[#f6f0f8]"><FileImage className="mb-3 h-6 w-6 text-[#79558f]" /><p className="font-bold text-[#5a3b70]">更換 Logo</p><p className="mt-1 text-xs text-[#8c7a92]">建議透明 PNG 或 SVG</p></button>
-                    <button onClick={() => avatarInput.current?.click()} className="rounded-2xl border border-dashed border-[#b99fc7] bg-white p-5 text-left transition hover:bg-[#f6f0f8]"><Camera className="mb-3 h-6 w-6 text-[#79558f]" /><p className="font-bold text-[#5a3b70]">更換頭像</p><p className="mt-1 text-xs text-[#8c7a92]">建議使用正方形照片</p></button>
-                    <input ref={logoInput} hidden type="file" accept="image/*" onChange={(e) => readImage(e.target.files?.[0], setLogo)} />
-                    <input ref={avatarInput} hidden type="file" accept="image/*" onChange={(e) => readImage(e.target.files?.[0], setAvatar)} />
-                  </div>
-                </section>
-                <section>
-                  <h3 className="mb-4 flex items-center gap-2 font-bold text-[#604177]"><Plus className="h-5 w-5" />新增文章</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">文章標題 *</span><input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder="輸入這趟旅程的標題" className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none transition focus:border-[#8b67a0] focus:ring-2 focus:ring-[#d8c5e3]" /></label>
-                    <label><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">分類</span><select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })} className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none"><option>國內旅遊</option><option>中國旅遊</option><option>韓國旅遊</option></select></label>
-                    <label><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">地點</span><input value={draft.location} onChange={(e) => setDraft({ ...draft, location: e.target.value })} placeholder="例如：臺南" className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none focus:border-[#8b67a0]" /></label>
-                    <label className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">文章摘要</span><input value={draft.excerpt} onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })} placeholder="列表頁顯示的短句" className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none focus:border-[#8b67a0]" /></label>
-                    <div className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">封面圖片</span><button onClick={() => coverInput.current?.click()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#b99fc7] bg-white px-4 py-5 text-sm font-bold text-[#6c4b82] hover:bg-[#f6f0f8]"><Upload className="h-4 w-4" />{draft.cover ? "已選擇圖片，點此更換" : "上傳文章封面"}</button><input ref={coverInput} hidden type="file" accept="image/*" onChange={(e) => readImage(e.target.files?.[0], (value) => setDraft({ ...draft, cover: value }))} /></div>
-                    <label className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">文章內容 *</span><textarea value={draft.body} onChange={(e) => setDraft({ ...draft, body: e.target.value })} placeholder="開始寫下旅程。以空白行分隔段落，系統會自動建立目錄。" rows={9} className="w-full resize-y rounded-xl border border-[#decee5] bg-white px-4 py-3 leading-7 outline-none focus:border-[#8b67a0] focus:ring-2 focus:ring-[#d8c5e3]" /></label>
-                  </div>
-                </section>
-                <div className="flex justify-end gap-3 border-t border-[#e7dce9] pt-5"><Button variant="outline" onClick={() => setAdminOpen(false)} className="rounded-xl border-[#d4c0dd]">取消</Button><Button onClick={publishPost} disabled={!draft.title.trim() || !draft.body.trim()} className="rounded-xl bg-[#68437f] px-6 text-white hover:bg-[#56346c]"><Save className="mr-2 h-4 w-4" />發布文章</Button></div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <!-- 段落目錄 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100 sticky top-4">
+                    <h4 class="font-bold text-purple-900 border-b border-purple-100 pb-2 mb-3">📂 段落目錄</h4>
+                    <ul id="table-of-contents" class="text-sm space-y-2 text-purple-700">
+                        <li><a href="#" class="hover:underline"># 載入中...</a></li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
     </div>
-  );
-}
+
+    <!-- 隱藏式後台控制面板 (點擊上方設定開啟) -->
+    <div id="admin-panel" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-lg w-full space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-purple-900">後台管理與上傳</h3>
+                <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-black">✕</button>
+            </div>
+            
+            <!-- 上傳 Logo -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">變更 Logo</label>
+                <input type="file" id="logo-file" class="w-full text-sm border p-2 rounded">
+                <button onclick="uploadAsset('logo')" class="mt-2 bg-purple-600 text-white px-4 py-1 rounded text-sm hover:bg-purple-700">上傳並更新 Logo</button>
+            </div>
+
+            <!-- 上傳頭像 -->
+            <div>
+                <label class="block text-sm font-semibold mb-1">變更頭像</label>
+                <input type="file" id="avatar-file" class="w-full text-sm border p-2 rounded">
+                <button onclick="uploadAsset('avatar')" class="mt-2 bg-purple-600 text-white px-4 py-1 rounded text-sm hover:bg-purple-700">上傳並更新頭像</button>
+            </div>
+
+            <!-- 發布新文章 -->
+            <div class="border-t pt-3">
+                <label class="block text-sm font-semibold mb-1">發布新文章</label>
+                <input type="text" id="new-title" placeholder="文章標題" class="w-full text-sm border p-2 rounded mb-2">
+                <select id="new-category" class="w-full text-sm border p-2 rounded mb-2">
+                    <option value="domestic">國內旅遊</option>
+                    <option value="china">中國旅遊</option>
+                    <option value="korea">韓國旅遊</option>
+                </select>
+                <textarea id="new-content" placeholder="文章內容 (支援 HTML)" class="w-full text-sm border p-2 rounded h-24 mb-2"></textarea>
+                <button onclick="publishArticle()" class="bg-purple-900 text-white px-4 py-2 rounded text-sm hover:bg-purple-800 w-full">確認發布文章</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer class="w-full py-4 text-center text-xs text-purple-500 border-t border-purple-100 bg-white mt-12">
+        @zz 轉載請註明出處
+    </footer>
+
+    <!-- Supabase 邏輯串接 -->
+    <script>
+        // 替換為你的 Supabase 專案設定
+        const SUPABASE_URL = 'https://rpzqioezweftrjtrneos.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('admin-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        // 初始化載入
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchArticles();
+            loadSettings();
+        });
+
+        async function fetchArticles(category = 'all') {
+            const container = document.getElementById('article-container');
+            let query = supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
+            
+            if (category !== 'all') {
+                query = query.eq('category', category);
+            }
+
+            const { data, error } = await query;
+            if (error) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-xl border text-red-500">載入失敗：請先設定 Supabase 資料庫與憑證。</div>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                container.innerHTML = `<div class="bg-white p-6 rounded-xl border text-purple-700">目前尚無文章，請至後台新增。</div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(article => `
+                <article class="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
+                    <span class="text-xs text-purple-500 uppercase tracking-wider">${article.category}</span>
+                    <h2 class="text-2xl font-bold mt-1 mb-3 text-purple-900">${article.title}</h2>
+                    <div class="text-purple-800 leading-relaxed space-y-2">${article.content}</div>
+                </article>
+            `).join('');
+
+            // 動態產生目錄範例
+            generateTOC(data);
+        }
+
+        function filterCategory(cat) {
+            fetchArticles(cat);
+        }
+
+        function generateTOC(articles) {
+            const tocContainer = document.getElementById('table-of-contents');
+            tocContainer.innerHTML = articles.map(art => `
+                <li><a href="#" class="hover:text-purple-900 transition block truncate">• ${art.title}</a></li>
+            `).join('');
+        }
+
+        async function loadSettings() {
+            // 從 Supabase 取得 Logo 與頭像設定 (假設存在 settings 資料表)
+            const { data } = await supabaseClient.from('settings').select('*');
+            if (data) {
+                data.forEach(item => {
+                    if (item.key === 'logo') document.getElementById('site-logo').src = item.value;
+                    if (item.key === 'avatar') document.getElementById('site-avatar').src = item.value;
+                });
+            }
+        }
+
+        async function uploadAsset(type) {
+            const fileInput = document.getElementById(`${type}-file`);
+            if (fileInput.files.length === 0) return alert('請先選擇檔案');
+            const file = fileInput.files[0];
+            
+            const { data, error } = await supabaseClient.storage.from('blog-assets').upload(`${type}_${Date.now()}`, file);
+            if (error) {
+                alert('上傳失敗：' + error.message);
+                return;
+            }
+
+            const publicUrl = supabaseClient.storage.from('blog-assets').getPublicUrl(data.path).data.publicUrl;
+            
+            // 寫入設定表
+            await supabaseClient.from('settings').upsert({ key: type, value: publicUrl });
+            alert('更新成功！重新整理後生效');
+            location.reload();
+        }
+
+        async function publishArticle() {
+            const title = document.getElementById('new-title').value;
+            const category = document.getElementById('new-category').value;
+            const content = document.getElementById('new-content').value;
+
+            if (!title || !content) return alert('標題與內容不得為空');
+
+            const { error } = await supabaseClient.from('articles').insert([{ title, category, content }]);
+            if (error) {
+                alert('發布失敗：' + error.message);
+            } else {
+                alert('發布成功！');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
