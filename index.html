@@ -21,7 +21,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Noto Serif TC', serif; background-color: #faf5ff; color: #3b0764; }
+        body { font-family: 'Noto Serif TC', serif; background-color: #F2EAE0; color: #3b0764; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -30,11 +30,10 @@
         <!-- Logo 區 -->
         <header class="w-full py-6 bg-white shadow-sm border-b border-purple-100 flex flex-col items-center justify-center">
             <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain mb-3">
-            <div class="text-xs text-purple-400 cursor-pointer hover:underline" onclick="checkAdminAccess()">⚙️ 管理後台 / 上傳設定</div>
         </header>
 
         <!-- 索引頁籤 -->
-        <nav class="bg-purple-900 text-purple-100 shadow-md">
+        <nav class="style="background-color: #9B8EC7 text-purple-100 shadow-md">
             <ul class="flex justify-center space-x-8 py-3 text-lg font-semibold">
                 <li><a href="#" onclick="filterCategory('all')" class="hover:text-white transition">首頁</a></li>
                 <li><a href="#" onclick="filterCategory('domestic')" class="hover:text-white transition">國內旅遊</a></li>
@@ -123,6 +122,10 @@
             </div>
         </div>
     </div>
+    <!-- 右下角固定管理按鈕 -->
+    <button onclick="checkAdminAccess()" class="fixed bottom-6 right-6 bg-[#9B8EC7] text-white p-3 rounded-full shadow-lg hover:opacity-90 transition z-40 flex items-center justify-center" title="管理後台">
+    ⚙️
+    </button>
 
     <footer class="w-full py-4 text-center text-xs text-purple-500 border-t border-purple-100 bg-white mt-12">
         @zz 轉載請註明出處
