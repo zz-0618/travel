@@ -115,8 +115,8 @@
 
     <!-- 前台畫面 -->
     <div id="frontend-view">
-        <header class="w-full py-6 bg-white shadow-sm border-b border-[#EFE9E3] flex flex-col items-center justify-center">
-            <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain">
+        <!-- Logo 改為滿版鋪滿的背景圖片區塊 (高度可透過 h-32 md:h-44 調整) -->
+        <header id="site-header-bg" class="w-full h-32 md:h-44 bg-cover bg-center shadow-sm border-b border-[#EFE9E3] flex items-center justify-center" style="background-image: url('https://via.placeholder.com/1200x300?text=Header+Background');">
         </header>
 
         <nav style="background-color: #C9B59C;" class="text-white shadow-md relative z-30">
@@ -173,9 +173,9 @@
 
                 <!-- 2. Logo 設定 -->
                 <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
-                    <h2 class="text-2xl font-bold border-b pb-2">更換 Logo</h2>
+                    <h2 class="text-2xl font-bold border-b pb-2">更換 Logo 背景圖片</h2>
                     <input type="file" id="admin-logo-file" class="block w-full text-sm border p-2 rounded">
-                    <button onclick="uploadAsset('logo')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo</button>
+                    <button onclick="uploadAsset('logo')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo 背景</button>
                 </div>
 
                 <!-- 3. 文章分類管理 -->
@@ -861,7 +861,12 @@
             const { data } = await supabaseClient.from('settings').select('*');
             if (data) {
                 data.forEach(item => {
-                    if (item.key === 'logo') document.getElementById('site-logo').src = item.value;
+                    if (item.key === 'logo') {
+                        const headerBg = document.getElementById('site-header-bg');
+                        if (headerBg) {
+                            headerBg.style.backgroundImage = `url('${item.value}')`;
+                        }
+                    }
                     if (item.key === 'avatar') document.getElementById('site-avatar').src = item.value;
                 });
             }
