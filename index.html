@@ -12,54 +12,61 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        purple: { 50: '#f5f3ff', 100: '#ede9fe', 600: '#7c3aed', 700: '#6d28d9', 900: '#4c1d95' }
-                    },
                     fontFamily: { serif: ['"Noto Serif TC"', 'serif'] }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Noto Serif TC', serif; background-color: #F2EAE0; color: #3b0764; }
+        body { 
+            font-family: 'Noto Serif TC', serif; 
+            background-color: #ffffff; /* 頁面底色白色 */
+            color: #452829; /* 全站字體顏色 */
+        }
+        /* 自定義卡片背景色 */
+        .custom-card {
+            background-color: #EFE9E3;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
     <div>
-        <!-- Logo 區 -->
-        <header class="w-full py-6 bg-white shadow-sm border-b border-purple-100 flex flex-col items-center justify-center">
-            <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain mb-3">
+        <!-- 最上方 Logo 區 -->
+        <header class="w-full py-6 bg-white shadow-sm border-b border-[#EFE9E3] flex flex-col items-center justify-center">
+            <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain">
         </header>
 
-        <!-- 索引頁籤 -->
-        <nav class="style="background-color: #9B8EC7 text-purple-100 shadow-md">
+        <!-- 索引頁籤 (底色 #C9B59C) -->
+        <nav style="background-color: #C9B59C;" class="text-white shadow-md">
             <ul class="flex justify-center space-x-8 py-3 text-lg font-semibold">
-                <li><a href="#" onclick="filterCategory('all')" class="hover:text-white transition">首頁</a></li>
-                <li><a href="#" onclick="filterCategory('domestic')" class="hover:text-white transition">國內旅遊</a></li>
-                <li><a href="#" onclick="filterCategory('china')" class="hover:text-white transition">中國旅遊</a></li>
-                <li><a href="#" onclick="filterCategory('korea')" class="hover:text-white transition">韓國旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('all')" class="hover:opacity-80 transition">首頁</a></li>
+                <li><a href="#" onclick="filterCategory('domestic')" class="hover:opacity-80 transition">國內旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('china')" class="hover:opacity-80 transition">中國旅遊</a></li>
+                <li><a href="#" onclick="filterCategory('korea')" class="hover:opacity-80 transition">韓國旅遊</a></li>
             </ul>
         </nav>
 
         <!-- 主體內容 -->
         <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- 左側/中間：文章列表 -->
             <section class="md:col-span-3 space-y-6" id="article-container">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
-                    <h2 class="text-2xl font-bold mb-2 text-purple-900">載入中...</h2>
+                <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3]">
+                    <h2 class="text-2xl font-bold mb-2">載入中...</h2>
                 </div>
             </section>
 
+            <!-- 右側：頭像與段落目錄 -->
             <aside class="space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100 text-center flex flex-col items-center">
-                    <img id="site-avatar" src="https://via.placeholder.com/100?text=Avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-purple-300">
-                    <h3 class="text-xl font-bold text-purple-900">zz</h3>
-                    <p class="text-sm text-purple-600 mt-1">一個隨筆紀錄的人</p>
+                <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] text-center flex flex-col items-center">
+                    <img id="site-avatar" src="https://via.placeholder.com/100?text=Avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]">
+                    <h3 class="text-xl font-bold">zz</h3>
+                    <p class="text-sm mt-1 opacity-90">一個隨筆紀錄的人</p>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100 sticky top-4">
-                    <h4 class="font-bold text-purple-900 border-b border-purple-100 pb-2 mb-3">📂 段落目錄</h4>
-                    <ul id="table-of-contents" class="text-sm space-y-2 text-purple-700">
+                <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] sticky top-4">
+                    <h4 class="font-bold border-b border-[#C9B59C] pb-2 mb-3">📂 段落目錄</h4>
+                    <ul id="table-of-contents" class="text-sm space-y-2">
                         <li><a href="#" class="hover:underline"># 載入中...</a></li>
                     </ul>
                 </div>
@@ -67,11 +74,16 @@
         </main>
     </div>
 
+    <!-- 右下角固定懸浮管理按鈕 -->
+    <button onclick="checkAdminAccess()" class="fixed bottom-6 right-6 text-white w-12 h-12 rounded-full shadow-lg hover:opacity-95 transition z-40 flex items-center justify-center text-xl" style="background-color: #C9B59C;" title="管理後台">
+        ⚙️
+    </button>
+
     <!-- 後台面板 -->
     <div id="admin-panel" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 max-w-lg w-full space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="font-bold text-lg text-purple-900">後台管理與上傳</h3>
+                <h3 class="font-bold text-lg">後台管理與上傳</h3>
                 <div>
                     <button onclick="logoutAdmin()" class="text-xs text-red-500 hover:underline mr-3">登出</button>
                     <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-black">✕</button>
@@ -81,13 +93,13 @@
             <div>
                 <label class="block text-sm font-semibold mb-1">變更 Logo</label>
                 <input type="file" id="logo-file" class="w-full text-sm border p-2 rounded">
-                <button onclick="uploadAsset('logo')" class="mt-2 bg-purple-600 text-white px-4 py-1 rounded text-sm hover:bg-purple-700">上傳並更新 Logo</button>
+                <button onclick="uploadAsset('logo')" class="mt-2 text-white px-4 py-1 rounded text-sm hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo</button>
             </div>
 
             <div>
                 <label class="block text-sm font-semibold mb-1">變更頭像</label>
                 <input type="file" id="avatar-file" class="w-full text-sm border p-2 rounded">
-                <button onclick="uploadAsset('avatar')" class="mt-2 bg-purple-600 text-white px-4 py-1 rounded text-sm hover:bg-purple-700">上傳並更新頭像</button>
+                <button onclick="uploadAsset('avatar')" class="mt-2 text-white px-4 py-1 rounded text-sm hover:opacity-90" style="background-color: #C9B59C;">上傳並更新頭像</button>
             </div>
 
             <div class="border-t pt-3">
@@ -99,7 +111,7 @@
                     <option value="korea">韓國旅遊</option>
                 </select>
                 <textarea id="new-content" placeholder="文章內容 (支援 HTML)" class="w-full text-sm border p-2 rounded h-24 mb-2"></textarea>
-                <button onclick="publishArticle()" class="bg-purple-900 text-white px-4 py-2 rounded text-sm hover:bg-purple-800 w-full">確認發布文章</button>
+                <button onclick="publishArticle()" class="text-white px-4 py-2 rounded text-sm hover:opacity-90 w-full" style="background-color: #C9B59C;">確認發布文章</button>
             </div>
         </div>
     </div>
@@ -107,33 +119,31 @@
     <!-- 密碼登入 Modal -->
     <div id="login-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 max-w-sm w-full space-y-4 shadow-xl">
-            <h3 class="font-bold text-lg text-purple-900 text-center">後台管理者登入</h3>
+            <h3 class="font-bold text-lg text-center">後台管理者登入</h3>
             <div>
-                <label class="block text-xs text-purple-700 mb-1">管理員信箱</label>
+                <label class="block text-xs mb-1">管理員信箱</label>
                 <input type="email" id="admin-email-input" class="w-full text-sm border p-2 rounded" placeholder="name@example.com">
             </div>
             <div>
-                <label class="block text-xs text-purple-700 mb-1">密碼</label>
+                <label class="block text-xs mb-1">密碼</label>
                 <input type="password" id="admin-password-input" class="w-full text-sm border p-2 rounded" placeholder="••••••••">
             </div>
-            <button onclick="loginWithEmail()" class="w-full bg-purple-900 text-white py-2 rounded-lg text-sm font-medium hover:bg-purple-800">登入後台</button>
+            <button onclick="loginWithEmail()" class="w-full text-white py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">登入後台</button>
             <div class="text-center">
                 <button onclick="closeLoginModal()" class="text-xs text-gray-400 hover:text-gray-600">取消</button>
             </div>
         </div>
     </div>
-    <!-- 右下角固定管理按鈕 -->
-    <button onclick="checkAdminAccess()" class="fixed bottom-6 right-6 bg-[#9B8EC7] text-white p-3 rounded-full shadow-lg hover:opacity-90 transition z-40 flex items-center justify-center" title="管理後台">
-    ⚙️
-    </button>
 
-    <footer class="w-full py-4 text-center text-xs text-purple-500 border-t border-purple-100 bg-white mt-12">
+    <!-- 頁尾 -->
+    <footer class="w-full py-4 text-center text-xs border-t border-[#EFE9E3] bg-white mt-12 opacity-80">
         @zz 轉載請註明出處
     </footer>
 
+    <!-- Supabase 邏輯串接 -->
     <script>
-        const SUPABASE_URL = 'https://rpzqioezweftrjtrneos.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye';
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -187,15 +197,15 @@
 
             const { data, error } = await query;
             if (error || !data || data.length === 0) {
-                container.innerHTML = `<div class="bg-white p-6 rounded-xl border text-purple-700">目前尚無文章。</div>`;
+                container.innerHTML = `<div class="custom-card p-6 rounded-xl border border-[#EFE9E3] shadow-sm">目前尚無文章。</div>`;
                 return;
             }
 
             container.innerHTML = data.map(article => `
-                <article class="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
-                    <span class="text-xs text-purple-500 uppercase tracking-wider">${article.category}</span>
-                    <h2 class="text-2xl font-bold mt-1 mb-3 text-purple-900">${article.title}</h2>
-                    <div class="text-purple-800 leading-relaxed space-y-2">${article.content}</div>
+                <article class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3]">
+                    <span class="text-xs uppercase tracking-wider opacity-70">${article.category}</span>
+                    <h2 class="text-2xl font-bold mt-1 mb-3">${article.title}</h2>
+                    <div class="leading-relaxed space-y-2">${article.content}</div>
                 </article>
             `).join('');
 
@@ -207,7 +217,7 @@
         function generateTOC(articles) {
             const tocContainer = document.getElementById('table-of-contents');
             tocContainer.innerHTML = articles.map(art => `
-                <li><a href="#" class="hover:text-purple-900 transition block truncate">• ${art.title}</a></li>
+                <li><a href="#" class="hover:opacity-80 transition block truncate">• ${art.title}</a></li>
             `).join('');
         }
 
