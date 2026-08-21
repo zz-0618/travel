@@ -975,7 +975,7 @@
 
             const { error } = await supabaseClient.from('articles').update({ title, category, subcategory, content }).eq('id', id);
             if (error) {
-                alert('更新失敗：` + error.message);
+                alert('更新失敗：' + error.message);
             } else {
                 alert('文章更新成功！');
                 closeEditForm();
