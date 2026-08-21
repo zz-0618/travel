@@ -1,255 +1,270 @@
-
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  BookOpen,
-  CalendarDays,
+  Camera,
   ChevronRight,
-  Edit3,
-  Eye,
   FileImage,
+  Home,
   ImagePlus,
-  LayoutDashboard,
+  LockKeyhole,
   LogOut,
-  Menu as MenuIcon,
+  Map,
+  MapPin,
   Plus,
   Save,
   Settings,
-  Trash2,
+  Sparkles,
   Upload,
   X,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-const CATEGORIES = [
-  { id: "home", label: "首頁" },
-  { id: "taiwan", label: "國內旅遊" },
-  { id: "china", label: "中國旅遊" },
-  { id: "korea", label: "韓國旅遊" },
-];
-
-const seedPosts = [
+const initialPosts = [
   {
-    id: "tainan-afternoon",
-    title: "在台南，留一個午後給窄巷與老屋",
-    slug: "tainan-afternoon",
-    category: "taiwan",
-    excerpt: "從微熱的午後走進巷弄，在老屋、樹影與甜味之間，收藏一段不趕路的時間。",
-    cover: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1600&q=80",
-    date: "2026-08-18",
-    published: true,
+    id: 1,
+    category: "國內旅遊",
+    title: "台南午後，沿著巷弄收集光影",
+    excerpt: "從小西門走進老城，沒有必看的清單，只留下幾段風、幾杯茶與午後的光。",
+    cover: "https://images.unsplash.com/photo-1577702312706-e23ff063064f?auto=format&fit=crop&w=1400&q=80",
+    date: "2026.08.18",
+    location: "臺南",
     content: [
-      { heading: "從一杯茶開始", body: "旅行有時不需要精密的計畫。選一間窗邊有光的店，讓冰塊慢慢融化，也讓城市的聲音逐漸清晰。" },
-      { heading: "穿過午後的巷子", body: "沿著老屋的牆面往前走，轉角可能是一株盛開的九重葛，也可能是一扇仍保留舊字樣的木門。" },
-      { heading: "把黃昏帶回家", body: "傍晚的風開始變輕，街燈一盞盞亮起。沒有完成什麼清單，卻記住了一座城市最柔軟的樣子。" },
+      { heading: "沒有行程的出發", body: "午後才慢慢走出門。旅行有時不需要完整的目的地，只要願意對日常多看一眼，熟悉的街道也會成為新的風景。" },
+      { heading: "巷弄裡的老房子", body: "陽光從屋簷落下，老窗框、磨石子地板和騎樓的陰影，把時間切成一格一格。轉個彎，便遇見一間安靜的小店。" },
+      { heading: "把城市帶回筆記裡", body: "回家前記下幾個片段：風的溫度、茶杯邊緣的水氣，以及巷口那株在牆邊長得很好的植物。" },
     ],
   },
   {
-    id: "xiamen-sea",
-    title: "廈門海風散步：從騎樓走向日落",
-    slug: "xiamen-sea",
-    category: "china",
-    excerpt: "把步調交給海風，在騎樓與島嶼之間，慢慢走進一場溫柔的黃昏。",
-    cover: "https://images.unsplash.com/photo-1537531383496-f4749b8032cf?auto=format&fit=crop&w=1600&q=80",
-    date: "2026-07-24",
-    published: true,
+    id: 2,
+    category: "中國旅遊",
+    title: "海風與紅磚：廈門散步日記",
+    excerpt: "沿著海岸慢慢行走，在紅磚建築與潮聲之間，記下島嶼城市的溫柔輪廓。",
+    cover: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1400&q=80",
+    date: "2026.07.24",
+    location: "廈門",
     content: [
-      { heading: "清晨的騎樓", body: "街道剛醒來，早餐店的蒸氣沿著騎樓飄散。老建築的線條，替日常留下從容的節奏。" },
-      { heading: "沿海慢行", body: "午後沿著海岸前進，不安排太多停靠點，只在喜歡的景色前多留幾分鐘。" },
-      { heading: "看一場日落", body: "夕陽將海面染成金紫色。旅程最動人的時刻，往往只是願意停下來。" },
+      { heading: "抵達海邊", body: "城市的第一印象是帶著鹹味的風。行李放下後，先沿海散步，讓腳步適應這座城市的節奏。" },
+      { heading: "紅磚與樹影", body: "午後的光落在紅磚牆上，街道被樹影切成深淺不同的綠。適合慢慢走，也適合偶爾停下。" },
+      { heading: "旅行備忘", body: "比起趕景點，更喜歡把一段時間留給沒有名字的小路。真正記得的，往往就是那些不在清單裡的部分。" },
     ],
   },
   {
-    id: "seoul-autumn",
-    title: "首爾秋日：在宮牆與銀杏之間散步",
-    slug: "seoul-autumn",
-    category: "korea",
-    excerpt: "秋天的首爾有清透的光，適合用步行的速度，閱讀城市新舊交疊的表情。",
-    cover: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1600&q=80",
-    date: "2026-06-11",
-    published: true,
+    id: 3,
+    category: "韓國旅遊",
+    title: "首爾秋日：在銀杏轉黃以前",
+    excerpt: "清晨咖啡、緩慢地鐵與微涼晚風，這是一篇寫給首爾秋天的短箋。",
+    cover: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1400&q=80",
+    date: "2026.06.09",
+    location: "首爾",
     content: [
-      { heading: "宮牆外的早晨", body: "石牆旁的銀杏落了一地，晨光讓傳統建築與現代街景安靜地並置。" },
-      { heading: "市場裡的午餐", body: "熱湯、煎餅與此起彼落的招呼聲，讓味覺成為理解一座城市最快的方法。" },
-      { heading: "夜色中的街區", body: "入夜後，店鋪燈光映在街面。白天的秩序，換成夜晚自由流動的節奏。" },
+      { heading: "清晨的咖啡店", body: "推開門時店裡還很安靜。靠窗的位置看得到行人匆匆經過，旅行也在這一杯咖啡之後正式開始。" },
+      { heading: "銀杏大道", body: "銀杏還未完全轉黃，綠色與金色交錯。沿路沒有特別安排，只跟著光線決定下一個方向。" },
+      { heading: "晚風裡回程", body: "夜晚的風比預想更涼。搭上地鐵前買了一份熱食，帶著一天收集的畫面回到住處。" },
     ],
   },
 ];
 
-const initialSettings = {
-  logo: "",
-  avatar: "",
-  authorName: "zz",
-  authorBio: "一個隨筆紀錄的人",
-  footer: "@zz 轉載請註明出處",
-};
+const tabs = ["首頁", "國內旅遊", "中國旅遊", "韓國旅遊"];
+const purple = "#6f4a8e";
 
-const styles = `
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap');
-:root{--ink:#34263e;--muted:#766a7e;--purple:#76508f;--deep:#4d315f;--pale:#f1e9f5;--line:#ded2e5;--paper:#fdfbfe}
-*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--paper);color:var(--ink);font-family:'Noto Serif TC','Source Han Serif TC','思源宋體 TC',serif}
-::selection{background:#d8c5e4}.hide-scroll::-webkit-scrollbar{display:none}.hide-scroll{scrollbar-width:none}
-.article-copy p{line-height:2.05;letter-spacing:.035em;color:#574c5e}.article-copy h2{scroll-margin-top:130px}
-`;
+export default function TravelBlog() {
+  const [posts, setPosts] = useState(initialPosts);
+  const [activeTab, setActiveTab] = useState("首頁");
+  const [activePost, setActivePost] = useState(null);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [logo, setLogo] = useState("");
+  const [avatar, setAvatar] = useState("https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=480&q=80");
+  const [draft, setDraft] = useState({ title: "", category: "國內旅遊", excerpt: "", location: "", cover: "", body: "" });
+  const logoInput = useRef(null);
+  const avatarInput = useRef(null);
+  const coverInput = useRef(null);
 
-function fileToDataUrl(file, callback) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => callback(String(reader.result));
-  reader.readAsDataURL(file);
-}
-
-function Logo({ settings, onHome }) {
-  return (
-    <button onClick={onHome} className="group mx-auto flex min-h-24 items-center justify-center bg-transparent px-4 py-5 border-0 cursor-pointer" aria-label="回首頁">
-      {settings.logo ? (
-        <img src={settings.logo} alt="網站 Logo" className="max-h-20 max-w-[270px] object-contain transition-transform group-hover:scale-[1.02]" />
-      ) : (
-        <div className="text-center">
-          <div className="text-[34px] font-black tracking-[.26em] text-[#4d315f]">ZZ</div>
-          <div className="mt-1 text-[10px] tracking-[.42em] text-[#967aa8]">TRAVEL NOTES</div>
-        </div>
-      )}
-    </button>
+  const visiblePosts = useMemo(
+    () => activeTab === "首頁" ? posts : posts.filter((post) => post.category === activeTab),
+    [activeTab, posts]
   );
-}
 
-function Header({ category, setCategory, settings, onAdmin }) {
+  const readImage = (file, setter) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setter(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const publishPost = () => {
+    if (!draft.title.trim() || !draft.body.trim()) return;
+    const sections = draft.body.split(/\n\s*\n/).filter(Boolean).map((block, index) => ({
+      heading: index === 0 ? "旅程開始" : `旅途片段 ${index + 1}`,
+      body: block.trim(),
+    }));
+    setPosts((current) => [{
+      id: Date.now(),
+      title: draft.title,
+      category: draft.category,
+      excerpt: draft.excerpt || draft.body.slice(0, 56) + "…",
+      location: draft.location || "旅行途中",
+      cover: draft.cover || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80",
+      date: new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "."),
+      content: sections,
+    }, ...current]);
+    setDraft({ title: "", category: "國內旅遊", excerpt: "", location: "", cover: "", body: "" });
+    setAdminOpen(false);
+    setActiveTab("首頁");
+  };
+
+  const jumpTo = (heading) => {
+    document.getElementById(`section-${heading}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <header className="sticky top-0 z-30 border-b border-[#ded2e5] bg-[#fdfbfe]/95 backdrop-blur-xl">
-      <div className="relative mx-auto max-w-6xl">
-        <Logo settings={settings} onHome={() => setCategory("home")} />
-        <button onClick={onAdmin} className="absolute right-4 top-5 rounded-full border border-[#ded2e5] bg-white p-2 text-[#76508f] shadow-sm transition hover:bg-[#f1e9f5]" title="開啟後台">
-          <Settings size={17} />
-        </button>
-        <nav className="hide-scroll flex overflow-x-auto px-3" aria-label="文章分類">
-          <div className="mx-auto flex min-w-max items-center gap-1">
-            {CATEGORIES.map((item) => (
-              <button key={item.id} onClick={() => setCategory(item.id)} className={`relative border-0 bg-transparent px-5 pb-4 pt-2 text-sm font-semibold tracking-wider cursor-pointer ${category === item.id ? "text-[#5c3970]" : "text-[#766a7e] hover:text-[#5c3970]"}`}>
-                {item.label}
-                {category === item.id && <motion.span layoutId="nav-line" className="absolute inset-x-4 bottom-0 h-[2px] bg-[#76508f]" />}
+    <div className="min-h-screen bg-[#fbf8fc] text-[#30263a] font-['Source_Han_Serif_TC','Noto_Serif_TC','PMingLiU',serif] selection:bg-[#d9c2e9]">
+      <header className="bg-gradient-to-b from-[#f2eaf6] to-[#fbf8fc] pt-8 sm:pt-12">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="relative flex min-h-24 items-center justify-center">
+            {logo ? (
+              <img src={logo} alt="zz 旅遊隨筆標誌" className="max-h-24 max-w-[260px] object-contain" />
+            ) : (
+              <button onClick={() => setActivePost(null)} className="group text-center" aria-label="回到首頁">
+                <div className="text-[2.6rem] font-black tracking-[0.22em] text-[#5f3d7b] sm:text-6xl">zz</div>
+                <div className="mt-1 text-xs tracking-[0.42em] text-[#8f70a8]">TRAVEL NOTES</div>
+              </button>
+            )}
+            <Button variant="ghost" size="icon" onClick={() => setAdminOpen(true)} className="absolute right-0 top-0 rounded-full text-[#7b5a91] hover:bg-white/70" aria-label="開啟後台">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        <nav className="sticky top-0 z-30 mt-7 border-y border-[#dfd0e8] bg-[#fbf8fc]/95 shadow-sm backdrop-blur">
+          <div className="mx-auto flex max-w-6xl overflow-x-auto px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {tabs.map((tab) => (
+              <button key={tab} onClick={() => { setActiveTab(tab); setActivePost(null); }} className={`relative min-w-max flex-1 px-4 py-4 text-sm font-semibold tracking-[0.12em] transition sm:text-base ${activeTab === tab && !activePost ? "text-[#5f3d7b]" : "text-[#796b80] hover:text-[#5f3d7b]"}`}>
+                {tab}
+                {activeTab === tab && !activePost && <motion.span layoutId="nav-underline" className="absolute inset-x-4 bottom-0 h-0.5 bg-[#74528c]" />}
               </button>
             ))}
           </div>
         </nav>
-      </div>
-    </header>
-  );
-}
+      </header>
 
-function AuthorCard({ settings, compact = false }) {
-  return (
-    <div className={`text-center ${compact ? "py-2" : "rounded-[28px] border border-[#ded2e5] bg-white px-6 py-8 shadow-[0_14px_45px_rgba(91,59,110,.08)]"}`}>
-      <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-[#e9dcef] shadow-[0_8px_25px_rgba(91,59,110,.18)]">
-        {settings.avatar ? <img src={settings.avatar} alt="作者頭像" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-4xl font-black text-[#76508f]">zz</div>}
-      </div>
-      <div className="mt-5 text-xl font-bold tracking-[.16em] text-[#4d315f]">{settings.authorName}</div>
-      <div className="mt-2 whitespace-pre-line text-sm leading-7 text-[#766a7e]">{settings.authorBio}</div>
-      <div className="mx-auto mt-5 h-px w-12 bg-[#c9b4d5]" />
+      <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-14">
+          <section>
+            <AnimatePresence mode="wait">
+              {activePost ? (
+                <motion.article key={`post-${activePost.id}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <button onClick={() => setActivePost(null)} className="mb-5 text-sm font-semibold text-[#76548d] hover:underline">← 返回文章列表</button>
+                  <div className="overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_60px_rgba(87,55,108,0.10)]">
+                    <img src={activePost.cover} alt={activePost.title} className="h-64 w-full object-cover sm:h-[430px]" />
+                    <div className="p-6 sm:p-10">
+                      <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-[#816e8b]">
+                        <span className="rounded-full bg-[#eee3f4] px-3 py-1 font-semibold text-[#66437f]">{activePost.category}</span>
+                        <span>{activePost.date}</span><span>·</span><span>{activePost.location}</span>
+                      </div>
+                      <h1 className="text-3xl font-black leading-tight tracking-wide text-[#4c315f] sm:text-5xl">{activePost.title}</h1>
+                      <p className="mt-5 border-l-2 border-[#a888bc] pl-4 text-base leading-8 text-[#725f7c]">{activePost.excerpt}</p>
+                      <div className="mt-10 space-y-12">
+                        {activePost.content.map((section, index) => (
+                          <section key={section.heading} id={`section-${section.heading}`} className="scroll-mt-24">
+                            <div className="mb-4 flex items-center gap-3"><span className="text-xs font-bold text-[#a58ab5]">0{index + 1}</span><h2 className="text-2xl font-bold text-[#5c3c70]">{section.heading}</h2></div>
+                            <p className="text-[1.05rem] leading-9 text-[#493f4e]">{section.body}</p>
+                          </section>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.article>
+              ) : (
+                <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <div className="mb-8 flex items-end justify-between gap-4">
+                    <div><p className="mb-2 text-xs font-bold tracking-[0.28em] text-[#9b7aae]">JOURNAL</p><h1 className="text-3xl font-black text-[#523566] sm:text-4xl">{activeTab === "首頁" ? "最近的旅行隨筆" : activeTab}</h1></div>
+                    <span className="hidden text-sm text-[#8a788f] sm:block">共 {visiblePosts.length} 篇</span>
+                  </div>
+                  <div className="space-y-7">
+                    {visiblePosts.map((post, index) => (
+                      <motion.button key={post.id} onClick={() => setActivePost(post)} whileHover={{ y: -4 }} className="group block w-full text-left">
+                        <Card className="overflow-hidden rounded-[1.7rem] border-[#eadfee] bg-white shadow-[0_12px_36px_rgba(79,52,96,0.07)] transition-shadow group-hover:shadow-[0_18px_50px_rgba(79,52,96,0.14)]">
+                          <CardContent className="grid p-0 sm:grid-cols-[42%_1fr]">
+                            <div className="h-56 overflow-hidden sm:h-full sm:min-h-64"><img src={post.cover} alt={post.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" /></div>
+                            <div className="flex flex-col justify-center p-6 sm:p-8">
+                              <div className="mb-4 flex items-center gap-3 text-xs text-[#8d7699]"><span className="font-bold text-[#76508e]">{post.category}</span><span>·</span><span>{post.date}</span></div>
+                              <h2 className="text-2xl font-extrabold leading-snug text-[#4f345f] sm:text-3xl">{post.title}</h2>
+                              <p className="mt-4 line-clamp-3 leading-7 text-[#77687d]">{post.excerpt}</p>
+                              <div className="mt-6 flex items-center justify-between text-sm"><span className="flex items-center gap-1.5 text-[#8b7892]"><MapPin className="h-4 w-4" />{post.location}</span><span className="flex items-center gap-1 font-bold text-[#67427f]">閱讀文章 <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span></div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            <Card className="rounded-[1.8rem] border-[#e6d9eb] bg-white/90 shadow-[0_14px_40px_rgba(91,62,108,0.08)]">
+              <CardContent className="p-7 text-center">
+                <div className="mx-auto h-36 w-36 overflow-hidden rounded-full border-4 border-white shadow-[0_8px_30px_rgba(101,67,124,0.22)]"><img src={avatar} alt="zz 頭像" className="h-full w-full object-cover" /></div>
+                <h2 className="mt-5 text-3xl font-black tracking-wider text-[#57386b]">zz</h2>
+                <p className="mt-2 text-sm tracking-[0.12em] text-[#7f6c87]">一個隨筆紀錄的人</p>
+                <div className="mx-auto mt-5 h-px w-12 bg-[#c9b2d7]" />
+                <p className="mt-5 text-sm leading-7 text-[#89758f]">把沿途遇見的人、風景與細小心情，慢慢收進文字裡。</p>
+              </CardContent>
+            </Card>
+
+            {activePost && (
+              <Card className="rounded-[1.5rem] border-[#e4d5e9] bg-[#f4edf7]">
+                <CardContent className="p-6">
+                  <p className="mb-4 flex items-center gap-2 text-xs font-bold tracking-[0.22em] text-[#76508d]"><Map className="h-4 w-4" />段落目錄</p>
+                  <div className="space-y-1">
+                    {activePost.content.map((section, index) => <button key={section.heading} onClick={() => jumpTo(section.heading)} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-[#66546f] transition hover:bg-white hover:text-[#513365]"><span className="text-xs text-[#aa8aba]">0{index + 1}</span>{section.heading}</button>)}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </aside>
+        </div>
+      </main>
+
+      <footer className="mt-10 border-t border-[#e3d6e8] bg-[#f1e9f4] px-4 py-10 text-center text-sm tracking-wider text-[#735f7c]">@zz 轉載請註明出處</footer>
+
+      <AnimatePresence>
+        {adminOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-[#2f2038]/55 p-4 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setAdminOpen(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.96, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-[#fbf9fc] shadow-2xl">
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#e6d9eb] bg-[#fbf9fc]/95 px-6 py-5 backdrop-blur sm:px-8">
+                <div><p className="flex items-center gap-2 text-xs font-bold tracking-widest text-[#8a6a9e]"><LockKeyhole className="h-4 w-4" />BLOG ADMIN</p><h2 className="mt-1 text-2xl font-black text-[#533568]">內容管理後台</h2></div>
+                <Button variant="ghost" size="icon" onClick={() => setAdminOpen(false)} className="rounded-full"><X className="h-5 w-5" /></Button>
+              </div>
+              <div className="space-y-8 p-6 sm:p-8">
+                <section>
+                  <h3 className="mb-4 flex items-center gap-2 font-bold text-[#604177]"><ImagePlus className="h-5 w-5" />網站圖片</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <button onClick={() => logoInput.current?.click()} className="rounded-2xl border border-dashed border-[#b99fc7] bg-white p-5 text-left transition hover:bg-[#f6f0f8]"><FileImage className="mb-3 h-6 w-6 text-[#79558f]" /><p className="font-bold text-[#5a3b70]">更換 Logo</p><p className="mt-1 text-xs text-[#8c7a92]">建議透明 PNG 或 SVG</p></button>
+                    <button onClick={() => avatarInput.current?.click()} className="rounded-2xl border border-dashed border-[#b99fc7] bg-white p-5 text-left transition hover:bg-[#f6f0f8]"><Camera className="mb-3 h-6 w-6 text-[#79558f]" /><p className="font-bold text-[#5a3b70]">更換頭像</p><p className="mt-1 text-xs text-[#8c7a92]">建議使用正方形照片</p></button>
+                    <input ref={logoInput} hidden type="file" accept="image/*" onChange={(e) => readImage(e.target.files?.[0], setLogo)} />
+                    <input ref={avatarInput} hidden type="file" accept="image/*" onChange={(e) => readImage(e.target.files?.[0], setAvatar)} />
+                  </div>
+                </section>
+                <section>
+                  <h3 className="mb-4 flex items-center gap-2 font-bold text-[#604177]"><Plus className="h-5 w-5" />新增文章</h3>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">文章標題 *</span><input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder="輸入這趟旅程的標題" className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none transition focus:border-[#8b67a0] focus:ring-2 focus:ring-[#d8c5e3]" /></label>
+                    <label><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">分類</span><select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })} className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none"><option>國內旅遊</option><option>中國旅遊</option><option>韓國旅遊</option></select></label>
+                    <label><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">地點</span><input value={draft.location} onChange={(e) => setDraft({ ...draft, location: e.target.value })} placeholder="例如：臺南" className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none focus:border-[#8b67a0]" /></label>
+                    <label className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">文章摘要</span><input value={draft.excerpt} onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })} placeholder="列表頁顯示的短句" className="w-full rounded-xl border border-[#decee5] bg-white px-4 py-3 outline-none focus:border-[#8b67a0]" /></label>
+                    <div className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">封面圖片</span><button onClick={() => coverInput.current?.click()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#b99fc7] bg-white px-4 py-5 text-sm font-bold text-[#6c4b82] hover:bg-[#f6f0f8]"><Upload className="h-4 w-4" />{draft.cover ? "已選擇圖片，點此更換" : "上傳文章封面"}</button><input ref={coverInput} hidden type="file" accept="image/*" onChange={(e) => readImage(e.target.files?.[0], (value) => setDraft({ ...draft, cover: value }))} /></div>
+                    <label className="sm:col-span-2"><span className="mb-1.5 block text-sm font-bold text-[#6c5877]">文章內容 *</span><textarea value={draft.body} onChange={(e) => setDraft({ ...draft, body: e.target.value })} placeholder="開始寫下旅程。以空白行分隔段落，系統會自動建立目錄。" rows={9} className="w-full resize-y rounded-xl border border-[#decee5] bg-white px-4 py-3 leading-7 outline-none focus:border-[#8b67a0] focus:ring-2 focus:ring-[#d8c5e3]" /></label>
+                  </div>
+                </section>
+                <div className="flex justify-end gap-3 border-t border-[#e7dce9] pt-5"><Button variant="outline" onClick={() => setAdminOpen(false)} className="rounded-xl border-[#d4c0dd]">取消</Button><Button onClick={publishPost} disabled={!draft.title.trim() || !draft.body.trim()} className="rounded-xl bg-[#68437f] px-6 text-white hover:bg-[#56346c]"><Save className="mr-2 h-4 w-4" />發布文章</Button></div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-}
-
-function PostCard({ post, onOpen }) {
-  return (
-    <motion.article layout whileHover={{ y: -4 }} onClick={() => onOpen(post)} className="group cursor-pointer overflow-hidden rounded-[26px] border border-[#ded2e5] bg-white shadow-[0_15px_46px_rgba(82,53,99,.08)]">
-      <div className="aspect-[16/10] overflow-hidden bg-[#eee5f2]">
-        <img src={post.cover} alt={post.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-      </div>
-      <div className="p-6">
-        <div className="mb-3 flex items-center gap-3 text-xs tracking-widest text-[#967aa8]"><CalendarDays size={14}/>{post.date}</div>
-        <h2 className="text-xl font-bold leading-relaxed text-[#432d51]">{post.title}</h2>
-        <p className="mt-3 text-sm leading-7 text-[#766a7e]">{post.excerpt}</p>
-        <div className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#76508f]">繼續閱讀 <ChevronRight size={15}/></div>
-      </div>
-    </motion.article>
-  );
-}
-
-function Home({ posts, category, settings, onOpen }) {
-  const visible = posts.filter((p) => p.published && (category === "home" || p.category === category));
-  const label = CATEGORIES.find((x) => x.id === category)?.label || "首頁";
-  return (
-    <main className="mx-auto max-w-6xl px-5 py-10 md:py-14">
-      <div className="grid gap-10 lg:grid-cols-[1fr_280px]">
-        <section>
-          <div className="mb-9">
-            <div className="text-xs font-semibold tracking-[.35em] text-[#a185b1]">JOURNEY & MEMORY</div>
-            <h1 className="mt-3 text-3xl font-black tracking-wider text-[#432d51] md:text-4xl">{label === "首頁" ? "把旅行，寫成日常的註腳" : label}</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-8 text-[#766a7e]">記下沿途的光、氣味與細小心情。不是攻略，而是一份留給未來自己的旅行隨筆。</p>
-          </div>
-          {visible.length ? <div className="grid gap-7 md:grid-cols-2">{visible.map((post) => <PostCard key={post.id} post={post} onOpen={onOpen}/>)}</div> : <div className="rounded-3xl border border-dashed border-[#cbb8d6] bg-[#f7f1fa] p-14 text-center text-[#766a7e]">這個分類還沒有已發布的文章。</div>}
-        </section>
-        <aside className="lg:sticky lg:top-40 lg:self-start"><AuthorCard settings={settings}/></aside>
-      </div>
-    </main>
-  );
-}
-
-function Article({ post, settings, onBack }) {
-  const headings = post.content.map((section, i) => ({ id: `section-${i}`, title: section.heading }));
-  return (
-    <main className="mx-auto max-w-6xl px-5 py-10 md:py-14">
-      <button onClick={onBack} className="mb-7 border-0 bg-transparent text-sm font-semibold text-[#76508f] cursor-pointer">← 回文章列表</button>
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <article>
-          <div className="text-xs tracking-[.2em] text-[#967aa8]">{CATEGORIES.find((x) => x.id === post.category)?.label} ・ {post.date}</div>
-          <h1 className="mt-4 text-3xl font-black leading-relaxed tracking-wide text-[#432d51] md:text-5xl">{post.title}</h1>
-          <p className="mt-5 text-base leading-8 text-[#766a7e]">{post.excerpt}</p>
-          <img src={post.cover} alt={post.title} className="mt-8 aspect-[16/9] w-full rounded-[28px] object-cover shadow-[0_18px_50px_rgba(76,47,92,.13)]" />
-          <div className="article-copy mt-12">
-            {post.content.map((section, index) => <section key={index} className="mb-12"><h2 id={`section-${index}`} className="mb-5 flex items-center gap-3 text-2xl font-bold text-[#4d315f]"><span className="h-7 w-1 rounded-full bg-[#9a77ae]"/>{section.heading}</h2><p>{section.body}</p></section>)}
-          </div>
-        </article>
-        <aside className="space-y-6 lg:sticky lg:top-40 lg:self-start">
-          <AuthorCard settings={settings}/>
-          <div className="rounded-[24px] border border-[#ded2e5] bg-white p-6 shadow-[0_12px_35px_rgba(91,59,110,.06)]">
-            <div className="mb-4 flex items-center gap-2 text-sm font-bold tracking-widest text-[#4d315f]"><BookOpen size={16}/> 段落目錄</div>
-            <div className="space-y-1">{headings.map((h, i) => <button key={h.id} onClick={() => document.getElementById(h.id)?.scrollIntoView({behavior:"smooth"})} className="flex w-full items-start gap-3 rounded-xl border-0 bg-transparent px-2 py-2 text-left text-sm leading-6 text-[#766a7e] cursor-pointer hover:bg-[#f1e9f5] hover:text-[#5c3970]"><span className="text-[#b198be]">0{i+1}</span>{h.title}</button>)}</div>
-          </div>
-        </aside>
-      </div>
-    </main>
-  );
-}
-
-function Field({ label, children }) { return <label className="block"><span className="mb-2 block text-xs font-bold tracking-wider text-[#5c3970]">{label}</span>{children}</label>; }
-const inputClass = "w-full rounded-xl border border-[#d8c9e0] bg-white px-3 py-2.5 font-serif text-sm text-[#34263e] outline-none focus:border-[#8c65a2] focus:ring-2 focus:ring-[#e5d7ec]";
-
-function ImageUpload({ label, value, onChange, round = false }) {
-  return <Field label={label}><div className="flex items-center gap-4"><div className={`${round ? "h-20 w-20 rounded-full" : "h-20 w-32 rounded-xl"} flex shrink-0 items-center justify-center overflow-hidden border border-[#d8c9e0] bg-[#f1e9f5]`}>{value ? <img src={value} alt={label} className="h-full w-full object-cover"/> : <FileImage className="text-[#a78ab7]"/>}</div><label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#76508f] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#65447a]"><Upload size={15}/>上傳圖片<input type="file" accept="image/*" className="hidden" onChange={(e)=>fileToDataUrl(e.target.files?.[0],onChange)}/></label></div></Field>;
-}
-
-function SettingsPanel({ settings, setSettings }) {
-  const [draft, setDraft] = useState(settings);
-  return <div className="space-y-6"><div><h2 className="text-2xl font-black text-[#432d51]">網站設定</h2><p className="mt-1 text-sm text-[#766a7e]">更新 Logo、作者頭像與頁尾資訊。</p></div><ImageUpload label="網站 Logo" value={draft.logo} onChange={(v)=>setDraft({...draft,logo:v})}/><ImageUpload label="作者頭像" round value={draft.avatar} onChange={(v)=>setDraft({...draft,avatar:v})}/><Field label="作者名稱"><input className={inputClass} value={draft.authorName} onChange={(e)=>setDraft({...draft,authorName:e.target.value})}/></Field><Field label="作者簡介"><textarea rows={3} className={inputClass} value={draft.authorBio} onChange={(e)=>setDraft({...draft,authorBio:e.target.value})}/></Field><Field label="頁尾文字"><input className={inputClass} value={draft.footer} onChange={(e)=>setDraft({...draft,footer:e.target.value})}/></Field><button onClick={()=>setSettings(draft)} className="flex items-center gap-2 rounded-xl border-0 bg-[#76508f] px-5 py-3 font-semibold text-white cursor-pointer hover:bg-[#65447a]"><Save size={16}/>儲存設定</button></div>;
-}
-
-const emptyPost = { title:"", slug:"", category:"taiwan", excerpt:"", cover:"", date:new Date().toISOString().slice(0,10), published:false, content:[{heading:"第一段",body:""}] };
-function PostEditor({ initial, onSave, onCancel }) {
-  const [post,setPost]=useState(initial || emptyPost);
-  const updateSection=(i,key,value)=>setPost({...post,content:post.content.map((s,idx)=>idx===i?{...s,[key]:value}:s)});
-  return <div className="space-y-5"><div><h2 className="text-2xl font-black text-[#432d51]">{initial?"編輯文章":"新增文章"}</h2><p className="mt-1 text-sm text-[#766a7e]">標題段落會自動成為文章右側目錄。</p></div><Field label="文章標題"><input className={inputClass} value={post.title} onChange={(e)=>setPost({...post,title:e.target.value,slug:post.slug || e.target.value.toLowerCase().replace(/\s+/g,"-")})}/></Field><div className="grid gap-4 md:grid-cols-2"><Field label="網址代稱 Slug"><input className={inputClass} value={post.slug} onChange={(e)=>setPost({...post,slug:e.target.value})}/></Field><Field label="分類"><select className={inputClass} value={post.category} onChange={(e)=>setPost({...post,category:e.target.value})}>{CATEGORIES.slice(1).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></Field></div><Field label="文章摘要"><textarea rows={3} className={inputClass} value={post.excerpt} onChange={(e)=>setPost({...post,excerpt:e.target.value})}/></Field><ImageUpload label="封面圖片" value={post.cover} onChange={(v)=>setPost({...post,cover:v})}/><div className="space-y-4"><div className="text-xs font-bold tracking-wider text-[#5c3970]">文章段落</div>{post.content.map((section,i)=><div key={i} className="rounded-2xl border border-[#ded2e5] bg-[#faf7fc] p-4"><div className="mb-3 flex gap-2"><input className={inputClass} value={section.heading} onChange={(e)=>updateSection(i,"heading",e.target.value)} placeholder="段落標題"/><button disabled={post.content.length===1} onClick={()=>setPost({...post,content:post.content.filter((_,idx)=>idx!==i)})} className="rounded-xl border border-[#e1d4e7] bg-white p-3 text-[#8f6571] disabled:opacity-30"><Trash2 size={16}/></button></div><textarea rows={5} className={inputClass} value={section.body} onChange={(e)=>updateSection(i,"body",e.target.value)} placeholder="段落內容"/></div>)}<button onClick={()=>setPost({...post,content:[...post.content,{heading:"新段落",body:""}]})} className="flex items-center gap-2 rounded-xl border border-[#cbb8d6] bg-white px-4 py-2.5 text-sm font-semibold text-[#76508f]"><Plus size={15}/>新增段落</button></div><label className="flex items-center gap-3 text-sm text-[#574c5e]"><input type="checkbox" checked={post.published} onChange={(e)=>setPost({...post,published:e.target.checked})}/>立即發布</label><div className="flex gap-3"><button onClick={()=>post.title && onSave({...post,id:post.id || `${Date.now()}`,cover:post.cover || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1600&q=80"})} className="flex items-center gap-2 rounded-xl border-0 bg-[#76508f] px-5 py-3 font-semibold text-white"><Save size={16}/>儲存文章</button><button onClick={onCancel} className="rounded-xl border border-[#d8c9e0] bg-white px-5 py-3 font-semibold text-[#5c3970]">取消</button></div></div>;
-}
-
-function PostsPanel({ posts, setPosts }) {
-  const [editing,setEditing]=useState(null); const [creating,setCreating]=useState(false);
-  if(creating || editing) return <PostEditor initial={editing} onCancel={()=>{setEditing(null);setCreating(false)}} onSave={(saved)=>{setPosts(posts.some(p=>p.id===saved.id)?posts.map(p=>p.id===saved.id?saved:p):[saved,...posts]);setEditing(null);setCreating(false)}}/>;
-  return <div><div className="flex items-start justify-between gap-4"><div><h2 className="text-2xl font-black text-[#432d51]">文章管理</h2><p className="mt-1 text-sm text-[#766a7e]">新增、編輯、發布或刪除旅行文章。</p></div><button onClick={()=>setCreating(true)} className="flex shrink-0 items-center gap-2 rounded-xl border-0 bg-[#76508f] px-4 py-2.5 text-sm font-semibold text-white"><Plus size={16}/>新增文章</button></div><div className="mt-7 space-y-3">{posts.map(post=><div key={post.id} className="flex items-center gap-4 rounded-2xl border border-[#ded2e5] bg-white p-3"><img src={post.cover} className="h-16 w-20 rounded-xl object-cover"/><div className="min-w-0 flex-1"><div className="truncate font-bold text-[#432d51]">{post.title}</div><div className="mt-1 text-xs text-[#967aa8]">{CATEGORIES.find(c=>c.id===post.category)?.label} ・ {post.published?"已發布":"草稿"}</div></div><button onClick={()=>setEditing(post)} className="rounded-lg border-0 bg-[#f1e9f5] p-2 text-[#76508f]"><Edit3 size={16}/></button><button onClick={()=>setPosts(posts.filter(p=>p.id!==post.id))} className="rounded-lg border-0 bg-[#f8eded] p-2 text-[#99616c]"><Trash2 size={16}/></button></div>)}</div></div>;
-}
-
-function Admin({ open, onClose, posts, setPosts, settings, setSettings }) {
-  const [tab,setTab]=useState("posts");
-  return <AnimatePresence>{open&&<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 bg-[#281e2e]/55 p-0 backdrop-blur-sm md:p-5"><motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} exit={{y:20,opacity:0}} className="mx-auto flex h-full max-w-6xl overflow-hidden bg-[#fdfbfe] shadow-2xl md:rounded-[28px]"><aside className="w-20 shrink-0 bg-[#4d315f] p-3 text-white md:w-56 md:p-5"><div className="mb-8 hidden text-xl font-black tracking-[.2em] md:block">ZZ 後台</div><div className="mb-7 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-lg font-black md:hidden">Z</div><div className="space-y-2"><button onClick={()=>setTab("posts")} className={`flex w-full items-center gap-3 rounded-xl border-0 px-3 py-3 text-left text-sm font-semibold text-white ${tab==="posts"?"bg-white/20":"bg-transparent"}`}><LayoutDashboard size={18}/><span className="hidden md:inline">文章管理</span></button><button onClick={()=>setTab("settings")} className={`flex w-full items-center gap-3 rounded-xl border-0 px-3 py-3 text-left text-sm font-semibold text-white ${tab==="settings"?"bg-white/20":"bg-transparent"}`}><Settings size={18}/><span className="hidden md:inline">網站設定</span></button></div></aside><section className="relative flex-1 overflow-y-auto p-5 md:p-9"><button onClick={onClose} className="absolute right-4 top-4 rounded-full border border-[#ded2e5] bg-white p-2 text-[#76508f]"><X size={18}/></button><div className="mx-auto max-w-3xl pt-8 md:pt-0">{tab==="posts"?<PostsPanel posts={posts} setPosts={setPosts}/>:<SettingsPanel settings={settings} setSettings={setSettings}/>}</div></section></motion.div></motion.div>}</AnimatePresence>;
-}
-
-export default function App() {
-  const [category,setCategory]=useState("home");
-  const [selected,setSelected]=useState(null);
-  const [admin,setAdmin]=useState(false);
-  const [posts,setPosts]=useState(()=>{try{return JSON.parse(localStorage.getItem("zz-posts"))||seedPosts}catch{return seedPosts}});
-  const [settings,setSettings]=useState(()=>{try{return JSON.parse(localStorage.getItem("zz-settings"))||initialSettings}catch{return initialSettings}});
-  useEffect(()=>{localStorage.setItem("zz-posts",JSON.stringify(posts))},[posts]);
-  useEffect(()=>{localStorage.setItem("zz-settings",JSON.stringify(settings))},[settings]);
-  const goCategory=(id)=>{setCategory(id);setSelected(null);window.scrollTo({top:0,behavior:"smooth"})};
-  return <div className="min-h-screen"><style>{styles}</style><Header category={category} setCategory={goCategory} settings={settings} onAdmin={()=>setAdmin(true)}/>{selected?<Article post={selected} settings={settings} onBack={()=>setSelected(null)}/>:<Home posts={posts} category={category} settings={settings} onOpen={(p)=>{setSelected(p);window.scrollTo(0,0)}}/>}<footer className="mt-10 border-t border-[#ded2e5] bg-[#f1e9f5] px-5 py-9 text-center text-sm tracking-wider text-[#65447a]">{settings.footer}</footer><Admin open={admin} onClose={()=>setAdmin(false)} posts={posts} setPosts={setPosts} settings={settings} setSettings={setSettings}/></div>;
 }
