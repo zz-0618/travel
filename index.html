@@ -124,9 +124,9 @@
                     <button onclick="uploadAsset('logo')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo</button>
                 </div>
 
-                <!-- 3. 文章分類頁籤 (新增) -->
+                <!-- 3. 文章分類頁籤 -->
                 <div id="admin-tab-categories" class="admin-tab-content space-y-6 hidden">
-                    <h2 class="text-2xl font-bold border-b pb-2">文章分類管理 (支援母分類與子分類)</h2>
+                    <h2 class="text-2xl font-bold border-b pb-2">文章分類管理 (樹狀檢視)</h2>
                     
                     <!-- 新增分類表單 -->
                     <div class="custom-card p-4 rounded-xl space-y-3 border border-[#C9B59C]">
@@ -135,16 +135,15 @@
                             <input type="text" id="new-cat-name" class="border p-2 rounded text-sm bg-white" placeholder="分類名稱...">
                             <select id="new-cat-parent" class="border p-2 rounded text-sm bg-white">
                                 <option value="">無 (設為獨立母分類)</option>
-                                <!-- 動態填入現有母分類 -->
                             </select>
                             <button onclick="addNewCategory()" class="text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">新增分類</button>
                         </div>
                     </div>
 
-                    <!-- 現有分類列表 -->
+                    <!-- 樹狀分類列表 -->
                     <div class="space-y-3">
-                        <h3 class="font-bold text-md">現有分類列表</h3>
-                        <div id="admin-categories-list" class="space-y-2">
+                        <h3 class="font-bold text-md">分類樹狀圖</h3>
+                        <div id="admin-categories-tree" class="space-y-2 p-4 bg-[#F9F6F0] border border-[#EFE9E3] rounded-xl">
                             <p class="text-sm opacity-75">載入中...</p>
                         </div>
                     </div>
@@ -165,22 +164,28 @@
                             <label class="block text-sm mb-1 font-semibold">文章標題</label>
                             <input type="text" id="new-article-title" class="w-full border p-2 rounded text-sm" placeholder="請輸入標題...">
                         </div>
-                        <div>
-                            <label class="block text-sm mb-1 font-semibold">文章分類</label>
-                            <select id="new-article-category-select" class="w-full border p-2 rounded text-sm">
-                                <!-- 動態填入可用分類 -->
-                            </select>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm mb-1 font-semibold">母標籤 (必選)</label>
+                                <select id="new-article-parent-select" class="w-full border p-2 rounded text-sm bg-white" onchange="updateChildDropdown('new')">
+                                    <option value="">請選擇母標籤...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1 font-semibold">子標籤 (選填)</label>
+                                <select id="new-article-child-select" class="w-full border p-2 rounded text-sm bg-white">
+                                    <option value="">請先選擇母標籤</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm mb-1 font-semibold">內文編輯器</label>
-                            <!-- 工具列 -->
                             <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#F9F6F0] border rounded items-center">
                                 <button type="button" class="editor-btn" onclick="formatText('bold')"><b>B</b></button>
                                 <button type="button" class="editor-btn" onclick="formatText('italic')"><i>I</i></button>
                                 <button type="button" class="editor-btn" onclick="formatText('underline')"><u>U</u></button>
                                 <button type="button" class="editor-btn" onclick="insertLink()">🔗 超連結</button>
                                 
-                                <!-- 段落選項 (第一階48、第二階36、第三階24、第四階18、內文12) -->
                                 <select class="editor-btn font-semibold" onchange="formatParagraphStyle(this.value); this.value='';">
                                     <option value="">段落階層與大小</option>
                                     <option value="h1">第一階標題 (48px)</option>
@@ -190,27 +195,16 @@
                                     <option value="p">一般內文 (12px)</option>
                                 </select>
 
-                                <!-- 文字大小 (數字呈現，支援預設及手動輸入) -->
                                 <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
                                     <span class="text-xs opacity-75">大小:</span>
                                     <input type="number" id="custom-font-size-input" class="w-12 text-xs text-center border rounded px-1 py-0.5" value="12" min="8" max="100" onchange="applyCustomFontSize(this.value)">
-                                    <select class="text-xs border rounded bg-transparent cursor-pointer" onchange="document.getElementById('custom-font-size-input').value=this.value; applyCustomFontSize(this.value); this.value='';">
-                                        <option value="">預設</option>
-                                        <option value="12">12</option>
-                                        <option value="18">18</option>
-                                        <option value="24">24</option>
-                                        <option value="36">36</option>
-                                        <option value="48">48</option>
-                                    </select>
                                 </div>
 
-                                <!-- 色彩選項 (#D90000, #3368A0 及自訂手動輸入) -->
                                 <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
                                     <span class="text-xs opacity-75">顏色:</span>
-                                    <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #D90000;" onclick="applyTextColor('#D90000')" title="預設紅 #D90000"></button>
-                                    <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #3368A0;" onclick="applyTextColor('#3368A0')" title="預設藍 #3368A0"></button>
-                                    <input type="color" id="custom-color-picker" class="w-6 h-6 p-0 border-0 rounded cursor-pointer bg-transparent" onchange="applyTextColor(this.value)" title="自訂色號">
-                                    <input type="text" id="custom-color-text" class="w-16 text-xs border rounded px-1 py-0.5 uppercase" placeholder="#HEX" onchange="applyTextColor(this.value)">
+                                    <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #D90000;" onclick="applyTextColor('#D90000')" title="紅"></button>
+                                    <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #3368A0;" onclick="applyTextColor('#3368A0')" title="藍"></button>
+                                    <input type="color" id="custom-color-picker" class="w-6 h-6 p-0 border-0 rounded cursor-pointer bg-transparent" onchange="applyTextColor(this.value)">
                                 </div>
                             </div>
                             <div id="new-article-editor" contenteditable="true" class="w-full h-64 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)"></div>
@@ -235,15 +229,22 @@
                                 <label class="block text-sm mb-1 font-semibold">文章標題</label>
                                 <input type="text" id="edit-article-title" class="w-full border p-2 rounded text-sm">
                             </div>
-                            <div>
-                                <label class="block text-sm mb-1 font-semibold">文章分類</label>
-                                <select id="edit-article-category-select" class="w-full border p-2 rounded text-sm">
-                                    <!-- 動態填入可用分類 -->
-                                </select>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm mb-1 font-semibold">母標籤 (必選)</label>
+                                    <select id="edit-article-parent-select" class="w-full border p-2 rounded text-sm bg-white" onchange="updateChildDropdown('edit')">
+                                        <option value="">請選擇母標籤...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 font-semibold">子標籤 (選填)</label>
+                                    <select id="edit-article-child-select" class="w-full border p-2 rounded text-sm bg-white">
+                                        <option value="">請先選擇母標籤</option>
+                                    </select>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-sm mb-1 font-semibold">內文編輯器</label>
-                                <!-- 編輯工具列 -->
                                 <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#F9F6F0] border rounded items-center">
                                     <button type="button" class="editor-btn" onclick="formatTextEdit('bold')"><b>B</b></button>
                                     <button type="button" class="editor-btn" onclick="formatTextEdit('italic')"><i>I</i></button>
@@ -262,21 +263,6 @@
                                     <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
                                         <span class="text-xs opacity-75">大小:</span>
                                         <input type="number" id="edit-custom-font-size-input" class="w-12 text-xs text-center border rounded px-1 py-0.5" value="12" min="8" max="100" onchange="applyCustomFontSizeEdit(this.value)">
-                                        <select class="text-xs border rounded bg-transparent cursor-pointer" onchange="document.getElementById('edit-custom-font-size-input').value=this.value; applyCustomFontSizeEdit(this.value); this.value='';">
-                                            <option value="">預設</option>
-                                            <option value="12">12</option>
-                                            <option value="18">18</option>
-                                            <option value="24">24</option>
-                                            <option value="36">36</option>
-                                            <option value="48">48</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
-                                        <span class="text-xs opacity-75">顏色:</span>
-                                        <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #D90000;" onclick="applyTextColorEdit('#D90000')" title="預設紅 #D90000"></button>
-                                        <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #3368A0;" onclick="applyTextColorEdit('#3368A0')" title="預設藍 #3368A0"></button>
-                                        <input type="color" class="w-6 h-6 p-0 border-0 rounded cursor-pointer bg-transparent" onchange="applyTextColorEdit(this.value)" title="自訂色號">
                                     </div>
                                 </div>
                                 <div id="edit-article-editor" contenteditable="true" class="w-full h-64 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)"></div>
@@ -340,7 +326,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allArticlesCache = []; 
-        let categoriesCache = []; // 儲存從資料庫抓取的分類清單
+        let categoriesCache = []; 
 
         window.addEventListener('DOMContentLoaded', async () => {
             await fetchCategories();
@@ -419,7 +405,7 @@
             document.getElementById(`tab-${tabName}-btn`).classList.remove('hover:bg-[#EFE9E3]');
 
             if (tabName === 'categories') loadCategoriesAdmin();
-            if (tabName === 'articles') updateCategoryDropdowns();
+            if (tabName === 'articles') populateArticleParentDropdowns();
         }
 
         function switchArticleSubTab(sub) {
@@ -441,14 +427,12 @@
             }
         }
 
-        // ================= 編輯器進階控制 (字體大小、顏色、段落階層) =================
+        // ================= 編輯器工具 =================
         function formatText(command) { document.execCommand(command, false, null); }
         function insertLink() {
             const url = prompt('請輸入超連結網址 (URL):');
             if (url) document.execCommand('createLink', false, url);
         }
-
-        // 綁定段落選項與對應大小 (第一階48、第二階36、第三階24、第四階18、內文12)
         function formatParagraphStyle(tag) {
             if (!tag) return;
             if (tag === 'p') {
@@ -462,7 +446,6 @@
                 if (tag === 'h4') applyCustomFontSize(18);
             }
         }
-
         function applyCustomFontSize(size) {
             if (!size) return;
             const selection = window.getSelection();
@@ -472,32 +455,20 @@
             try {
                 span.appendChild(selection.getRangeAt(0).extractContents());
                 selection.getRangeAt(0).insertNode(span);
-            } catch (e) {
-                document.execCommand('fontSize', false, '3'); // fallback
-            }
+            } catch (e) {}
         }
-
         function applyTextColor(color) {
             if (!color) return;
-            document.getElementById('custom-color-text').value = color;
             document.execCommand('foreColor', false, color);
         }
-
-        // 換行時確保回歸一般內文 (12px, p 標籤)
         function handleEditorKeyDown(event) {
             if (event.key === 'Enter') {
-                const selection = window.getSelection();
-                if (!selection.rangeCount) return;
-                const node = selection.anchorNode;
-                // 若按下 enter，確保接下來打字為一般內文
                 setTimeout(() => {
                     document.execCommand('formatBlock', false, 'p');
-                    document.execCommand('fontSize', false, '3');
                 }, 10);
             }
         }
 
-        // 編輯舊文章的編輯器方法
         function formatTextEdit(command) { document.execCommand(command, false, null); }
         function insertLinkEdit() {
             const url = prompt('請輸入超連結網址 (URL):');
@@ -527,10 +498,6 @@
                 selection.getRangeAt(0).insertNode(span);
             } catch (e) {}
         }
-        function applyTextColorEdit(color) {
-            if (!color) return;
-            document.execCommand('foreColor', false, color);
-        }
 
         // ================= 分類管理與前台導覽列 =================
         async function fetchCategories() {
@@ -543,7 +510,6 @@
             renderFrontendNav();
         }
 
-        // 渲染前台母標籤與子標籤（支援懸浮下拉選單）
         function renderFrontendNav() {
             const navUl = document.getElementById('frontend-nav-tabs');
             const parents = categoriesCache.filter(c => !c.parent_id);
@@ -569,28 +535,37 @@
             navUl.innerHTML = html;
         }
 
+        // 後台樹狀分類圖
         async function loadCategoriesAdmin() {
             await fetchCategories();
-            const listContainer = document.getElementById('admin-categories-list');
+            const treeContainer = document.getElementById('admin-categories-tree');
             const parentSelect = document.getElementById('new-cat-parent');
 
             parentSelect.innerHTML = `<option value="">無 (設為獨立母分類)</option>` + 
                 categoriesCache.filter(c => !c.parent_id).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-            if (categoriesCache.length === 0) {
-                listContainer.innerHTML = `<p class="text-sm opacity-75">目前尚無分類。</p>`;
+            const parents = categoriesCache.filter(c => !c.parent_id);
+            if (parents.length === 0) {
+                treeContainer.innerHTML = `<p class="text-sm opacity-75">目前尚無分類。</p>`;
                 return;
             }
 
-            listContainer.innerHTML = categoriesCache.map(cat => {
-                const parent = categoriesCache.find(p => p.id === cat.parent_id);
+            treeContainer.innerHTML = parents.map(parent => {
+                const children = categoriesCache.filter(c => c.parent_id === parent.id);
                 return `
-                    <div class="p-3 bg-[#F9F6F0] border border-[#EFE9E3] rounded flex justify-between items-center text-sm">
-                        <div>
-                            <span class="font-bold">${cat.name}</span>
-                            <span class="text-xs opacity-70 ml-2">${parent ? `(子分類屬於：${parent.name})` : '(母分類)'}</span>
+                    <div class="space-y-1 pb-2 border-b border-[#EFE9E3] last:border-b-0">
+                        <div class="flex justify-between items-center font-bold text-[#452829]">
+                            <span>📁 ${parent.name}</span>
+                            <button onclick="deleteCategory('${parent.id}')" class="text-xs bg-red-500 text-white px-2.5 py-1 rounded hover:opacity-80">刪除母分類</button>
                         </div>
-                        <button onclick="deleteCategory('${cat.id}')" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded hover:opacity-80">刪除分類</button>
+                        <div class="pl-6 space-y-1 mt-1">
+                            ${children.length === 0 ? `<div class="text-xs opacity-60">無子標籤</div>` : children.map(child => `
+                                <div class="flex justify-between items-center text-sm py-1">
+                                    <span>└ ${child.name}</span>
+                                    <button onclick="deleteCategory('${child.id}')" class="text-xs bg-red-500 text-white px-2 py-0.5 rounded hover:opacity-80">刪除子分類</button>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -604,9 +579,7 @@
             if (!name) return alert('請輸入分類名稱');
 
             const payload = { name };
-            if (parent_id) {
-                payload.parent_id = parent_id;
-            }
+            if (parent_id) payload.parent_id = parent_id;
 
             const { error } = await supabaseClient.from('categories').insert([payload]);
             if (error) {
@@ -629,34 +602,81 @@
             }
         }
 
-        function updateCategoryDropdowns() {
+        // 綁定文章分類連動選單 (母標籤 -> 子標籤)
+        function populateArticleParentDropdowns() {
             ['new', 'edit'].forEach(type => {
-                const select = document.getElementById(`${type}-article-category-select`);
-                select.innerHTML = categoriesCache.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
+                const parentSelect = document.getElementById(`${type}-article-parent-select`);
+                const parents = categoriesCache.filter(c => !c.parent_id);
+                parentSelect.innerHTML = `<option value="">請選擇母標籤...</option>` + 
+                    parents.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+                
+                document.getElementById(`${type}-article-child-select`).innerHTML = `<option value="">請先選擇母標籤</option>`;
             });
+        }
+
+        function updateChildDropdown(type, selectedChildName = '') {
+            const parentName = document.getElementById(`${type}-article-parent-select`).value;
+            const childSelect = document.getElementById(`${type}-article-child-select`);
+
+            if (!parentName) {
+                childSelect.innerHTML = `<option value="">請先選擇母標籤</option>`;
+                return;
+            }
+
+            const parentObj = categoriesCache.find(c => c.name === parentName && !c.parent_id);
+            if (!parentObj) {
+                childSelect.innerHTML = `<option value="">無子標籤</option>`;
+                return;
+            }
+
+            const children = categoriesCache.filter(c => c.parent_id === parentObj.id);
+            if (children.length === 0) {
+                childSelect.innerHTML = `<option value="">此母標籤無子標籤</option>`;
+            } else {
+                childSelect.innerHTML = `<option value="">(不選子標籤)</option>` + 
+                    children.map(ch => `<option value="${ch.name}" ${ch.name === selectedChildName ? 'selected' : ''}>${ch.name}</option>`).join('');
+            }
         }
 
         // ================= 文章取得與列表 =================
         async function fetchArticles(category = 'all') {
             const container = document.getElementById('main-content-area');
-            let query = supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
             
-            if (category !== 'all') {
-                query = query.eq('category', category);
+            if (error || !data || data.length === 0) {
+                container.innerHTML = `<div class="custom-card p-6 rounded-xl border border-[#EFE9E3] shadow-sm">目前尚無文章。</div>`;
+                return;
             }
 
-            const { data, error } = await query;
-            if (error || !data || data.length === 0) {
-                container.innerHTML = `<div class="custom-card p-6 rounded-xl border border-[#EFE9E3] shadow-sm">此分類目前尚無文章。</div>`;
-                return;
+            // 若選擇特定分類，子標籤文章屬於母標籤（點擊母標籤可看見母標籤底下的所有文章及子標籤文章）
+            let filteredData = data;
+            if (category !== 'all') {
+                const targetCat = categoriesCache.find(c => c.name === category);
+                if (targetCat && !targetCat.parent_id) {
+                    // 是母標籤：找出該母標籤本身與其所有子標籤的名字
+                    const childIds = categoriesCache.filter(c => c.parent_id === targetCat.id).map(c => c.name);
+                    const validCategories = [targetCat.name, ...childIds];
+                    filteredData = data.filter(art => validCategories.includes(art.category));
+                } else {
+                    // 是子標籤或一般分類
+                    filteredData = data.filter(art => art.category === category || art.subcategory === category);
+                }
             }
 
             allArticlesCache = data;
 
-            container.innerHTML = data.map(article => `
+            if (filteredData.length === 0) {
+                container.innerHTML = `<div class="custom-card p-6 rounded-xl border border-[#EFE9E3] shadow-sm">此分類目前尚無文章。</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredData.map(article => `
                 <article class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] flex flex-col justify-between">
                     <div>
-                        <span class="text-xs uppercase tracking-wider opacity-70">${article.category}</span>
+                        <div class="text-xs uppercase tracking-wider opacity-70 space-x-1">
+                            <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
+                            ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
+                        </div>
                         <h2 class="text-2xl font-bold mt-1 mb-3 cursor-pointer hover:underline" onclick="viewSingleArticle('${article.id}')">${article.title}</h2>
                         <div class="line-clamp-2 leading-relaxed space-y-2 opacity-90 text-sm">${article.content}</div>
                     </div>
@@ -680,8 +700,11 @@
                 <div class="mb-4">
                     <button onclick="fetchArticles('all')" class="text-sm px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg hover:opacity-85 font-semibold">← 返回文章列表</button>
                 </div>
-                <article class="space-y-6">
-                    <span class="text-xs uppercase tracking-wider opacity-70">${article.category}</span>
+                <article class="space-y-4">
+                    <div class="text-xs uppercase tracking-wider opacity-70 space-x-1 font-semibold">
+                        <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.category}')">${article.category}</span>
+                        ${article.subcategory ? `<span>/</span> <span class="cursor-pointer hover:underline" onclick="filterCategory('${article.subcategory}')">${article.subcategory}</span>` : ''}
+                    </div>
                     <h2 class="text-3xl font-bold text-[#452829]">${article.title}</h2>
                     <div id="article-body-content" class="leading-relaxed space-y-4 text-base pt-2">${article.content}</div>
                 </article>
@@ -741,19 +764,31 @@
         }
 
         async function publishNewArticle() {
-            const title = document.getElementById('new-article-title').value;
-            const category = document.getElementById('new-article-category-select').value;
-            const content = document.getElementById('new-article-editor').innerHTML;
+            const title = document.getElementById('new-article-title').value.trim();
+            const category = document.getElementById('new-article-parent-select').value;
+            const subcategory = document.getElementById('new-article-child-select').value;
+            const content = document.getElementById('new-article-editor').innerHTML.trim();
 
-            if (!title || !category || !content.trim()) return alert('標題、分類與內文皆不得為空');
+            if (!title) return alert('請輸入文章標題');
+            if (!category) return alert('母標籤為必選項目');
 
-            const { error } = await supabaseClient.from('articles').insert([{ title, category, content }]);
+            const parentObj = categoriesCache.find(c => c.name === category && !c.parent_id);
+            if (parentObj) {
+                const hasChildren = categoriesCache.some(c => c.parent_id === parentObj.id);
+                if (hasChildren && !subcategory) {
+                    alert('提醒：此母標籤底下設有子標籤，建議您選擇子標籤！');
+                }
+            }
+
+            const { error } = await supabaseClient.from('articles').insert([{ title, category, subcategory, content }]);
             if (error) {
                 alert('發布失敗：' + error.message);
             } else {
                 alert('發布成功！');
                 document.getElementById('new-article-title').value = '';
                 document.getElementById('new-article-editor').innerHTML = '';
+                document.getElementById('new-article-parent-select').value = '';
+                document.getElementById('new-article-child-select').innerHTML = `<option value="">請先選擇母標籤</option>`;
             }
         }
 
@@ -767,12 +802,12 @@
             }
 
             allArticlesCache = data;
-            updateCategoryDropdowns();
+            populateArticleParentDropdowns();
 
             listContainer.innerHTML = data.map(art => `
                 <div class="p-3 bg-[#F9F6F0] border border-[#EFE9E3] rounded flex justify-between items-center">
                     <div>
-                        <span class="text-xs opacity-70 uppercase">[${art.category}]</span>
+                        <span class="text-xs opacity-70">[${art.category}${art.subcategory ? ' / ' + art.subcategory : ''}]</span>
                         <h4 class="font-bold text-sm">${art.title}</h4>
                     </div>
                     <div class="space-x-2">
@@ -790,7 +825,9 @@
             document.getElementById('edit-article-id').value = article.id;
             document.getElementById('edit-article-title').value = article.title;
             document.getElementById('edit-article-editor').innerHTML = article.content;
-            document.getElementById('edit-article-category-select').value = article.category;
+            
+            document.getElementById('edit-article-parent-select').value = article.category || '';
+            updateChildDropdown('edit', article.subcategory || '');
 
             document.getElementById('edit-form-heading').innerText = `編輯文章：${article.title}`;
             document.getElementById('edit-article-form').classList.remove('hidden');
@@ -802,13 +839,23 @@
 
         async function updateExistingArticle() {
             const id = document.getElementById('edit-article-id').value;
-            const title = document.getElementById('edit-article-title').value;
-            const category = document.getElementById('edit-article-category-select').value;
-            const content = document.getElementById('edit-article-editor').innerHTML;
+            const title = document.getElementById('edit-article-title').value.trim();
+            const category = document.getElementById('edit-article-parent-select').value;
+            const subcategory = document.getElementById('edit-article-child-select').value;
+            const content = document.getElementById('edit-article-editor').innerHTML.trim();
 
-            if (!title || !category || !content.trim()) return alert('標題、分類與內文皆不得為空');
+            if (!title) return alert('請輸入文章標題');
+            if (!category) return alert('母標籤為必選項目');
 
-            const { error } = await supabaseClient.from('articles').update({ title, category, content }).eq('id', id);
+            const parentObj = categoriesCache.find(c => c.name === category && !c.parent_id);
+            if (parentObj) {
+                const hasChildren = categoriesCache.some(c => c.parent_id === parentObj.id);
+                if (hasChildren && !subcategory) {
+                    alert('提醒：此母標籤底下設有子標籤，建議您選擇子標籤！');
+                }
+            }
+
+            const { error } = await supabaseClient.from('articles').update({ title, category, subcategory, content }).eq('id', id);
             if (error) {
                 alert('更新失敗：' + error.message);
             } else {
