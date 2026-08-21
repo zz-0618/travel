@@ -45,6 +45,45 @@
         .dropdown-parent:hover .dropdown-child {
             display: block;
         }
+        /* 內文自訂元素樣式 */
+        .article-alert-box {
+            background-color: #F2EAE0;
+            border: 1px solid #C9B59C;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .article-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .article-table th, .article-table td {
+            border: 1px solid #C9B59C;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .article-table th {
+            background-color: #EFE9E3;
+        }
+        .article-details {
+            border: 1px solid #C9B59C;
+            border-radius: 8px;
+            background-color: #F9F6F0;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        .article-summary {
+            padding: 10px 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #EFE9E3;
+            user-select: none;
+        }
+        .article-details-content {
+            padding: 14px;
+            background-color: #ffffff;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -60,18 +99,13 @@
         <nav style="background-color: #C9B59C;" class="text-white shadow-md relative z-30">
             <ul id="frontend-nav-tabs" class="flex justify-center flex-wrap space-x-6 py-3 text-lg font-semibold">
                 <li><a href="#" onclick="filterCategory('all')" class="hover:opacity-85 transition">首頁</a></li>
-                <!-- 動態分類將由 JS 塞入 (支援母標籤與子標籤) -->
             </ul>
         </nav>
 
         <!-- 主體內容 -->
         <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- 左側/中間：動態切換 文章列表 或是 單篇完整文章 -->
-            <section class="md:col-span-3 space-y-6" id="main-content-area">
-                <!-- 這裡會由 JS 動態塞入文章列表或單篇詳細文章 -->
-            </section>
+            <section class="md:col-span-3 space-y-6" id="main-content-area"></section>
 
-            <!-- 右側：頭像與段落目錄 -->
             <aside class="space-y-6">
                 <div class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] text-center flex flex-col items-center">
                     <img id="site-avatar" src="https://via.placeholder.com/100?text=Avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]">
@@ -100,7 +134,6 @@
         </header>
 
         <div class="flex-1 grid grid-cols-1 md:grid-cols-5">
-            <!-- 左側頁籤 -->
             <aside class="bg-[#F9F6F0] p-6 border-r border-[#EFE9E3] space-y-2">
                 <button onclick="switchAdminTab('avatar')" id="tab-avatar-btn" class="w-full text-left px-4 py-3 rounded-lg font-semibold transition bg-[#C9B59C] text-white">👤 頭像設定</button>
                 <button onclick="switchAdminTab('logo')" id="tab-logo-btn" class="w-full text-left px-4 py-3 rounded-lg font-semibold transition hover:bg-[#EFE9E3]">🖼️ Logo 設定</button>
@@ -108,27 +141,24 @@
                 <button onclick="switchAdminTab('articles')" id="tab-articles-btn" class="w-full text-left px-4 py-3 rounded-lg font-semibold transition hover:bg-[#EFE9E3]">📝 文章管理</button>
             </aside>
 
-            <!-- 右側內容區 -->
             <main class="md:col-span-4 p-8 max-w-4xl w-full">
-                <!-- 1. 頭像設定頁籤 -->
+                <!-- 1. 頭像設定 -->
                 <div id="admin-tab-avatar" class="admin-tab-content space-y-4">
                     <h2 class="text-2xl font-bold border-b pb-2">更換頭像</h2>
                     <input type="file" id="admin-avatar-file" class="block w-full text-sm border p-2 rounded">
                     <button onclick="uploadAsset('avatar')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新頭像</button>
                 </div>
 
-                <!-- 2. Logo 設定頁籤 -->
+                <!-- 2. Logo 設定 -->
                 <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
                     <h2 class="text-2xl font-bold border-b pb-2">更換 Logo</h2>
                     <input type="file" id="admin-logo-file" class="block w-full text-sm border p-2 rounded">
                     <button onclick="uploadAsset('logo')" class="text-white px-6 py-2 rounded-lg text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">上傳並更新 Logo</button>
                 </div>
 
-                <!-- 3. 文章分類頁籤 -->
+                <!-- 3. 文章分類管理 -->
                 <div id="admin-tab-categories" class="admin-tab-content space-y-6 hidden">
                     <h2 class="text-2xl font-bold border-b pb-2">文章分類管理 (樹狀檢視)</h2>
-                    
-                    <!-- 新增分類表單 -->
                     <div class="custom-card p-4 rounded-xl space-y-3 border border-[#C9B59C]">
                         <h3 class="font-bold text-md">新增分類</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -139,8 +169,6 @@
                             <button onclick="addNewCategory()" class="text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90" style="background-color: #C9B59C;">新增分類</button>
                         </div>
                     </div>
-
-                    <!-- 樹狀分類列表 -->
                     <div class="space-y-3">
                         <h3 class="font-bold text-md">分類樹狀圖</h3>
                         <div id="admin-categories-tree" class="space-y-2 p-4 bg-[#F9F6F0] border border-[#EFE9E3] rounded-xl">
@@ -149,7 +177,7 @@
                     </div>
                 </div>
 
-                <!-- 4. 文章管理頁籤 -->
+                <!-- 4. 文章管理 -->
                 <div id="admin-tab-articles" class="admin-tab-content space-y-6 hidden">
                     <h2 class="text-2xl font-bold border-b pb-2">文章管理</h2>
                     <div class="flex space-x-4 border-b pb-4">
@@ -157,7 +185,7 @@
                         <button onclick="switchArticleSubTab('manage')" id="subtab-manage-btn" class="px-4 py-2 font-bold rounded bg-[#EFE9E3] hover:opacity-80">維護舊文章</button>
                     </div>
 
-                    <!-- 子區塊 A：新增新文章 -->
+                    <!-- 新增新文章 -->
                     <div id="sub-article-new" class="space-y-4">
                         <h3 class="text-lg font-semibold">發布新文章</h3>
                         <div>
@@ -179,42 +207,35 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm mb-1 font-semibold">內文編輯器</label>
+                            <label class="block text-sm mb-1 font-semibold">內文編輯器 (支援貼上圖片或檔案上傳)</label>
                             <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#F9F6F0] border rounded items-center">
                                 <button type="button" class="editor-btn" onclick="formatText('bold')"><b>B</b></button>
                                 <button type="button" class="editor-btn" onclick="formatText('italic')"><i>I</i></button>
                                 <button type="button" class="editor-btn" onclick="formatText('underline')"><u>U</u></button>
                                 <button type="button" class="editor-btn" onclick="insertLink()">🔗 超連結</button>
+                                <button type="button" class="editor-btn" onclick="triggerImageUpload('new')">🖼️ 插入圖片</button>
+                                <input type="file" id="new-image-file-input" class="hidden" accept="image/*" onchange="handleImageFileSelect(event, 'new')">
+                                <button type="button" class="editor-btn" onclick="insertAlertBox('new')">💡 提醒框</button>
+                                <button type="button" class="editor-btn" onclick="openTableModal('new')">📊 表格</button>
+                                <button type="button" class="editor-btn" onclick="insertDetailsBlock('new')">📂 收放列表</button>
                                 
                                 <select class="editor-btn font-semibold" onchange="formatParagraphStyle(this.value); this.value='';">
-                                    <option value="">段落階層與大小</option>
+                                    <option value="">段落階層</option>
                                     <option value="h1">第一階標題 (48px)</option>
                                     <option value="h2">第二階標題 (36px)</option>
                                     <option value="h3">第三階標題 (24px)</option>
                                     <option value="h4">第四階標題 (18px)</option>
                                     <option value="p">一般內文 (12px)</option>
                                 </select>
-
-                                <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
-                                    <span class="text-xs opacity-75">大小:</span>
-                                    <input type="number" id="custom-font-size-input" class="w-12 text-xs text-center border rounded px-1 py-0.5" value="12" min="8" max="100" onchange="applyCustomFontSize(this.value)">
-                                </div>
-
-                                <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
-                                    <span class="text-xs opacity-75">顏色:</span>
-                                    <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #D90000;" onclick="applyTextColor('#D90000')" title="紅"></button>
-                                    <button type="button" class="w-4 h-4 rounded-full border border-gray-300" style="background-color: #3368A0;" onclick="applyTextColor('#3368A0')" title="藍"></button>
-                                    <input type="color" id="custom-color-picker" class="w-6 h-6 p-0 border-0 rounded cursor-pointer bg-transparent" onchange="applyTextColor(this.value)">
-                                </div>
                             </div>
-                            <div id="new-article-editor" contenteditable="true" class="w-full h-64 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)"></div>
+                            <div id="new-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
                         </div>
                         <div class="flex justify-end pt-2">
                             <button onclick="publishNewArticle()" class="text-white px-6 py-2 rounded-lg font-medium hover:opacity-90" style="background-color: #C9B59C;">提交發布</button>
                         </div>
                     </div>
 
-                    <!-- 子區塊 B：維護舊文章 -->
+                    <!-- 維護舊文章 -->
                     <div id="sub-article-manage" class="space-y-4 hidden">
                         <h3 class="text-lg font-semibold">選擇要修改或刪除的文章</h3>
                         <div id="admin-articles-list" class="space-y-2"><p class="text-sm opacity-75">載入中...</p></div>
@@ -244,28 +265,19 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm mb-1 font-semibold">內文編輯器</label>
+                                <label class="block text-sm mb-1 font-semibold">內文編輯器 (支援貼上圖片或檔案上傳)</label>
                                 <div class="flex flex-wrap gap-2 mb-2 p-2 bg-[#F9F6F0] border rounded items-center">
                                     <button type="button" class="editor-btn" onclick="formatTextEdit('bold')"><b>B</b></button>
                                     <button type="button" class="editor-btn" onclick="formatTextEdit('italic')"><i>I</i></button>
                                     <button type="button" class="editor-btn" onclick="formatTextEdit('underline')"><u>U</u></button>
                                     <button type="button" class="editor-btn" onclick="insertLinkEdit()">🔗 超連結</button>
-                                    
-                                    <select class="editor-btn font-semibold" onchange="formatParagraphStyleEdit(this.value); this.value='';">
-                                        <option value="">段落階層與大小</option>
-                                        <option value="h1">第一階標題 (48px)</option>
-                                        <option value="h2">第二階標題 (36px)</option>
-                                        <option value="h3">第三階標題 (24px)</option>
-                                        <option value="h4">第四階標題 (18px)</option>
-                                        <option value="p">一般內文 (12px)</option>
-                                    </select>
-
-                                    <div class="flex items-center space-x-1 bg-white border border-[#C9B59C] rounded px-2 py-0.5">
-                                        <span class="text-xs opacity-75">大小:</span>
-                                        <input type="number" id="edit-custom-font-size-input" class="w-12 text-xs text-center border rounded px-1 py-0.5" value="12" min="8" max="100" onchange="applyCustomFontSizeEdit(this.value)">
-                                    </div>
+                                    <button type="button" class="editor-btn" onclick="triggerImageUpload('edit')">🖼️ 插入圖片</button>
+                                    <input type="file" id="edit-image-file-input" class="hidden" accept="image/*" onchange="handleImageFileSelect(event, 'edit')">
+                                    <button type="button" class="editor-btn" onclick="insertAlertBox('edit')">💡 提醒框</button>
+                                    <button type="button" class="editor-btn" onclick="openTableModal('edit')">📊 表格</button>
+                                    <button type="button" class="editor-btn" onclick="insertDetailsBlock('edit')">📂 收放列表</button>
                                 </div>
-                                <div id="edit-article-editor" contenteditable="true" class="w-full h-64 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)"></div>
+                                <div id="edit-article-editor" contenteditable="true" class="w-full h-72 border p-3 rounded bg-white overflow-y-auto text-sm leading-relaxed" onkeydown="handleEditorKeyDown(event)" onpaste="handleEditorPaste(event)"></div>
                             </div>
                             <div class="flex justify-end pt-2">
                                 <button onclick="updateExistingArticle()" class="text-white px-6 py-2 rounded-lg font-medium hover:opacity-90" style="background-color: #C9B59C;">提交修改</button>
@@ -274,6 +286,26 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- 表格設定 Modal -->
+    <div id="table-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full space-y-4 shadow-xl">
+            <h3 class="font-bold text-lg text-[#452829]">插入自訂表格</h3>
+            <input type="hidden" id="table-target-editor">
+            <div>
+                <label class="block text-xs mb-1 font-semibold">橫欄數 (Rows)</label>
+                <input type="number" id="table-rows-input" class="w-full text-sm border p-2 rounded" value="3" min="1" max="20">
+            </div>
+            <div>
+                <label class="block text-xs mb-1 font-semibold">豎列數 (Columns)</label>
+                <input type="number" id="table-cols-input" class="w-full text-sm border p-2 rounded" value="3" min="1" max="10">
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeTableModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm">取消</button>
+                <button onclick="confirmInsertTable()" class="px-4 py-2 text-white rounded text-sm" style="background-color: #C9B59C;">確認插入</button>
+            </div>
         </div>
     </div>
 
@@ -427,76 +459,124 @@
             }
         }
 
-        // ================= 編輯器工具 =================
+        // ================= 編輯器進階工具 (圖片、提醒框、表格、收放列表) =================
         function formatText(command) { document.execCommand(command, false, null); }
+        function formatTextEdit(command) { document.execCommand(command, false, null); }
         function insertLink() {
+            const url = prompt('請輸入超連結網址 (URL):');
+            if (url) document.execCommand('createLink', false, url);
+        }
+        function insertLinkEdit() {
             const url = prompt('請輸入超連結網址 (URL):');
             if (url) document.execCommand('createLink', false, url);
         }
         function formatParagraphStyle(tag) {
             if (!tag) return;
-            if (tag === 'p') {
-                document.execCommand('formatBlock', false, 'p');
-                applyCustomFontSize(12);
-            } else {
-                document.execCommand('formatBlock', false, tag);
-                if (tag === 'h1') applyCustomFontSize(48);
-                if (tag === 'h2') applyCustomFontSize(36);
-                if (tag === 'h3') applyCustomFontSize(24);
-                if (tag === 'h4') applyCustomFontSize(18);
+            document.execCommand('formatBlock', false, tag);
+        }
+
+        function triggerImageUpload(type) {
+            document.getElementById(`${type}-image-file-input`).click();
+        }
+
+        async function handleImageFileSelect(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+            await uploadAndInsertImage(file, type);
+            event.target.value = '';
+        }
+
+        async function handleEditorPaste(event) {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    event.preventDefault();
+                    const file = item.getAsFile();
+                    const type = event.target.id.includes('new') ? 'new' : 'edit';
+                    await uploadAndInsertImage(file, type);
+                    break;
+                }
             }
         }
-        function applyCustomFontSize(size) {
-            if (!size) return;
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const span = document.createElement('span');
-            span.style.fontSize = size + 'px';
-            try {
-                span.appendChild(selection.getRangeAt(0).extractContents());
-                selection.getRangeAt(0).insertNode(span);
-            } catch (e) {}
+
+        async function uploadAndInsertImage(file, type) {
+            const { data, error } = await supabaseClient.storage.from('blog-assets').upload(`article_${Date.now()}_${file.name}`, file);
+            if (error) {
+                alert('圖片上傳失敗：' + error.message);
+                return;
+            }
+            const publicUrl = supabaseClient.storage.from('blog-assets').getPublicUrl(data.path).data.publicUrl;
+            
+            const editorId = `${type}-article-editor`;
+            const editor = document.getElementById(editorId);
+            editor.focus();
+            
+            const imgHtml = `<p><img src="${publicUrl}" class="max-w-full rounded my-3" style="max-height: 500px; object-fit: contain;" alt="文章圖片"></p><p><br></p>`;
+            document.execCommand('insertHTML', false, imgHtml);
         }
-        function applyTextColor(color) {
-            if (!color) return;
-            document.execCommand('foreColor', false, color);
+
+        function insertAlertBox(type) {
+            const editor = document.getElementById(`${type}-article-editor`);
+            editor.focus();
+            const alertHtml = `<div class="article-alert-box" contenteditable="true"><p>請在此輸入提醒框內文...</p></div><p><br></p>`;
+            document.execCommand('insertHTML', false, alertHtml);
         }
+
+        function openTableModal(type) {
+            document.getElementById('table-target-editor').value = type;
+            document.getElementById('table-modal').classList.remove('hidden');
+        }
+
+        function closeTableModal() {
+            document.getElementById('table-modal').classList.add('hidden');
+        }
+
+        function confirmInsertTable() {
+            const type = document.getElementById('table-target-editor').value;
+            const rows = parseInt(document.getElementById('table-rows-input').value) || 3;
+            const cols = parseInt(document.getElementById('table-cols-input').value) || 3;
+            closeTableModal();
+
+            let tableHtml = `<table class="article-table"><thead><tr>`;
+            for (let c = 0; c < cols; c++) {
+                tableHtml += `<th>標題 ${c+1}</th>`;
+            }
+            tableHtml += `</tr></thead><tbody>`;
+            for (let r = 0; r < rows - 1; r++) {
+                tableHtml += `<tr>`;
+                for (let c = 0; c < cols; c++) {
+                    tableHtml += `<td>內容</td>`;
+                }
+                tableHtml += `</tr>`;
+            }
+            tableHtml += `</tbody></table><p><br></p>`;
+
+            const editor = document.getElementById(`${type}-article-editor`);
+            editor.focus();
+            document.execCommand('insertHTML', false, tableHtml);
+        }
+
+        function insertDetailsBlock(type) {
+            const editor = document.getElementById(`${type}-article-editor`);
+            editor.focus();
+            const detailsHtml = `
+                <details class="article-details">
+                    <summary class="article-summary">> 點擊展開查看內容</summary>
+                    <div class="article-details-content" contenteditable="true">
+                        <p>這裡是可以隱藏或顯示的剩餘內容...</p>
+                    </div>
+                </details>
+                <p><br></p>
+            `;
+            document.execCommand('insertHTML', false, detailsHtml);
+        }
+
         function handleEditorKeyDown(event) {
             if (event.key === 'Enter') {
                 setTimeout(() => {
                     document.execCommand('formatBlock', false, 'p');
                 }, 10);
             }
-        }
-
-        function formatTextEdit(command) { document.execCommand(command, false, null); }
-        function insertLinkEdit() {
-            const url = prompt('請輸入超連結網址 (URL):');
-            if (url) document.execCommand('createLink', false, url);
-        }
-        function formatParagraphStyleEdit(tag) {
-            if (!tag) return;
-            if (tag === 'p') {
-                document.execCommand('formatBlock', false, 'p');
-                applyCustomFontSizeEdit(12);
-            } else {
-                document.execCommand('formatBlock', false, tag);
-                if (tag === 'h1') applyCustomFontSizeEdit(48);
-                if (tag === 'h2') applyCustomFontSizeEdit(36);
-                if (tag === 'h3') applyCustomFontSizeEdit(24);
-                if (tag === 'h4') applyCustomFontSizeEdit(18);
-            }
-        }
-        function applyCustomFontSizeEdit(size) {
-            if (!size) return;
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const span = document.createElement('span');
-            span.style.fontSize = size + 'px';
-            try {
-                span.appendChild(selection.getRangeAt(0).extractContents());
-                selection.getRangeAt(0).insertNode(span);
-            } catch (e) {}
         }
 
         // ================= 分類管理與前台導覽列 =================
@@ -535,7 +615,6 @@
             navUl.innerHTML = html;
         }
 
-        // 後台樹狀分類圖
         async function loadCategoriesAdmin() {
             await fetchCategories();
             const treeContainer = document.getElementById('admin-categories-tree');
@@ -602,7 +681,6 @@
             }
         }
 
-        // 綁定文章分類連動選單 (母標籤 -> 子標籤)
         function populateArticleParentDropdowns() {
             ['new', 'edit'].forEach(type => {
                 const parentSelect = document.getElementById(`${type}-article-parent-select`);
@@ -648,17 +726,14 @@
                 return;
             }
 
-            // 若選擇特定分類，子標籤文章屬於母標籤（點擊母標籤可看見母標籤底下的所有文章及子標籤文章）
             let filteredData = data;
             if (category !== 'all') {
                 const targetCat = categoriesCache.find(c => c.name === category);
                 if (targetCat && !targetCat.parent_id) {
-                    // 是母標籤：找出該母標籤本身與其所有子標籤的名字
                     const childIds = categoriesCache.filter(c => c.parent_id === targetCat.id).map(c => c.name);
                     const validCategories = [targetCat.name, ...childIds];
                     filteredData = data.filter(art => validCategories.includes(art.category));
                 } else {
-                    // 是子標籤或一般分類
                     filteredData = data.filter(art => art.category === category || art.subcategory === category);
                 }
             }
@@ -776,7 +851,7 @@
             if (parentObj) {
                 const hasChildren = categoriesCache.some(c => c.parent_id === parentObj.id);
                 if (hasChildren && !subcategory) {
-                    alert('提醒：此母標籤底下設有子標籤，建議您選擇子標籤！');
+                    alert('提醒：此母標籤底下設有子標籤，但您未選子標籤！');
                 }
             }
 
@@ -851,7 +926,7 @@
             if (parentObj) {
                 const hasChildren = categoriesCache.some(c => c.parent_id === parentObj.id);
                 if (hasChildren && !subcategory) {
-                    alert('提醒：此母標籤底下設有子標籤，建議您選擇子標籤！');
+                    alert('提醒：此母標籤底下設有子標籤，但您未選子標籤！');
                 }
             }
 
