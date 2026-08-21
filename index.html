@@ -45,7 +45,7 @@
         .dropdown-parent:hover .dropdown-child {
             display: block;
         }
-        /* 內文與各階層標題統一使用思源宋體與相同顏色 */
+        /* 內文與各階層標題強制統一使用思源宋體與相同顏色 */
         .article-content-style, 
         .article-content-style p, 
         .article-content-style span, 
@@ -54,10 +54,10 @@
         .article-content-style h2,
         .article-content-style h3,
         .article-content-style h4 {
-            font-family: 'Noto Serif TC', serif;
-            color: #452829;
+            font-family: 'Noto Serif TC', serif !important;
+            color: #452829 !important;
         }
-        /* 段落階層標題樣式支援 (確保字體、顏色統一，並維持適當大小與粗體) */
+        /* 段落階層標題樣式支援 */
         .article-content-style h1 { font-size: 2.25rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; line-height: 1.2; }
         .article-content-style h2 { font-size: 1.875rem; font-weight: bold; margin-top: 0.875rem; margin-bottom: 0.5rem; line-height: 1.3; }
         .article-content-style h3 { font-size: 1.5rem; font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.4rem; line-height: 1.4; }
@@ -115,19 +115,16 @@
 
     <!-- 前台畫面 -->
     <div id="frontend-view">
-        <!-- 最上方 Logo 區 -->
         <header class="w-full py-6 bg-white shadow-sm border-b border-[#EFE9E3] flex flex-col items-center justify-center">
             <img id="site-logo" src="https://via.placeholder.com/150x50?text=LOGO" alt="Logo" class="h-12 object-contain">
         </header>
 
-        <!-- 動態母標籤與子標籤導覽列 -->
         <nav style="background-color: #C9B59C;" class="text-white shadow-md relative z-30">
             <ul id="frontend-nav-tabs" class="flex justify-center flex-wrap space-x-6 py-3 text-lg font-semibold">
                 <li><a href="#" onclick="filterCategory('all')" class="hover:opacity-85 transition">首頁</a></li>
             </ul>
         </nav>
 
-        <!-- 主體內容 -->
         <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
             <section class="md:col-span-3 space-y-6" id="main-content-area"></section>
 
@@ -148,7 +145,7 @@
         </main>
     </div>
 
-    <!-- 後台管理畫面 (預設隱藏) -->
+    <!-- 後台管理畫面 -->
     <div id="admin-view" class="hidden min-h-screen bg-white flex flex-col">
         <header class="bg-[#EFE9E3] px-8 py-4 border-b border-[#C9B59C] flex justify-between items-center">
             <h1 class="text-xl font-bold text-[#452829]">⚙️ 網站後台管理系統</h1>
@@ -495,7 +492,7 @@
             }
         }
 
-        // ================= 編輯器進階工具 (圖片、提醒框、表格、收放列表) =================
+        // ================= 編輯器進階工具 =================
         function formatText(command) { document.execCommand(command, false, null); }
         function formatTextEdit(command) { document.execCommand(command, false, null); }
         function insertLink() {
@@ -762,7 +759,7 @@
             }
         }
 
-        // ================= 文章取得與列表 (套用思源宋體與主題顏色) =================
+        // ================= 文章取得與列表 =================
         async function fetchArticles(category = 'all') {
             const container = document.getElementById('main-content-area');
             const { data, error } = await supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
@@ -893,14 +890,6 @@
             if (!title) return alert('請輸入文章標題');
             if (!category) return alert('母標籤為必選項目');
 
-            const parentObj = categoriesCache.find(c => c.name === category && !c.parent_id);
-            if (parentObj) {
-                const hasChildren = categoriesCache.some(c => c.parent_id === parentObj.id);
-                if (hasChildren && !subcategory) {
-                    alert('提醒：此母標籤底下設有子標籤，但您未選子標籤！');
-                }
-            }
-
             const { error } = await supabaseClient.from('articles').insert([{ title, category, subcategory, content }]);
             if (error) {
                 alert('發布失敗：' + error.message);
@@ -959,30 +948,27 @@
         }
 
         async function updateExistingArticle() {
-            const id = document.getElementById('edit-article-id').value;
-            const title = document.getElementById('edit-article-title').value.trim();
-            const category = document.getElementById('edit-article-parent-select').value;
-            const subcategory = document.getElementById('edit-article-child-select').value;
-            const content = document.getElementById('edit-article-editor').innerHTML.trim();
+            try {
+                const id = document.getElementById('edit-article-id').value;
+                const title = document.getElementById('edit-article-title').value.trim();
+                const category = document.getElementById('edit-article-parent-select').value;
+                const subcategory = document.getElementById('edit-article-child-select').value;
+                const content = document.getElementById('edit-article-editor').innerHTML.trim();
 
-            if (!title) return alert('請輸入文章標題');
-            if (!category) return alert('母標籤為必選項目');
+                if (!title) return alert('請輸入文章標題');
+                if (!category) return alert('母標籤為必選項目');
 
-            const parentObj = categoriesCache.find(c => c.name === category && !c.parent_id);
-            if (parentObj) {
-                const hasChildren = categoriesCache.some(c => c.parent_id === parentObj.id);
-                if (hasChildren && !subcategory) {
-                    alert('提醒：此母標籤底下設有子標籤，但您未選子標籤！');
+                const { error } = await supabaseClient.from('articles').update({ title, category, subcategory, content }).eq('id', id);
+                if (error) {
+                    alert('更新失敗：' + error.message);
+                } else {
+                    alert('文章更新成功！');
+                    closeEditForm();
+                    loadManageArticlesList();
                 }
-            }
-
-            const { error } = await supabaseClient.from('articles').update({ title, category, subcategory, content }).eq('id', id);
-            if (error) {
-                alert('更新失敗：' + error.message);
-            } else {
-                alert('文章更新成功！');
-                closeEditForm();
-                loadManageArticlesList();
+            } catch (err) {
+                alert('連線失敗 (Failed to fetch)：請檢查你的網際網路連線或 Supabase URL 設定是否正確。');
+                console.error(err);
             }
         }
 
