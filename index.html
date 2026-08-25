@@ -135,7 +135,7 @@
                     <p class="text-sm mt-1 opacity-90">一個隨筆紀錄的人</p>
                 </div>
 
-                <!-- 側邊欄目錄容器 (僅在單篇文章檢視時填入內容，首頁維持隱藏或空白) -->
+                <!-- 側邊欄目錄容器 (僅在單篇文章檢視時顯示) -->
                 <div id="sidebar-toc-container" class="hidden custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] sticky top-4">
                     <h4 class="font-bold border-b border-[#C9B59C] pb-2 mb-3">📂 文章目錄</h4>
                     <ul id="table-of-contents" class="text-sm space-y-2">
@@ -251,7 +251,7 @@
                                     <option value="p">一般內文</option>
                                 </select>
 
-                                <!-- 字型大小調整 (含預設選項與手動輸入支援) -->
+                                <!-- 字型大小調整 -->
                                 <div class="flex items-center space-x-1">
                                     <select class="editor-btn font-semibold" onchange="changeFontSize('new', this.value); this.value='';">
                                         <option value="">字型大小</option>
@@ -263,7 +263,7 @@
                                         <option value="60px">60</option>
                                         <option value="72px">72</option>
                                     </select>
-                                    <input type="number" id="new-custom-fontsize" class="w-16 text-xs border p-1 rounded bg-white" placeholder="自訂px" title="輸入數字後按右側按鈕" min="8" max="200">
+                                    <input type="number" id="new-custom-fontsize" class="w-16 text-xs border p-1 rounded bg-white" placeholder="自訂px" min="8" max="200">
                                     <button type="button" class="editor-btn" onclick="applyCustomFontSize('new')">套用</button>
                                 </div>
                             </div>
@@ -325,7 +325,7 @@
                                         <option value="p">一般內文</option>
                                     </select>
 
-                                    <!-- 字型大小調整 (含預設選項與手動輸入支援) -->
+                                    <!-- 字型大小調整 -->
                                     <div class="flex items-center space-x-1">
                                         <select class="editor-btn font-semibold" onchange="changeFontSize('edit', this.value); this.value='';">
                                             <option value="">字型大小</option>
@@ -337,7 +337,7 @@
                                             <option value="60px">60</option>
                                             <option value="72px">72</option>
                                         </select>
-                                        <input type="number" id="edit-custom-fontsize" class="w-16 text-xs border p-1 rounded bg-white" placeholder="自訂px" title="輸入數字後按右側按鈕" min="8" max="200">
+                                        <input type="number" id="edit-custom-fontsize" class="w-16 text-xs border p-1 rounded bg-white" placeholder="自訂px" min="8" max="200">
                                         <button type="button" class="editor-btn" onclick="applyCustomFontSize('edit')">套用</button>
                                     </div>
                                 </div>
@@ -555,7 +555,7 @@
             if (!size) return;
             const editor = document.getElementById(`${type}-article-editor`);
             editor.focus();
-            document.execCommand('fontSize', false, '7'); // 先設為最高級數以便置換行內樣式
+            document.execCommand('fontSize', false, '7'); 
             const fontElements = editor.querySelectorAll('font[size="7"]');
             fontElements.forEach(el => {
                 const span = document.createElement('span');
@@ -819,7 +819,6 @@
             const container = document.getElementById('main-content-area');
             const tocSidebar = document.getElementById('sidebar-toc-container');
             
-            // 主頁不顯示目錄側邊欄
             if (tocSidebar) tocSidebar.classList.add('hidden');
 
             const { data, error } = await supabaseClient.from('articles').select('*').order('created_at', { ascending: false });
@@ -850,7 +849,9 @@
 
             container.innerHTML = filteredData.map(article => {
                 const createdDate = article.created_at ? new Date(article.created_at).toLocaleString('zh-TW', { hour12: false }) : '';
-                const updatedDate = article.updated_at && article.updated_at !== article.created_at ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
+                // 只有當 updated_at 存在且跟 created_at 不同（或大於建立時間）時才顯示最後更新
+                const hasUpdated = article.updated_at && article.created_at && new Date(article.updated_at) > new Date(article.created_at);
+                const updatedDate = hasUpdated ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
                 
                 return `
                     <article class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] flex flex-col justify-between">
@@ -883,11 +884,11 @@
             const container = document.getElementById('main-content-area');
             const tocSidebar = document.getElementById('sidebar-toc-container');
             
-            // 進入單篇文章時顯示側邊欄目錄
             if (tocSidebar) tocSidebar.classList.remove('hidden');
 
             const createdDate = article.created_at ? new Date(article.created_at).toLocaleString('zh-TW', { hour12: false }) : '';
-            const updatedDate = article.updated_at && article.updated_at !== article.created_at ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
+            const hasUpdated = article.updated_at && article.created_at && new Date(article.updated_at) > new Date(article.created_at);
+            const updatedDate = hasUpdated ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
 
             container.innerHTML = `
                 <div class="mb-4">
@@ -982,6 +983,7 @@
             if (!title) return alert('請輸入文章標題');
             if (!category) return alert('母標籤為必選項目');
 
+            // 發布新文章時，created_at 與 updated_at 都設為當前時間
             const { error } = await supabaseClient.from('articles').insert([{ 
                 title, 
                 category, 
@@ -1059,8 +1061,10 @@
                 if (!category) return alert('母標籤為必選項目');
 
                 const originalArticle = allArticlesCache.find(art => art.id == id);
+                // 保留原本第一次發布的 created_at，不予更動
                 const created_at = originalArticle ? originalArticle.created_at : new Date().toISOString();
-                const updated_at = new Date().toISOString(); // 自動更新最後修改時間
+                // 更新 updated_at 為當前修改時間
+                const updated_at = new Date().toISOString(); 
 
                 const { error } = await supabaseClient.from('articles').upsert({ 
                     id: id, 
