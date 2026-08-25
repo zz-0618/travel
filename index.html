@@ -45,7 +45,7 @@
         .dropdown-parent:hover .dropdown-child {
             display: block;
         }
-        /* 內文與各階層標題強制統一使用思源宋體與相同顏色 */
+        /* 內文與各階層標題強制統一使用思源宋體與相同顏色，預設內文大小為 14px */
         .article-content-style, 
         .article-content-style p, 
         .article-content-style span, 
@@ -57,12 +57,15 @@
             font-family: 'Noto Serif TC', serif !important;
             color: #452829 !important;
         }
+        .article-content-style {
+            font-size: 14px !important;
+        }
         /* 段落階層標題樣式支援 */
         .article-content-style h1 { font-size: 2.25rem; font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; line-height: 1.2; }
         .article-content-style h2 { font-size: 1.875rem; font-weight: bold; margin-top: 0.875rem; margin-bottom: 0.5rem; line-height: 1.3; }
         .article-content-style h3 { font-size: 1.5rem; font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.4rem; line-height: 1.4; }
         .article-content-style h4 { font-size: 1.25rem; font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.3rem; line-height: 1.4; }
-        .article-content-style p { margin-bottom: 0.75rem; }
+        .article-content-style p { margin-bottom: 0.75rem; font-size: 14px; }
 
         /* 內文自訂元素樣式 */
         .article-alert-box {
@@ -73,6 +76,7 @@
             margin: 16px 0;
             font-family: 'Noto Serif TC', serif;
             color: #452829;
+            font-size: 14px;
         }
         .article-table {
             width: 100%;
@@ -80,6 +84,7 @@
             margin: 16px 0;
             font-family: 'Noto Serif TC', serif;
             color: #452829;
+            font-size: 14px;
         }
         .article-table th, .article-table td {
             border: 1px solid #C9B59C;
@@ -97,6 +102,7 @@
             overflow: hidden;
             font-family: 'Noto Serif TC', serif;
             color: #452829;
+            font-size: 14px;
         }
         .article-summary {
             padding: 10px 14px;
@@ -251,11 +257,11 @@
                                     <option value="p">一般內文</option>
                                 </select>
 
-                                <!-- 字型大小調整 -->
+                                <!-- 字型大小調整 (12改為14) -->
                                 <div class="flex items-center space-x-1">
                                     <select class="editor-btn font-semibold" onchange="changeFontSize('new', this.value); this.value='';">
                                         <option value="">字型大小</option>
-                                        <option value="12px">12</option>
+                                        <option value="14px">14</option>
                                         <option value="18px">18</option>
                                         <option value="24px">24</option>
                                         <option value="36px">36</option>
@@ -325,11 +331,11 @@
                                         <option value="p">一般內文</option>
                                     </select>
 
-                                    <!-- 字型大小調整 -->
+                                    <!-- 字型大小調整 (12改為14) -->
                                     <div class="flex items-center space-x-1">
                                         <select class="editor-btn font-semibold" onchange="changeFontSize('edit', this.value); this.value='';">
                                             <option value="">字型大小</option>
-                                            <option value="12px">12</option>
+                                            <option value="14px">14</option>
                                             <option value="18px">18</option>
                                             <option value="24px">24</option>
                                             <option value="36px">36</option>
@@ -848,10 +854,10 @@
             }
 
             container.innerHTML = filteredData.map(article => {
-                const createdDate = article.created_at ? new Date(article.created_at).toLocaleString('zh-TW', { hour12: false }) : '';
-                // 只有當 updated_at 存在且跟 created_at 不同（或大於建立時間）時才顯示最後更新
+                // 只取日期部分 (YYYY/MM/DD)
+                const createdDate = article.created_at ? new Date(article.created_at).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/') : '';
                 const hasUpdated = article.updated_at && article.created_at && new Date(article.updated_at) > new Date(article.created_at);
-                const updatedDate = hasUpdated ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
+                const updatedDate = hasUpdated ? new Date(article.updated_at).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/') : '';
                 
                 return `
                     <article class="custom-card p-6 rounded-xl shadow-sm border border-[#EFE9E3] flex flex-col justify-between">
@@ -886,9 +892,9 @@
             
             if (tocSidebar) tocSidebar.classList.remove('hidden');
 
-            const createdDate = article.created_at ? new Date(article.created_at).toLocaleString('zh-TW', { hour12: false }) : '';
+            const createdDate = article.created_at ? new Date(article.created_at).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/') : '';
             const hasUpdated = article.updated_at && article.created_at && new Date(article.updated_at) > new Date(article.created_at);
-            const updatedDate = hasUpdated ? new Date(article.updated_at).toLocaleString('zh-TW', { hour12: false }) : '';
+            const updatedDate = hasUpdated ? new Date(article.updated_at).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/') : '';
 
             container.innerHTML = `
                 <div class="mb-4">
@@ -983,7 +989,6 @@
             if (!title) return alert('請輸入文章標題');
             if (!category) return alert('母標籤為必選項目');
 
-            // 發布新文章時，created_at 與 updated_at 都設為當前時間
             const { error } = await supabaseClient.from('articles').insert([{ 
                 title, 
                 category, 
@@ -1061,9 +1066,7 @@
                 if (!category) return alert('母標籤為必選項目');
 
                 const originalArticle = allArticlesCache.find(art => art.id == id);
-                // 保留原本第一次發布的 created_at，不予更動
                 const created_at = originalArticle ? originalArticle.created_at : new Date().toISOString();
-                // 更新 updated_at 為當前修改時間
                 const updated_at = new Date().toISOString(); 
 
                 const { error } = await supabaseClient.from('articles').upsert({ 
