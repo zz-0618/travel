@@ -13,9 +13,66 @@
 <style>
 :root{--ink:#452829;--sand:#C9B59C;--card:#EFE9E3;--soft:#F9F6F0;--accent:#A56C5D;--nav:#4B4038}
 body{font-family:'Noto Serif TC',serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}.custom-card{background:var(--card)}.dropdown-parent:hover .dropdown-child{display:block}.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.editor-btn{background:var(--card);border:1px solid var(--sand);padding:6px 10px;font-size:13px;border-radius:6px;cursor:pointer}.editor-btn:hover{opacity:.8}
-.article-content-style,.article-content-style *{font-family:'Noto Serif TC',serif!important;color:var(--ink)!important;box-sizing:border-box}.article-content-style{font-size:18px!important;line-height:1.65!important;letter-spacing:.02em;overflow-wrap:anywhere}.article-content-style p{font-size:18px!important;line-height:1.65!important;margin:0 0 1.5em!important}.article-content-style h1,.article-content-style h2,.article-content-style h3,.article-content-style h4{line-height:1.4!important;font-weight:700!important;scroll-margin-top:24px}.article-content-style h1{font-size:2rem!important;margin:2.2em 0 .8em!important;padding-bottom:.35em;border-bottom:2px solid var(--sand)}.article-content-style h2{font-size:1.65rem!important;margin:2em 0 .75em!important;padding-left:.65em;border-left:5px solid var(--accent)}.article-content-style h3{font-size:1.35rem!important;margin:1.8em 0 .65em!important}.article-content-style h4{font-size:1.12rem!important;margin:1.6em 0 .55em!important}.article-content-style ul,.article-content-style ol{font-size:18px!important;margin:0 0 1.5em 1.5em!important;padding-left:1.1em}.article-content-style ul{list-style:disc}.article-content-style ol{list-style:decimal}.article-content-style li{font-size:18px!important;margin:.35em 0!important;line-height:1.65!important}.article-content-style blockquote{font-size:18px!important;margin:1.8em 0!important;padding:1em 1.25em!important;border-left:4px solid var(--sand);background:var(--soft)}.article-content-style a{color:#8B554D!important;text-decoration:underline;text-underline-offset:3px}.article-content-style img{display:block;max-width:100%;height:auto;margin:2em auto .75em;border-radius:12px}.article-alert-box{font-size:18px!important;background:#F2EAE0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0}.article-alert-box p:last-child{margin-bottom:0!important}#article-body-content{max-width:760px;margin:auto;padding-bottom:2rem}#new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.65!important;caret-color:var(--ink)}
+.article-content-style,.article-content-style *{font-family:'Noto Serif TC',serif!important;color:var(--ink)!important;box-sizing:border-box}.article-content-style{
+    font-size:24px!important;
+    line-height:1.5!important;
+    letter-spacing:.02em;
+    overflow-wrap:anywhere
+}
+
+.article-content-style p{
+    font-size:24px!important;
+    line-height:1.5!important;
+}
+
+.article-content-style ul,
+.article-content-style ol{
+    font-size:24px!important;
+}
+
+.article-content-style li{
+    font-size:24px!important;
+    line-height:1.5!important;
+}
+
+.article-content-style blockquote{
+    font-size:24px!important;
+}
+
+.article-alert-box{
+    font-size:24px!important;background:#F2EAE0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0}.article-alert-box p:last-child{margin-bottom:0!important}#article-body-content{max-width:760px;margin:auto;padding-bottom:2rem}#new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.65!important;caret-color:var(--ink)}
 #floating-toc{position:fixed;right:1rem;top:1rem;z-index:40}#toc-panel{width:min(82vw,320px);max-height:70vh;overflow-y:auto}
-@media(max-width:767px){.article-content-style{font-size:17px!important;line-height:1.55!important}.article-content-style p,.article-content-style li,.article-content-style ul,.article-content-style ol,.article-content-style blockquote,.article-alert-box{font-size:17px!important;line-height:1.55!important}.article-content-style h1{font-size:1.75rem!important}.article-content-style h2{font-size:1.45rem!important}.article-content-style h3{font-size:1.25rem!important}#new-article-editor,#edit-article-editor{padding:20px!important;line-height:1.55!important}#floating-toc{right:.75rem;top:.75rem}}
+@media(max-width:767px){
+
+.article-content-style{
+    font-size:22px!important;
+    line-height:1.3!important;
+}
+
+.article-content-style p,
+.article-content-style li,
+.article-content-style ul,
+.article-content-style ol,
+.article-content-style blockquote,
+.article-alert-box{
+    font-size:22px!important;
+    line-height:1.3!important;
+}
+
+.article-content-style h1{
+    font-size:2.4rem!important;
+}
+
+.article-content-style h2{
+    font-size:2rem!important;
+}
+
+.article-content-style h3{
+    font-size:1.7rem!important;
+}
+
+.article-content-style h4{
+    font-size:1.4rem!important};#new-article-editor,#edit-article-editor{padding:20px!important;line-height:1.55!important}#floating-toc{right:.75rem;top:.75rem}}
 </style></head>
 <body class="min-h-screen flex flex-col justify-between">
 <div id="frontend-view"><header id="site-header-bg" class="w-full h-32 md:h-44 bg-cover bg-center shadow-sm border-b border-[#EFE9E3]"></header><nav class="text-white shadow-md relative z-30 bg-[#4B4038]"><ul id="frontend-nav-tabs" class="flex justify-center flex-wrap gap-x-6 py-3 text-lg font-semibold"></ul></nav><main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8"><section class="md:col-span-3 space-y-6" id="main-content-area"></section><aside><div class="custom-card p-6 rounded-xl shadow-sm border text-center flex flex-col items-center"><img id="site-avatar" alt="頭像" class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]"><h3 class="text-xl font-bold">zz</h3><p class="text-sm mt-1 opacity-90">一個隨筆紀錄的人</p></div></aside></main></div>
