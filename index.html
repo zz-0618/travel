@@ -85,7 +85,100 @@ function switchArticleSubTab(s){document.getElementById('sub-article-new').class
 async function fetchCategories(){const{data}=await supabaseClient.from('categories').select('*');categoriesCache=data||[];renderFrontendNav()}
 function renderFrontendNav(){const p=categoriesCache.filter(c=>!c.parent_id);document.getElementById('frontend-nav-tabs').innerHTML='<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>'+p.map(x=>{const ch=categoriesCache.filter(c=>c.parent_id===x.id);return ch.length?`<li class="relative dropdown-parent"><a href="#" onclick="event.preventDefault();filterCategory('${esc(x.name)}')">${esc(x.name)} ▾</a><ul class="dropdown-child hidden absolute bg-[#C9B59C] min-w-[140px] py-2">${ch.map(y=>`<li><a href="#" class="block px-4 py-1" onclick="event.preventDefault();filterCategory('${esc(y.name)}')">${esc(y.name)}</a></li>`).join('')}</ul></li>`:`<li><a href="#" onclick="event.preventDefault();filterCategory('${esc(x.name)}')">${esc(x.name)}</a></li>`}).join('')}
 async function fetchArticles(cat='all'){const c=document.getElementById('main-content-area'),{data,error}=await supabaseClient.from('articles').select('*').order('created_at',{ascending:false});if(error)return c.innerHTML='<div class="custom-card p-6 rounded">讀取失敗：'+esc(error.message)+'</div>';allArticlesCache=data||[];let list=allArticlesCache;if(cat!=='all'){const target=categoriesCache.find(x=>x.name===cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}document.getElementById('sidebar-toc-container').classList.add('hidden');c.innerHTML=list.length?list.map(a=>`<article class="custom-card p-6 rounded-xl shadow-sm"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory?' / '+esc(a.subcategory):''}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="hover:underline">${esc(a.title)}</a></h2><div class="line-clamp-2 mt-3 article-content-style">${a.content||''}</div><div class="text-right mt-4"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></article>`).join(''):'<div class="custom-card p-6 rounded">目前尚無文章。</div>'}
-function viewSingleArticle(id,opt={}){const a=allArticlesCache.find(x=>x.id==id);if(!a)return;const update=opt.updateHistory!==false;if(update&&a.slug)history.pushState({id:a.id},'',articlePath(a));document.title=a.title+'｜zz 的旅遊部落格';document.getElementById('sidebar-toc-container').classList.remove('hidden');document.getElementById('main-content-area').innerHTML=`<div class="flex gap-2"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border rounded">← 返回文章列表</button><button onclick="copyUrl()" class="px-4 py-2 border rounded">複製文章網址</button></div><article class="space-y-3"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory?' / '+esc(a.subcategory):''}</div><h1 class="text-3xl font-bold">${esc(a.title)}</h1><div id="article-body-content" class="article-content-style pt-2">${a.content||''}</div></article>`;generateArticleTOC()}
+function viewSingleArticle(id,opt={}){
+    const article=allArticlesCache.find(item=>item.id==id);
+    if(!article)return;
+
+    const updateHistory=opt.updateHistory!==false;
+    if(updateHistory&&article.slug){
+        history.pushState({id:article.id},'',articlePath(article));
+    }
+
+    const formatDate=value=>{
+        if(!value)return '';
+        const date=new Date(value);
+        if(Number.isNaN(date.getTime()))return '';
+        return new Intl.DateTimeFormat('zh-TW',{
+            timeZone:'Asia/Taipei',
+            year:'numeric',
+            month:'2-digit',
+            day:'2-digit'
+        }).format(date);
+    };
+
+    const createdDate=formatDate(article.created_at);
+    const updatedDate=formatDate(article.updated_at);
+    const categoryForJs=String(article.category||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const subcategoryForJs=String(article.subcategory||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+    document.title=`${article.title}｜zz 的旅遊部落格`;
+
+    const tocSidebar=document.getElementById('sidebar-toc-container');
+    if(tocSidebar)tocSidebar.classList.remove('hidden');
+
+    document.getElementById('main-content-area').innerHTML=`
+        <div class="flex flex-wrap gap-2 mb-5">
+            <button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg hover:opacity-80 transition">
+                ← 返回文章列表
+            </button>
+            <button onclick="copyUrl()" class="px-4 py-2 bg-white border border-[#C9B59C] rounded-lg hover:opacity-80 transition">
+                複製文章網址
+            </button>
+        </div>
+
+        <nav aria-label="麵包屑導航" class="mb-4 text-sm text-gray-500">
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <li>
+                    <button onclick="goHome()" class="hover:underline hover:text-[#452829] transition">首頁</button>
+                </li>
+                <li aria-hidden="true" class="opacity-60">›</li>
+                <li>
+                    <button onclick="filterCategory('${categoryForJs}')" class="font-medium text-[#A56C5D] hover:underline transition">
+                        ${esc(article.category)}
+                    </button>
+                </li>
+                ${article.subcategory?`
+                    <li aria-hidden="true" class="opacity-60">›</li>
+                    <li>
+                        <button onclick="filterCategory('${subcategoryForJs}')" class="font-medium text-[#A56C5D] hover:underline transition">
+                            ${esc(article.subcategory)}
+                        </button>
+                    </li>
+                `:''}
+                <li aria-hidden="true" class="opacity-60">›</li>
+                <li class="max-w-full truncate text-[#452829]" aria-current="page">${esc(article.title)}</li>
+            </ol>
+        </nav>
+
+        <article class="space-y-4">
+            <h1 class="text-3xl md:text-4xl font-bold leading-snug" style="color:#452829;">
+                ${esc(article.title)}
+            </h1>
+
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs md:text-sm text-gray-500 border-b border-[#D8C5B5] pb-4">
+                ${createdDate?`<span>最初撰寫：${createdDate}</span>`:''}
+                ${updatedDate?`<span>最後更新：${updatedDate}</span>`:''}
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <button onclick="filterCategory('${categoryForJs}')" class="px-3 py-1 rounded-full text-xs font-medium bg-[#E9D7CC] hover:opacity-80 transition" title="查看${esc(article.category)}分類">
+                    ${esc(article.category)}
+                </button>
+                ${article.subcategory?`
+                    <button onclick="filterCategory('${subcategoryForJs}')" class="px-3 py-1 rounded-full text-xs font-medium bg-[#EFE9E3] hover:opacity-80 transition" title="查看${esc(article.subcategory)}分類">
+                        ${esc(article.subcategory)}
+                    </button>
+                `:''}
+            </div>
+
+            <div id="article-body-content" class="article-content-style pt-2">
+                ${article.content||''}
+            </div>
+        </article>
+    `;
+
+    generateArticleTOC();
+}
 async function handleCurrentRoute(){const path=decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g,'');if(!path||path==='index.html'){await fetchArticles();return}let a=allArticlesCache.find(x=>x.slug&&x.slug.toLowerCase()===path.toLowerCase());if(!a){const{data}=await supabaseClient.from('articles').select('*').ilike('slug',path).maybeSingle();a=data;if(a&&!allArticlesCache.some(x=>x.id==a.id))allArticlesCache.push(a)}if(a)viewSingleArticle(a.id,{updateHistory:false});else showNotFound()}
 function showNotFound(){document.title='找不到文章｜zz 的旅遊部落格';document.getElementById('sidebar-toc-container').classList.add('hidden');document.getElementById('main-content-area').innerHTML='<div class="custom-card p-8 rounded text-center"><h2 class="text-2xl font-bold">找不到這篇文章</h2><button onclick="goHome()" class="mt-5 px-4 py-2 text-white rounded" style="background:#C9B59C">返回首頁</button></div>'}
 function goHome(){if(location.pathname!=='/')history.pushState({page:'home'},'','/');document.title='zz 的旅遊部落格';fetchArticles()}
