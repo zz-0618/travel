@@ -406,6 +406,12 @@
             class="w-full text-left px-4 py-3 rounded-lg"
           >
             🗺️ 我的旅途
+          </button><button
+            onclick="switchAdminTab('urls')"
+            id="tab-urls-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🔗 網址總覽
           </button>
         </aside>
         <main class="md:col-span-4 p-8 max-w-5xl w-full">
@@ -556,7 +562,7 @@
             class="admin-tab-content space-y-6 hidden"
           >
             <h2 class="text-2xl font-bold border-b pb-2">我的旅途管理</h2>
-            <div class="custom-card p-4 rounded-xl grid md:grid-cols-3 gap-3">
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-4 gap-3">
               <div>
                 <label class="block text-sm font-semibold mb-1">開始年月</label
                 ><input
@@ -574,6 +580,13 @@
                 />
               </div>
               <div>
+                <label class="block text-sm font-semibold mb-1">旅途分類</label
+                ><select id="journey-type" class="w-full border p-2 rounded">
+                  <option value="overseas">國外</option>
+                  <option value="taiwan">臺灣</option>
+                </select>
+              </div>
+              <div>
                 <label class="block text-sm font-semibold mb-1">行程名稱</label
                 ><input
                   id="journey-name"
@@ -584,12 +597,41 @@
               </div>
               <button
                 onclick="addJourneyEntry()"
-                class="md:col-span-3 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+                class="md:col-span-4 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
               >
                 新增旅途紀錄
               </button>
             </div>
             <div id="admin-journey-list" class="space-y-2"></div>
+          </div>
+          <div
+            id="admin-tab-urls"
+            class="admin-tab-content space-y-6 hidden"
+          >
+            <h2 class="text-2xl font-bold border-b pb-2">全站網址總覽</h2>
+            <p class="text-sm opacity-75">一鍵整理首頁、分類頁、旅途頁與所有文章的完整網址。</p>
+            <div class="flex flex-wrap gap-3">
+              <button
+                onclick="renderAllUrlsAdmin()"
+                class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                取得目前所有網址
+              </button>
+              <button
+                onclick="copyAllUrls()"
+                class="px-6 py-2 rounded-lg bg-white border border-[#C9B59C]"
+              >
+                複製全部網址
+              </button>
+            </div>
+            <div id="admin-url-summary" class="text-sm font-semibold"></div>
+            <textarea
+              id="admin-all-urls"
+              class="w-full min-h-64 border p-3 rounded bg-[#F9F6F0] font-mono text-sm"
+              readonly
+              placeholder="點擊「取得目前所有網址」後，網址會顯示在這裡"
+            ></textarea>
+            <div id="admin-url-list" class="space-y-2"></div>
           </div>
           <div
             id="admin-tab-articles"
@@ -1240,11 +1282,15 @@
         document.title = "我的旅途｜zz 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
-        const list = [...journeyEntries].sort((a, b) =>
+        const sorted = [...journeyEntries].sort((a, b) =>
           String(a.start).localeCompare(String(b.start)),
         );
+        const renderGroup = (type, title, icon) => {
+          const list = sorted.filter((x) => (x.type || "overseas") === type);
+          return `<section class="mt-8"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2">${icon} ${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
+        };
         $("main-content-area").innerHTML =
-          `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
+          `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p>${renderGroup("overseas", "國外旅遊", "🌏")}${renderGroup("taiwan", "臺灣旅遊", "🇹🇼")}</section>`;
         renderLatestArticles();
         scrollTo({ top: 0 });
       }
@@ -1381,6 +1427,7 @@
           "categories",
           "articles",
           "journey",
+          "urls",
         ].forEach((t) => {
           $("admin-tab-" + t).classList.toggle("hidden", t !== n);
           $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
@@ -1389,6 +1436,7 @@
         if (n === "categories") loadCategoriesAdmin();
         if (n === "articles") populateArticleParentDropdowns();
         if (n === "journey") renderJourneyAdmin();
+        if (n === "urls") renderAllUrlsAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
       }
       function switchArticleSubTab(s) {
@@ -1749,32 +1797,31 @@
       function renderJourneyAdmin() {
         const box = $("admin-journey-list");
         if (!box) return;
-        const list = [...journeyEntries].sort((a, b) =>
+        const sorted = [...journeyEntries].sort((a, b) =>
           String(a.start).localeCompare(String(b.start)),
         );
-        box.innerHTML = list.length
-          ? list
-              .map(
-                (x) =>
-                  `<div class="custom-card p-3 rounded-lg flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div></div><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div>`,
-              )
-              .join("")
-          : '<div class="opacity-60">目前尚無旅途紀錄。</div>';
+        const renderGroup = (type, title) => {
+          const list = sorted.filter((x) => (x.type || "overseas") === type);
+          return `<section><h3 class="text-lg font-bold mt-5 mb-2">${title}</h3><div class="space-y-2">${list.length ? list.map((x) => `<div class="custom-card p-3 rounded-lg flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div></div><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div>`).join("") : '<div class="opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
+        };
+        box.innerHTML = renderGroup("overseas", "🌏 國外") + renderGroup("taiwan", "🇹🇼 臺灣");
       }
       async function addJourneyEntry() {
         const start = $("journey-start").value,
           end = $("journey-end").value,
+          type = $("journey-type").value,
           name = $("journey-name").value.trim();
         if (!start || !end || !name)
-          return alert("請完整填寫開始年月、結束年月與行程名稱");
+          return alert("請完整填寫開始年月、結束年月、旅途分類與行程名稱");
         if (start > end) return alert("開始年月不可晚於結束年月");
-        journeyEntries.push({ id: String(Date.now()), start, end, name });
+        journeyEntries.push({ id: String(Date.now()), start, end, type, name });
         try {
           await upsertSettings({
             travel_entries: JSON.stringify(journeyEntries),
           });
           $("journey-start").value = "";
           $("journey-end").value = "";
+          $("journey-type").value = "overseas";
           $("journey-name").value = "";
           renderJourneyAdmin();
           alert("旅途紀錄已新增");
@@ -1797,6 +1844,69 @@
         } catch (e) {
           journeyEntries = old;
           alert("刪除失敗：" + e.message);
+        }
+      }
+      function collectAllSiteUrls() {
+        const origin = location.origin;
+        const items = [{ label: "首頁", url: origin + "/", type: "首頁" }];
+        categoriesCache.forEach((c) => {
+          items.push({
+            label: c.name,
+            url: origin + categoryPath(c.name),
+            type: c.name === "我的旅途" ? "旅途頁" : "分類頁",
+          });
+        });
+        allArticlesCache.forEach((a) => {
+          items.push({ label: a.title, url: origin + articlePath(a), type: "文章" });
+        });
+        const seen = new Set();
+        return items.filter((item) => {
+          if (seen.has(item.url)) return false;
+          seen.add(item.url);
+          return true;
+        });
+      }
+      async function renderAllUrlsAdmin() {
+        try {
+          await fetchCategories();
+          const { data, error } = await supabaseClient
+            .from("articles")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          allArticlesCache = data || [];
+          const items = collectAllSiteUrls();
+          $("admin-all-urls").value = items.map((x) => x.url).join("\n");
+          $("admin-url-summary").textContent = `目前共 ${items.length} 個網址`;
+          $("admin-url-list").innerHTML = items
+            .map((x) => `<div class="p-3 bg-[#F9F6F0] border rounded"><div class="text-xs opacity-60">${esc(x.type)}｜${esc(x.label)}</div><div class="flex flex-wrap items-center gap-2 mt-1"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer" class="break-all hover:underline">${esc(x.url)}</a><button onclick="copyText('${jsq(x.url)}')" class="ml-auto text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">複製</button></div></div>`)
+            .join("");
+        } catch (e) {
+          alert("網址取得失敗：" + e.message);
+        }
+      }
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert("網址已複製！");
+        } catch {
+          prompt("請複製網址", text);
+        }
+      }
+      async function copyAllUrls() {
+        const text = $("admin-all-urls").value.trim();
+        if (!text) {
+          await renderAllUrlsAdmin();
+        }
+        const finalText = $("admin-all-urls").value.trim();
+        if (!finalText) return alert("目前沒有可複製的網址");
+        try {
+          await navigator.clipboard.writeText(finalText);
+          alert("所有網址已複製！");
+        } catch {
+          $("admin-all-urls").focus();
+          $("admin-all-urls").select();
+          alert("已選取全部網址，請按 Ctrl+C 或 Command+C 複製");
         }
       }
       async function uploadAsset(t) {
