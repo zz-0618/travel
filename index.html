@@ -932,6 +932,34 @@
         );
       }
       addEventListener("DOMContentLoaded", async () => {
+        console.log("STEP1");
+
+        buildToolbar("new");
+        buildToolbar("edit");
+
+        console.log("STEP2");
+
+        await fetchCategories();
+
+        console.log("STEP3");
+
+        await fetchArticles();
+
+        console.log("STEP4");
+
+        await loadSettings();
+
+        console.log("STEP5");
+
+        await checkSessionState();
+
+        console.log("STEP6");
+
+        await handleCurrentRoute();
+
+        console.log("STEP7");
+      });
+      ``
         buildToolbar("new");
         buildToolbar("edit");
         await fetchCategories();
