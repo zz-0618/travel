@@ -959,15 +959,7 @@
 
         console.log("STEP7");
       });
-      ``
-        buildToolbar("new");
-        buildToolbar("edit");
-        await fetchCategories();
-        await fetchArticles();
-        await loadSettings();
-        await checkSessionState();
-        await handleCurrentRoute();
-      });
+      
       addEventListener("popstate", handleCurrentRoute);
       addEventListener(
         "scroll",
