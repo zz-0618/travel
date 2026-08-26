@@ -1,10 +1,13 @@
 {
   "name": "travel",
+
+  "main": "_worker.js",
+
   "compatibility_date": "2026-08-25",
 
   "vars": {
     "SUPABASE_URL": "https://rpzqioezweftrjtrneos.supabase.co",
-    "SUPABASE_ANON_KEY": "sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye"
+    "SUPABASE_ANON_KEY": "你的 Supabase Anon Key"
   },
 
   "assets": {
