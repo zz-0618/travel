@@ -1581,15 +1581,19 @@
         applyCategoryOrder();
         renderFrontendNav();
         renderLatestArticles();
-        if (settingsCache.logo) {
-          console.log("logo url:", settingsCache.logo);
+        console.log("settingsCache =", settingsCache);
 
+        console.log("avatar =", settingsCache.avatar);
+        console.log("logo =", settingsCache.logo);
+
+        console.log("avatar DOM =", $("site-avatar"));
+        console.log("header DOM =", $("site-header-bg"));
+
+        if (settingsCache.logo)
           $("site-header-bg").style.backgroundImage =
             `url('${settingsCache.logo}')`;
-        }
-        if (settingsCache.avatar) {
-          console.log("avatar url:", settingsCache.avatar);
-          
+
+        if (settingsCache.avatar)
           $("site-avatar").src = settingsCache.avatar;
           
           $("site-avatar").onload = () => {
