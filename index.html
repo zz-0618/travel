@@ -75,6 +75,7 @@
         font-family: "Noto Serif TC", serif !important;
         color: var(--ink) !important;
         box-sizing: border-box;
+        line-height: 1.5 !important;
       }
       .article-content-style {
         font-size: 24px !important;
@@ -163,7 +164,7 @@
       }
       .announcement-content {
         white-space: pre-wrap;
-        line-height: 1.7;
+        line-height: 1.5;
       }
       .admin-entry {
         background: transparent;
@@ -174,7 +175,8 @@
         cursor: pointer;
         padding: 3px 7px;
       }
-      .admin-entry:hover {
+      .admin-entry:hover,
+      .admin-entry:focus-visible {
         opacity: 0.9;
         text-decoration: underline;
       }
@@ -220,7 +222,7 @@
       }
     </style>
   </head>
-  <body class="min-h-screen flex flex-col justify-between">
+  <body class="min-h-screen flex flex-col">
     <div id="frontend-view">
       <header
         id="site-header-bg"
@@ -656,7 +658,7 @@
     >
       ↑
     </button>
-    <footer class="w-full py-4 text-center text-xs border-t mt-12">
+    <footer class="w-full py-4 text-center text-xs border-t mt-auto">
       <div>@zz 轉載請註明出處</div>
       <button onclick="openAdminPanel()" class="admin-entry mt-1">
         <span id="floating-btn-text">網站管理</span>
