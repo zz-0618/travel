@@ -2,6 +2,11 @@
   "name": "travel",
   "compatibility_date": "2026-08-25",
 
+  "vars": {
+    "SUPABASE_URL": "https://rpzqioezweftrjtrneos.supabase.co",
+    "SUPABASE_ANON_KEY": "你的 Supabase ANON KEY"
+  },
+
   "assets": {
     "directory": ".",
     "not_found_handling": "single-page-application"
