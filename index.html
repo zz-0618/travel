@@ -75,10 +75,9 @@
         font-family: "Noto Serif TC", serif !important;
         color: var(--ink) !important;
         box-sizing: border-box;
-        line-height: 1.5 !important;
       }
       .article-content-style {
-        font-size: 24px !important;
+        font-size: 16px;
         line-height: 1.5 !important;
         letter-spacing: 0.02em;
         overflow-wrap: anywhere;
@@ -88,7 +87,7 @@
       .article-content-style ol,
       .article-content-style li,
       .article-content-style blockquote {
-        font-size: 24px !important;
+        font-size: inherit;
         line-height: 1.5 !important;
       }
       .article-content-style h1,
@@ -99,7 +98,7 @@
         line-height: 1.5 !important;
       }
       .article-alert-box {
-        font-size: 24px !important;
+        font-size: inherit;
         line-height: 1.5 !important;
         background: #f2eae0;
         border: 1px solid var(--sand);
@@ -164,7 +163,7 @@
       }
       .announcement-content {
         white-space: pre-wrap;
-        line-height: 1.5;
+        line-height: 1.7;
       }
       .admin-entry {
         background: transparent;
@@ -175,36 +174,18 @@
         cursor: pointer;
         padding: 3px 7px;
       }
-      .admin-entry:hover,
-      .admin-entry:focus-visible {
+      .admin-entry:hover {
         opacity: 0.9;
         text-decoration: underline;
       }
       @media (max-width: 767px) {
-        .article-content-style {
-          font-size: 22px !important;
-          line-height: 1.5 !important;
-        }
         .article-content-style p,
         .article-content-style li,
         .article-content-style ul,
         .article-content-style ol,
         .article-content-style blockquote,
         .article-alert-box {
-          font-size: 22px !important;
           line-height: 1.5 !important;
-        }
-        .article-content-style h1 {
-          font-size: 2.4rem !important;
-        }
-        .article-content-style h2 {
-          font-size: 2rem !important;
-        }
-        .article-content-style h3 {
-          font-size: 1.7rem !important;
-        }
-        .article-content-style h4 {
-          font-size: 1.4rem !important;
         }
         #new-article-editor,
         #edit-article-editor {
@@ -220,9 +201,73 @@
           bottom: 0.85rem;
         }
       }
+
+      .latest-articles-box {
+        background: var(--soft);
+        border: 1px solid var(--sand);
+        color: var(--ink);
+      }
+      .latest-articles-box a {
+        color: var(--ink);
+      }
+      .latest-articles-box a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .journey-timeline {
+        position: relative;
+        margin: 1.5rem 0;
+        padding-left: 2rem;
+      }
+      .journey-timeline:before {
+        content: "";
+        position: absolute;
+        left: 0.45rem;
+        top: 0.5rem;
+        bottom: 0.5rem;
+        width: 2px;
+        background: var(--sand);
+      }
+      .journey-item {
+        position: relative;
+        background: var(--soft);
+        border: 1px solid var(--sand);
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1rem;
+      }
+      .journey-item:before {
+        content: "";
+        position: absolute;
+        left: -1.98rem;
+        top: 1.35rem;
+        width: 0.85rem;
+        height: 0.85rem;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 1px var(--sand);
+      }
+      .journey-period {
+        font-size: 0.85rem;
+        color: #8b6f63;
+        font-weight: 700;
+      }
+      .journey-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-top: 0.25rem;
+      }
+      .order-btn {
+        border: 1px solid var(--sand);
+        background: #fff;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 12px;
+      }
     </style>
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col justify-between">
     <div id="frontend-view">
       <header
         id="site-header-bg"
@@ -241,7 +286,7 @@
           class="md:col-span-3 space-y-6"
           id="main-content-area"
         ></section>
-        <aside>
+        <aside class="space-y-6">
           <div
             class="custom-card p-6 rounded-xl shadow-sm border text-center flex flex-col items-center"
           >
@@ -255,6 +300,18 @@
               一個隨筆紀錄的人
             </p>
           </div>
+          <section
+            class="latest-articles-box p-5 rounded-xl shadow-sm md:sticky md:top-1/3"
+            aria-labelledby="latest-articles-title"
+          >
+            <h3
+              id="latest-articles-title"
+              class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3"
+            >
+              最新文章
+            </h3>
+            <ol id="latest-articles-list" class="space-y-3 text-sm"></ol>
+          </section>
         </aside>
       </main>
     </div>
@@ -308,7 +365,13 @@
             id="tab-articles-btn"
             class="w-full text-left px-4 py-3 rounded-lg"
           >
-            📝 文章管理
+            📝 文章管理</button
+          ><button
+            onclick="switchAdminTab('journey')"
+            id="tab-journey-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🗺️ 我的旅途
           </button>
         </aside>
         <main class="md:col-span-4 p-8 max-w-5xl w-full">
@@ -453,6 +516,46 @@
               母分類與子分類可分別設定網址後綴，例如 Korea / Busan。
             </p>
             <div id="admin-categories-tree" class="space-y-2"></div>
+          </div>
+          <div
+            id="admin-tab-journey"
+            class="admin-tab-content space-y-6 hidden"
+          >
+            <h2 class="text-2xl font-bold border-b pb-2">我的旅途管理</h2>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-sm font-semibold mb-1">開始年月</label
+                ><input
+                  type="month"
+                  id="journey-start"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">結束年月</label
+                ><input
+                  type="month"
+                  id="journey-end"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">行程名稱</label
+                ><input
+                  id="journey-name"
+                  class="w-full border p-2 rounded"
+                  maxlength="100"
+                  placeholder="例如：釜山自由行"
+                />
+              </div>
+              <button
+                onclick="addJourneyEntry()"
+                class="md:col-span-3 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                新增旅途紀錄
+              </button>
+            </div>
+            <div id="admin-journey-list" class="space-y-2"></div>
           </div>
           <div
             id="admin-tab-articles"
@@ -658,7 +761,7 @@
     >
       ↑
     </button>
-    <footer class="w-full py-4 text-center text-xs border-t mt-auto">
+    <footer class="w-full py-4 text-center text-xs border-t mt-12">
       <div>@zz 轉載請註明出處</div>
       <button onclick="openAdminPanel()" class="admin-entry mt-1">
         <span id="floating-btn-text">網站管理</span>
@@ -670,7 +773,9 @@
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       let allArticlesCache = [],
         categoriesCache = [],
-        settingsCache = {};
+        settingsCache = {},
+        journeyEntries = [],
+        categoryOrder = [];
       const $ = (id) => document.getElementById(id),
         esc = (s) =>
           String(s ?? "").replace(
@@ -737,7 +842,7 @@
       }
       function buildToolbar(t) {
         $(t + "-toolbar").innerHTML =
-          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[14, 16, 18, 20, 24, 28].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
+          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
       }
       function cmd(t, c) {
         $(t + "-article-editor").focus();
@@ -800,6 +905,7 @@
           .select("*");
         if (error) return alert("分類讀取失敗：" + error.message);
         categoriesCache = data || [];
+        applyCategoryOrder();
         renderFrontendNav();
       }
       async function fetchArticles(cat = "all") {
@@ -843,6 +949,33 @@
               )
               .join("")
           : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
+        renderLatestArticles();
+      }
+      function renderLatestArticles() {
+        const box = $("latest-articles-list");
+        if (!box) return;
+        const latest = [...allArticlesCache]
+          .sort(
+            (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
+          )
+          .slice(0, 6);
+        box.innerHTML = latest.length
+          ? latest
+              .map(
+                (a) =>
+                  `<li><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block"><span class="block font-semibold">${esc(a.title)}</span><span class="block text-xs opacity-60 mt-1">${formatArticleDate(a.created_at)}</span></a></li>`,
+              )
+              .join("")
+          : '<li class="opacity-60">目前尚無文章</li>';
+      }
+      function formatArticleDate(v) {
+        if (!v) return "";
+        return new Intl.DateTimeFormat("zh-TW", {
+          timeZone: "Asia/Taipei",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date(v));
       }
       function renderFrontendNav() {
         const p = categoriesCache.filter((c) => !c.parent_id);
@@ -852,10 +985,13 @@
             .map((x) => {
               const ch = categoriesCache.filter((c) => c.parent_id === x.id);
               return ch.length
-                ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();filterCategory('${jsq(x.name)}')">${esc(x.name)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();filterCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
-                : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();filterCategory('${jsq(x.name)}')">${esc(x.name)}</a></li>`;
+                ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
+                : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)}</a></li>`;
             })
             .join("");
+      }
+      function openCategory(name) {
+        name === "我的旅途" ? viewJourney() : filterCategory(name);
       }
       function breadcrumbLink(name) {
         return `<a href="${categoryPath(name)}" onclick="event.preventDefault();filterCategory('${jsq(name)}')" class="hover:underline">${esc(name)}</a>`;
@@ -916,8 +1052,31 @@
             decodeURIComponent(categoryPath(c.name)).toLowerCase() ===
             ("/" + parts.join("/")).toLowerCase(),
         );
-        if (cat) return fetchArticles(cat.name);
+        if (cat)
+          return cat.name === "我的旅途"
+            ? viewJourney({ updateHistory: false })
+            : fetchArticles(cat.name);
         showNotFound();
+      }
+      function formatMonth(v) {
+        if (!v) return "";
+        const [y, m] = String(v).split("-");
+        return y && m ? `${y}/${m}` : esc(v);
+      }
+      function viewJourney(opt = {}) {
+        const cat = categoryByName("我的旅途");
+        if (opt.updateHistory !== false && cat)
+          safePushState({ journey: true }, categoryPath(cat.name));
+        document.title = "我的旅途｜zz 的旅遊部落格";
+        $("floating-toc").classList.add("hidden");
+        toggleTOC(false);
+        const list = [...journeyEntries].sort((a, b) =>
+          String(b.start).localeCompare(String(a.start)),
+        );
+        $("main-content-area").innerHTML =
+          `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
+        renderLatestArticles();
+        scrollTo({ top: 0 });
       }
       async function goHome() {
         safePushState({}, "/");
@@ -1044,15 +1203,21 @@
           : goHome();
       }
       function switchAdminTab(n) {
-        ["account", "logo", "announcement", "categories", "articles"].forEach(
-          (t) => {
-            $("admin-tab-" + t).classList.toggle("hidden", t !== n);
-            $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
-            $("tab-" + t + "-btn").classList.toggle("text-white", t === n);
-          },
-        );
+        [
+          "account",
+          "logo",
+          "announcement",
+          "categories",
+          "articles",
+          "journey",
+        ].forEach((t) => {
+          $("admin-tab-" + t).classList.toggle("hidden", t !== n);
+          $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
+          $("tab-" + t + "-btn").classList.toggle("text-white", t === n);
+        });
         if (n === "categories") loadCategoriesAdmin();
         if (n === "articles") populateArticleParentDropdowns();
+        if (n === "journey") renderJourneyAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
       }
       function switchArticleSubTab(s) {
@@ -1071,15 +1236,55 @@
         $("admin-categories-tree").innerHTML = p
           .map(
             (x) =>
-              `<div class="p-3 border rounded space-y-2"><div class="flex flex-wrap items-center gap-2"><b>📁 ${esc(x.name)}</b><input id="cat-slug-${x.id}" value="${esc(x.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${x.id}')" class="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded">刪除</button></div><div class="pl-6 space-y-2">${categoriesCache
+              `<div class="p-3 border rounded space-y-2"><div class="flex flex-wrap items-center gap-2"><b>📁 ${esc(x.name)}</b><button class="order-btn" onclick="moveCategory('${x.id}',-1)">↑</button><button class="order-btn" onclick="moveCategory('${x.id}',1)">↓</button><input id="cat-slug-${x.id}" value="${esc(x.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${x.id}')" class="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded">刪除</button></div><div class="pl-6 space-y-2">${categoriesCache
                 .filter((c) => c.parent_id === x.id)
                 .map(
                   (y) =>
-                    `<div class="flex flex-wrap items-center gap-2">└ <span>${esc(y.name)}</span><input id="cat-slug-${y.id}" value="${esc(y.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${y.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${y.id}')" class="text-xs text-red-600">刪除</button></div>`,
+                    `<div class="flex flex-wrap items-center gap-2">└ <span>${esc(y.name)}</span><button class="order-btn" onclick="moveCategory('${y.id}',-1)">↑</button><button class="order-btn" onclick="moveCategory('${y.id}',1)">↓</button><input id="cat-slug-${y.id}" value="${esc(y.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${y.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${y.id}')" class="text-xs text-red-600">刪除</button></div>`,
                 )
                 .join("")}</div></div>`,
           )
           .join("");
+      }
+      function applyCategoryOrder() {
+        if (!categoryOrder.length) return;
+        const rank = new Map(categoryOrder.map((id, i) => [String(id), i]));
+        categoriesCache.sort(
+          (a, b) =>
+            (rank.get(String(a.id)) ?? 9999) - (rank.get(String(b.id)) ?? 9999),
+        );
+      }
+      async function moveCategory(id, direction) {
+        const item = categoriesCache.find((c) => String(c.id) === String(id));
+        if (!item) return;
+        const siblings = categoriesCache.filter(
+          (c) => String(c.parent_id || "") === String(item.parent_id || ""),
+        );
+        const index = siblings.findIndex((c) => String(c.id) === String(id)),
+          target = index + direction;
+        if (target < 0 || target >= siblings.length) return;
+        [siblings[index], siblings[target]] = [
+          siblings[target],
+          siblings[index],
+        ];
+        const ids = siblings.map((c) => String(c.id)),
+          ordered = [];
+        for (const c of categoriesCache) {
+          if (String(c.parent_id || "") === String(item.parent_id || "")) {
+            if (!ordered.length) ordered.push(...siblings);
+          } else ordered.push(c);
+        }
+        categoriesCache = ordered;
+        categoryOrder = categoriesCache.map((c) => String(c.id));
+        try {
+          await upsertSettings({
+            category_order: JSON.stringify(categoryOrder),
+          });
+          renderFrontendNav();
+          await loadCategoriesAdmin();
+        } catch (e) {
+          alert("分類順序儲存失敗：" + e.message);
+        }
       }
       async function addNewCategory() {
         const name = $("new-cat-name").value.trim(),
@@ -1293,6 +1498,19 @@
         settingsCache = Object.fromEntries(
           (data || []).map((x) => [x.key, x.value]),
         );
+        try {
+          categoryOrder = JSON.parse(settingsCache.category_order || "[]");
+        } catch {
+          categoryOrder = [];
+        }
+        try {
+          journeyEntries = JSON.parse(settingsCache.travel_entries || "[]");
+        } catch {
+          journeyEntries = [];
+        }
+        applyCategoryOrder();
+        renderFrontendNav();
+        renderLatestArticles();
         if (settingsCache.logo)
           $("site-header-bg").style.backgroundImage =
             `url('${settingsCache.logo}')`;
@@ -1355,6 +1573,59 @@
           alert("公告設定已儲存");
         } catch (e) {
           alert("公告儲存失敗：" + e.message);
+        }
+      }
+      function renderJourneyAdmin() {
+        const box = $("admin-journey-list");
+        if (!box) return;
+        const list = [...journeyEntries].sort((a, b) =>
+          String(b.start).localeCompare(String(a.start)),
+        );
+        box.innerHTML = list.length
+          ? list
+              .map(
+                (x) =>
+                  `<div class="custom-card p-3 rounded-lg flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div></div><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div>`,
+              )
+              .join("")
+          : '<div class="opacity-60">目前尚無旅途紀錄。</div>';
+      }
+      async function addJourneyEntry() {
+        const start = $("journey-start").value,
+          end = $("journey-end").value,
+          name = $("journey-name").value.trim();
+        if (!start || !end || !name)
+          return alert("請完整填寫開始年月、結束年月與行程名稱");
+        if (start > end) return alert("開始年月不可晚於結束年月");
+        journeyEntries.push({ id: String(Date.now()), start, end, name });
+        try {
+          await upsertSettings({
+            travel_entries: JSON.stringify(journeyEntries),
+          });
+          $("journey-start").value = "";
+          $("journey-end").value = "";
+          $("journey-name").value = "";
+          renderJourneyAdmin();
+          alert("旅途紀錄已新增");
+        } catch (e) {
+          journeyEntries.pop();
+          alert("新增失敗：" + e.message);
+        }
+      }
+      async function deleteJourneyEntry(id) {
+        if (!confirm("確定刪除這筆旅途紀錄？")) return;
+        const old = [...journeyEntries];
+        journeyEntries = journeyEntries.filter(
+          (x) => String(x.id) !== String(id),
+        );
+        try {
+          await upsertSettings({
+            travel_entries: JSON.stringify(journeyEntries),
+          });
+          renderJourneyAdmin();
+        } catch (e) {
+          journeyEntries = old;
+          alert("刪除失敗：" + e.message);
         }
       }
       async function uploadAsset(t) {
