@@ -12,6 +12,7 @@
     <meta property="og:description" content="zz 的旅遊部落格">
     <meta property="og:site_name" content="zz 的旅遊部落格">
     <meta property="og:image" content="">
+    <link id="canonical-link" rel="canonical" href="">
 
     <script
       id="structured-data"
@@ -211,6 +212,12 @@
       .admin-entry:hover {
         opacity: 0.9;
         text-decoration: underline;
+      }
+
+      .journey-mobile-filter { display: none; }
+      @media (max-width: 767px) {
+        .journey-mobile-filter { display: block; }
+        .journey-column-mobile-hidden { display: none; }
       }
       @media (max-width: 767px) {
         .article-content-style p,
@@ -604,33 +611,15 @@
             </div>
             <div id="admin-journey-list" class="space-y-2"></div>
           </div>
-          <div
-            id="admin-tab-urls"
-            class="admin-tab-content space-y-6 hidden"
-          >
+          <div id="admin-tab-urls" class="admin-tab-content space-y-6 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">全站網址總覽</h2>
             <p class="text-sm opacity-75">一鍵整理首頁、分類頁、旅途頁與所有文章的完整網址。</p>
             <div class="flex flex-wrap gap-3">
-              <button
-                onclick="renderAllUrlsAdmin()"
-                class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
-              >
-                取得目前所有網址
-              </button>
-              <button
-                onclick="copyAllUrls()"
-                class="px-6 py-2 rounded-lg bg-white border border-[#C9B59C]"
-              >
-                複製全部網址
-              </button>
+              <button onclick="renderAllUrlsAdmin()" class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]">取得目前所有網址</button>
+              <button onclick="copyAllUrls()" class="px-6 py-2 rounded-lg bg-white border border-[#C9B59C]">複製全部網址</button>
             </div>
             <div id="admin-url-summary" class="text-sm font-semibold"></div>
-            <textarea
-              id="admin-all-urls"
-              class="w-full min-h-64 border p-3 rounded bg-[#F9F6F0] font-mono text-sm"
-              readonly
-              placeholder="點擊「取得目前所有網址」後，網址會顯示在這裡"
-            ></textarea>
+            <textarea id="admin-all-urls" class="w-full min-h-64 border p-3 rounded bg-[#F9F6F0] font-mono text-sm" readonly placeholder="點擊「取得目前所有網址」後，網址會顯示在這裡"></textarea>
             <div id="admin-url-list" class="space-y-2"></div>
           </div>
           <div
@@ -911,6 +900,13 @@
         return safePath(parts);
       }
 
+      function updateCanonical(path = location.pathname) {
+        const link = document.getElementById("canonical-link");
+        if (!link) return;
+        const value = String(path || "/");
+        const cleanPath = value.startsWith("/") ? value : "/" + value;
+        link.href = location.origin + cleanPath;
+      }
       function updateStructuredData(article = null) {
 
         const script =
@@ -1212,6 +1208,7 @@
         if (!a) return;
         if (opt.updateHistory !== false)
           safePushState({ id: a.id }, articlePath(a));
+        updateCanonical(articlePath(a));
         document.title = `${a.title}｜zz 的旅遊部落格`;
         $("floating-toc").classList.remove("hidden");
         toggleTOC(false);
@@ -1231,6 +1228,7 @@
         scrollTo({ top: 0 });
       }
       async function handleCurrentRoute() {
+        updateCanonical(location.pathname);
         const parts = decodeURIComponent(location.pathname)
           .split("/")
           .filter(Boolean);
@@ -1275,27 +1273,34 @@
         const [y, m] = String(v).split("-");
         return y && m ? `${y}/${m}` : esc(v);
       }
+      function setJourneyMobileType(type) {
+        const overseas = $("journey-column-overseas"),
+          taiwan = $("journey-column-taiwan");
+        if (!overseas || !taiwan) return;
+        overseas.classList.toggle("journey-column-mobile-hidden", type !== "overseas");
+        taiwan.classList.toggle("journey-column-mobile-hidden", type !== "taiwan");
+      }
       function viewJourney(opt = {}) {
         const cat = categoryByName("我的旅途");
         if (opt.updateHistory !== false && cat)
           safePushState({ journey: true }, categoryPath(cat.name));
+        updateCanonical(cat ? categoryPath(cat.name) : location.pathname);
         document.title = "我的旅途｜zz 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
-        const sorted = [...journeyEntries].sort((a, b) =>
-          String(a.start).localeCompare(String(b.start)),
-        );
+        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
         const renderGroup = (type, title, icon) => {
           const list = sorted.filter((x) => (x.type || "overseas") === type);
-          return `<section class="mt-8"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2">${icon} ${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
+          const mobileClass = type === "taiwan" ? " journey-column-mobile-hidden" : "";
+          return `<section id="journey-column-${type}" class="custom-card p-5 rounded-xl${mobileClass}"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2 mb-4">${icon} ${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="p-4 opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
         };
-        $("main-content-area").innerHTML =
-          `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p>${renderGroup("overseas", "國外旅遊", "🌏")}${renderGroup("taiwan", "臺灣旅遊", "🇹🇼")}</section>`;
+        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="overseas" selected>國外旅遊</option><option value="taiwan">臺灣旅遊</option></select></div><div class="grid md:grid-cols-2 gap-6">${renderGroup("overseas", "國外旅遊", "🌏")}${renderGroup("taiwan", "臺灣旅遊", "🇹🇼")}</div></section>`;
         renderLatestArticles();
         scrollTo({ top: 0 });
       }
       async function goHome() {
         safePushState({}, "/");
+        updateCanonical("/");
         document.title = "zz 的旅遊部落格";
         await fetchArticles();
         updateStructuredData();
@@ -1304,6 +1309,7 @@
       }
       function filterCategory(c) {
         safePushState({ category: c }, categoryPath(c));
+        updateCanonical(categoryPath(c));
         fetchArticles(c);
         scrollTo({ top: 0 });
       }
@@ -1797,9 +1803,7 @@
       function renderJourneyAdmin() {
         const box = $("admin-journey-list");
         if (!box) return;
-        const sorted = [...journeyEntries].sort((a, b) =>
-          String(a.start).localeCompare(String(b.start)),
-        );
+        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
         const renderGroup = (type, title) => {
           const list = sorted.filter((x) => (x.type || "overseas") === type);
           return `<section><h3 class="text-lg font-bold mt-5 mb-2">${title}</h3><div class="space-y-2">${list.length ? list.map((x) => `<div class="custom-card p-3 rounded-lg flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div></div><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div>`).join("") : '<div class="opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
@@ -1811,14 +1815,11 @@
           end = $("journey-end").value,
           type = $("journey-type").value,
           name = $("journey-name").value.trim();
-        if (!start || !end || !name)
-          return alert("請完整填寫開始年月、結束年月、旅途分類與行程名稱");
+        if (!start || !end || !name) return alert("請完整填寫開始年月、結束年月、旅途分類與行程名稱");
         if (start > end) return alert("開始年月不可晚於結束年月");
         journeyEntries.push({ id: String(Date.now()), start, end, type, name });
         try {
-          await upsertSettings({
-            travel_entries: JSON.stringify(journeyEntries),
-          });
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
           $("journey-start").value = "";
           $("journey-end").value = "";
           $("journey-type").value = "overseas";
@@ -1847,67 +1848,34 @@
         }
       }
       function collectAllSiteUrls() {
-        const origin = location.origin;
-        const items = [{ label: "首頁", url: origin + "/", type: "首頁" }];
-        categoriesCache.forEach((c) => {
-          items.push({
-            label: c.name,
-            url: origin + categoryPath(c.name),
-            type: c.name === "我的旅途" ? "旅途頁" : "分類頁",
-          });
-        });
-        allArticlesCache.forEach((a) => {
-          items.push({ label: a.title, url: origin + articlePath(a), type: "文章" });
-        });
+        const items = [{ label: "首頁", url: location.origin + "/", type: "首頁" }];
+        categoriesCache.forEach((c) => items.push({ label: c.name, url: location.origin + categoryPath(c.name), type: c.name === "我的旅途" ? "旅途頁" : "分類頁" }));
+        allArticlesCache.forEach((a) => items.push({ label: a.title, url: location.origin + articlePath(a), type: "文章" }));
         const seen = new Set();
-        return items.filter((item) => {
-          if (seen.has(item.url)) return false;
-          seen.add(item.url);
-          return true;
-        });
+        return items.filter((item) => !seen.has(item.url) && seen.add(item.url));
       }
       async function renderAllUrlsAdmin() {
         try {
           await fetchCategories();
-          const { data, error } = await supabaseClient
-            .from("articles")
-            .select("*")
-            .order("created_at", { ascending: false });
+          const { data, error } = await supabaseClient.from("articles").select("*").order("created_at", { ascending: false });
           if (error) throw error;
           allArticlesCache = data || [];
           const items = collectAllSiteUrls();
           $("admin-all-urls").value = items.map((x) => x.url).join("\n");
           $("admin-url-summary").textContent = `目前共 ${items.length} 個網址`;
-          $("admin-url-list").innerHTML = items
-            .map((x) => `<div class="p-3 bg-[#F9F6F0] border rounded"><div class="text-xs opacity-60">${esc(x.type)}｜${esc(x.label)}</div><div class="flex flex-wrap items-center gap-2 mt-1"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer" class="break-all hover:underline">${esc(x.url)}</a><button onclick="copyText('${jsq(x.url)}')" class="ml-auto text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">複製</button></div></div>`)
-            .join("");
-        } catch (e) {
-          alert("網址取得失敗：" + e.message);
-        }
+          $("admin-url-list").innerHTML = items.map((x) => `<div class="p-3 bg-[#F9F6F0] border rounded"><div class="text-xs opacity-60">${esc(x.type)}｜${esc(x.label)}</div><div class="flex flex-wrap items-center gap-2 mt-1"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer" class="break-all hover:underline">${esc(x.url)}</a><button onclick="copyText('${jsq(x.url)}')" class="ml-auto text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">複製</button></div></div>`).join("");
+        } catch (e) { alert("網址取得失敗：" + e.message); }
       }
       async function copyText(text) {
-        try {
-          await navigator.clipboard.writeText(text);
-          alert("網址已複製！");
-        } catch {
-          prompt("請複製網址", text);
-        }
+        try { await navigator.clipboard.writeText(text); alert("網址已複製！"); }
+        catch { prompt("請複製網址", text); }
       }
       async function copyAllUrls() {
+        if (!$("admin-all-urls").value.trim()) await renderAllUrlsAdmin();
         const text = $("admin-all-urls").value.trim();
-        if (!text) {
-          await renderAllUrlsAdmin();
-        }
-        const finalText = $("admin-all-urls").value.trim();
-        if (!finalText) return alert("目前沒有可複製的網址");
-        try {
-          await navigator.clipboard.writeText(finalText);
-          alert("所有網址已複製！");
-        } catch {
-          $("admin-all-urls").focus();
-          $("admin-all-urls").select();
-          alert("已選取全部網址，請按 Ctrl+C 或 Command+C 複製");
-        }
+        if (!text) return alert("目前沒有可複製的網址");
+        try { await navigator.clipboard.writeText(text); alert("所有網址已複製！"); }
+        catch { $("admin-all-urls").focus(); $("admin-all-urls").select(); alert("已選取全部網址，請按 Ctrl+C 或 Command+C 複製"); }
       }
       async function uploadAsset(t) {
         const file = $("admin-" + t + "-file").files[0];
