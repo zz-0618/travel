@@ -2,4 +2,4 @@ User-agent: *
 
 Allow: /
 
-Sitemap: https://travel.zztravel.workers.dev/sitemap.xml
+Sitemap: https://travel.aleafpath.workers.dev/sitemap.xml
