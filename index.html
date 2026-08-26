@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>zz 的旅遊部落格</title>
+    
+    <meta name="description" content="zz 的旅遊部落格">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="zz 的旅遊部落格">
+    <meta property="og:description" content="zz 的旅遊部落格">
+    <meta property="og:site_name" content="zz 的旅遊部落格">
+    <meta property="og:image" content="">
+
+    <script
+      id="structured-data"
+      type="application/ld+json">
+    </script>
+    
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-FR2DMRZWKH"
@@ -90,6 +104,26 @@
         font-size: inherit;
         line-height: 1.5 !important;
       }
+      
+      .article-content-style ol {
+        list-style-type: decimal !important;
+        list-style-position: outside;
+        padding-left: 2rem !important;
+        margin: 1rem 0;
+      }
+
+      .article-content-style ul {
+        list-style-type: disc !important;
+        list-style-position: outside;
+        padding-left: 2rem !important;
+        margin: 1rem 0;
+      }
+
+      .article-content-style li {
+        display: list-item !important;
+        margin: .25rem 0;
+      }
+      
       .article-content-style h1,
       .article-content-style h2,
       .article-content-style h3,
@@ -887,6 +921,8 @@
         await loadSettings();
         await checkSessionState();
         await handleCurrentRoute();
+
+        updateStructuredData();
       });
       addEventListener("popstate", handleCurrentRoute);
       addEventListener(
@@ -1016,6 +1052,7 @@
         $("main-content-area").innerHTML =
           `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
+        updateStructuredData(a);
         scrollTo({ top: 0 });
       }
       async function handleCurrentRoute() {
