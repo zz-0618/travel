@@ -1561,10 +1561,25 @@
         applyCategoryOrder();
         renderFrontendNav();
         renderLatestArticles();
-        if (settingsCache.logo)
+        if (settingsCache.logo) {
+          console.log("logo url:", settingsCache.logo);
+
           $("site-header-bg").style.backgroundImage =
             `url('${settingsCache.logo}')`;
-        if (settingsCache.avatar) $("site-avatar").src = settingsCache.avatar;
+        }
+        if (settingsCache.avatar) {
+          console.log("avatar url:", settingsCache.avatar);
+          
+          $("site-avatar").src = settingsCache.avatar;
+          
+          $("site-avatar").onload = () => {
+            console.log("avatar loaded");
+          };
+          
+          $("site-avatar").onerror = (e) => {
+            console.log("avatar failed", e);
+          };
+        }
         $("site-nickname").textContent = settingsCache.nickname || "zz";
         $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
         fillSettingsForms();
