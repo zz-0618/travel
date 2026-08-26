@@ -4,7 +4,7 @@
 
   "vars": {
     "SUPABASE_URL": "https://rpzqioezweftrjtrneos.supabase.co",
-    "SUPABASE_ANON_KEY": "你的 Supabase ANON KEY"
+    "SUPABASE_ANON_KEY": "sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye"
   },
 
   "assets": {
