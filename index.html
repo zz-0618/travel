@@ -75,7 +75,6 @@
         font-family: "Noto Serif TC", serif !important;
         color: var(--ink) !important;
         box-sizing: border-box;
-        line-height: 1.5 !important;
       }
       .article-content-style {
         font-size: 16px;
@@ -164,7 +163,7 @@
       }
       .announcement-content {
         white-space: pre-wrap;
-        line-height: 1.5;
+        line-height: 1.7;
       }
       .admin-entry {
         background: transparent;
@@ -266,60 +265,9 @@
         padding: 2px 8px;
         font-size: 12px;
       }
-
-      /* 清單標記：覆寫 Tailwind Preflight */
-      .article-content-style ol,
-      #new-article-editor ol,
-      #edit-article-editor ol {
-        display: block !important;
-        list-style-type: decimal !important;
-        list-style-position: outside !important;
-        padding-left: 2.5rem !important;
-        margin: 1rem 0 !important;
-      }
-      .article-content-style ul,
-      #new-article-editor ul,
-      #edit-article-editor ul {
-        display: block !important;
-        list-style-type: disc !important;
-        list-style-position: outside !important;
-        padding-left: 2.5rem !important;
-        margin: 1rem 0 !important;
-      }
-      .article-content-style ol > li,
-      .article-content-style ul > li,
-      #new-article-editor ol > li,
-      #new-article-editor ul > li,
-      #edit-article-editor ol > li,
-      #edit-article-editor ul > li {
-        display: list-item !important;
-        padding-left: 0.25rem;
-        margin-bottom: 0.35rem;
-        line-height: 1.5 !important;
-      }
-      .article-content-style ol ol,
-      #new-article-editor ol ol,
-      #edit-article-editor ol ol {
-        list-style-type: lower-alpha !important;
-      }
-      .article-content-style ol ol ol,
-      #new-article-editor ol ol ol,
-      #edit-article-editor ol ol ol {
-        list-style-type: lower-roman !important;
-      }
-      .article-content-style ul ul,
-      #new-article-editor ul ul,
-      #edit-article-editor ul ul {
-        list-style-type: circle !important;
-      }
-      .article-content-style ul ul ul,
-      #new-article-editor ul ul ul,
-      #edit-article-editor ul ul ul {
-        list-style-type: square !important;
-      }
     </style>
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col justify-between">
     <div id="frontend-view">
       <header
         id="site-header-bg"
@@ -813,7 +761,7 @@
     >
       ↑
     </button>
-    <footer class="w-full py-4 text-center text-xs border-t mt-auto">
+    <footer class="w-full py-4 text-center text-xs border-t mt-12">
       <div>@zz 轉載請註明出處</div>
       <button onclick="openAdminPanel()" class="admin-entry mt-1">
         <span id="floating-btn-text">網站管理</span>
@@ -932,34 +880,14 @@
         );
       }
       addEventListener("DOMContentLoaded", async () => {
-        console.log("STEP1");
-
         buildToolbar("new");
         buildToolbar("edit");
-
-        console.log("STEP2");
-
         await fetchCategories();
-
-        console.log("STEP3");
-
         await fetchArticles();
-
-        console.log("STEP4");
-
         await loadSettings();
-
-        console.log("STEP5");
-
         await checkSessionState();
-
-        console.log("STEP6");
-
         await handleCurrentRoute();
-
-        console.log("STEP7");
       });
-      
       addEventListener("popstate", handleCurrentRoute);
       addEventListener(
         "scroll",
@@ -1143,7 +1071,7 @@
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         const list = [...journeyEntries].sort((a, b) =>
-          String(a.start).localeCompare(String(b.start)),
+          String(b.start).localeCompare(String(a.start)),
         );
         $("main-content-area").innerHTML =
           `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
@@ -1516,19 +1444,21 @@
         try {
           if (await slugExists(slug, id)) return alert("文章網址後綴已被使用");
           const original = allArticlesCache.find((a) => a.id == id),
-            { error } = await supabaseClient.from("articles").upsert(
-              {
-                id: original.id,
-                title,
-                category,
-                subcategory,
-                content,
-                slug,
-                created_at: original.created_at,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: "id" },
-            );
+            { error } = await supabaseClient
+              .from("articles")
+              .upsert(
+                {
+                  id: original.id,
+                  title,
+                  category,
+                  subcategory,
+                  content,
+                  slug,
+                  created_at: original.created_at,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "id" },
+              );
           if (error) throw error;
           alert("文章更新成功");
           closeEditForm();
@@ -1561,53 +1491,91 @@
         const { data, error } = await supabaseClient
           .from("settings")
           .select("*");
+
         if (error) {
           console.error("設定讀取失敗：", error);
           return;
         }
+
+        console.log("settings raw data:", data);
+
         settingsCache = Object.fromEntries(
           (data || []).map((x) => [x.key, x.value]),
         );
+
+        console.log("settingsCache:", settingsCache);
+
         try {
-          categoryOrder = JSON.parse(settingsCache.category_order || "[]");
+          categoryOrder = JSON.parse(
+            settingsCache.category_order || "[]"
+          );
         } catch {
           categoryOrder = [];
         }
+
         try {
-          journeyEntries = JSON.parse(settingsCache.travel_entries || "[]");
+          journeyEntries = JSON.parse(
+            settingsCache.travel_entries || "[]"
+          );
         } catch {
           journeyEntries = [];
         }
+
         applyCategoryOrder();
         renderFrontendNav();
         renderLatestArticles();
-        console.log("settingsCache =", settingsCache);
 
-        console.log("avatar =", settingsCache.avatar);
-        console.log("logo =", settingsCache.logo);
+        const avatarEl = $("site-avatar");
+        const headerEl = $("site-header-bg");
 
-        console.log("avatar DOM =", $("site-avatar"));
-        console.log("header DOM =", $("site-header-bg"));
+        console.log("avatar element:", avatarEl);
+        console.log("header element:", headerEl);
 
-        if (settingsCache.logo)
-          $("site-header-bg").style.backgroundImage =
-            `url('${settingsCache.logo}')`;
+        if (settingsCache.logo && headerEl) {
+          console.log("logo url:", settingsCache.logo);
 
-        if (settingsCache.avatar)
-          $("site-avatar").src = settingsCache.avatar;
-          
-          $("site-avatar").onload = () => {
+          headerEl.style.backgroundImage =
+            `url("${settingsCache.logo}")`;
+
+          headerEl.style.backgroundSize = "cover";
+          headerEl.style.backgroundPosition = "center";
+        }
+
+        if (settingsCache.avatar && avatarEl) {
+          console.log("avatar url:", settingsCache.avatar);
+
+          avatarEl.onload = () => {
             console.log("avatar loaded");
           };
-          
-          $("site-avatar").onerror = (e) => {
-            console.log("avatar failed", e);
+
+          avatarEl.onerror = (e) => {
+            console.error(
+              "avatar load failed:",
+              settingsCache.avatar,
+              e
+            );
           };
+
+          avatarEl.src = settingsCache.avatar;
+
+          console.log("avatar src after set:", avatarEl.src);
+        } else {
+          console.warn(
+            "avatar not assigned",
+            settingsCache.avatar,
+            avatarEl
+          );
         }
-        $("site-nickname").textContent = settingsCache.nickname || "zz";
-        $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
+
+        $("site-nickname").textContent =
+          settingsCache.nickname || "zz";
+
+        $("site-bio").textContent =
+          settingsCache.bio || "一個隨筆紀錄的人";
+
         fillSettingsForms();
       }
+      
       function fillSettingsForms() {
         if ($("admin-nickname"))
           $("admin-nickname").value = settingsCache.nickname || "zz";
@@ -1668,7 +1636,7 @@
         const box = $("admin-journey-list");
         if (!box) return;
         const list = [...journeyEntries].sort((a, b) =>
-          String(a.start).localeCompare(String(b.start)),
+          String(b.start).localeCompare(String(a.start)),
         );
         box.innerHTML = list.length
           ? list
