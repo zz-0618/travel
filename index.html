@@ -868,6 +868,139 @@
         parts.push(normalizeSlug(a.slug) || fallbackSlug());
         return safePath(parts);
       }
+
+      function updateStructuredData(article = null) {
+
+        const script =
+          document.getElementById(
+            "structured-data"
+          );
+
+        if (!script) return;
+
+        const siteName =
+          settingsCache.nickname || "zz";
+
+        const logo =
+          settingsCache.logo ||
+          settingsCache.avatar ||
+          "";
+
+        if (!article) {
+
+          script.textContent =
+            JSON.stringify({
+              "@context":
+                "https://schema.org",
+
+              "@type":
+                "WebSite",
+
+              name:
+                "zz 的旅遊部落格",
+
+              url:
+                location.origin
+            });
+
+          return;
+        }
+
+        const tmp =
+          document.createElement("div");
+
+        tmp.innerHTML =
+          article.content || "";
+
+        const plainText =
+          tmp.textContent
+            ?.replace(/\s+/g, " ")
+            .trim()
+            .substring(0, 200) || "";
+
+        document
+          .querySelector(
+            'meta[name="description"]'
+          )
+          ?.setAttribute(
+            "content",
+            plainText.substring(0, 160)
+          );
+
+        document
+          .querySelector(
+            'meta[property="og:title"]'
+          )
+          ?.setAttribute(
+            "content",
+            article.title
+          );
+
+        document
+          .querySelector(
+            'meta[property="og:description"]'
+          )
+          ?.setAttribute(
+            "content",
+            plainText.substring(0, 160)
+          );
+
+        if (logo) {
+          document
+            .querySelector(
+              'meta[property="og:image"]'
+            )
+            ?.setAttribute(
+              "content",
+              logo
+            );
+        }
+
+        script.textContent =
+          JSON.stringify({
+            "@context":
+              "https://schema.org",
+
+            "@type":
+              "BlogPosting",
+
+            headline:
+              article.title,
+
+            description:
+              plainText,
+
+            url:
+              location.href,
+
+            datePublished:
+              article.created_at,
+
+            dateModified:
+              article.updated_at ||
+              article.created_at,
+
+            author: {
+              "@type":
+                "Person",
+
+              name:
+                siteName
+            },
+
+            publisher: {
+              "@type":
+                "Organization",
+
+              name:
+                siteName
+            },
+
+            image:
+              logo || undefined
+          });
+      }
+      
       function safePushState(state, path) {
         const safe = String(path || "/");
         if (!safe.startsWith("/") || safe.startsWith("//"))
@@ -1108,7 +1241,7 @@
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         const list = [...journeyEntries].sort((a, b) =>
-          String(b.start).localeCompare(String(a.start)),
+          String(a.start).localeCompare(String(b.start)),
         );
         $("main-content-area").innerHTML =
           `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div></article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
@@ -1119,6 +1252,7 @@
         safePushState({}, "/");
         document.title = "zz 的旅遊部落格";
         await fetchArticles();
+        updateStructuredData();
         scrollTo({ top: 0 });
         showAnnouncementIfActive();
       }
@@ -1616,7 +1750,7 @@
         const box = $("admin-journey-list");
         if (!box) return;
         const list = [...journeyEntries].sort((a, b) =>
-          String(b.start).localeCompare(String(a.start)),
+          String(a.start).localeCompare(String(b.start)),
         );
         box.innerHTML = list.length
           ? list
