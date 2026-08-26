@@ -1491,91 +1491,34 @@
         const { data, error } = await supabaseClient
           .from("settings")
           .select("*");
-
         if (error) {
           console.error("設定讀取失敗：", error);
           return;
         }
-
-        console.log("settings raw data:", data);
-
         settingsCache = Object.fromEntries(
           (data || []).map((x) => [x.key, x.value]),
         );
-
-        console.log("settingsCache:", settingsCache);
-
         try {
-          categoryOrder = JSON.parse(
-            settingsCache.category_order || "[]"
-          );
+          categoryOrder = JSON.parse(settingsCache.category_order || "[]");
         } catch {
           categoryOrder = [];
         }
-
         try {
-          journeyEntries = JSON.parse(
-            settingsCache.travel_entries || "[]"
-          );
+          journeyEntries = JSON.parse(settingsCache.travel_entries || "[]");
         } catch {
           journeyEntries = [];
         }
-
         applyCategoryOrder();
         renderFrontendNav();
         renderLatestArticles();
-
-        const avatarEl = $("site-avatar");
-        const headerEl = $("site-header-bg");
-
-        console.log("avatar element:", avatarEl);
-        console.log("header element:", headerEl);
-
-        if (settingsCache.logo && headerEl) {
-          console.log("logo url:", settingsCache.logo);
-
-          headerEl.style.backgroundImage =
-            `url("${settingsCache.logo}")`;
-
-          headerEl.style.backgroundSize = "cover";
-          headerEl.style.backgroundPosition = "center";
-        }
-
-        if (settingsCache.avatar && avatarEl) {
-          console.log("avatar url:", settingsCache.avatar);
-
-          avatarEl.onload = () => {
-            console.log("avatar loaded");
-          };
-
-          avatarEl.onerror = (e) => {
-            console.error(
-              "avatar load failed:",
-              settingsCache.avatar,
-              e
-            );
-          };
-
-          avatarEl.src = settingsCache.avatar;
-
-          console.log("avatar src after set:", avatarEl.src);
-        } else {
-          console.warn(
-            "avatar not assigned",
-            settingsCache.avatar,
-            avatarEl
-          );
-        }
-
-        $("site-nickname").textContent =
-          settingsCache.nickname || "zz";
-
-        $("site-bio").textContent =
-          settingsCache.bio || "一個隨筆紀錄的人";
-
+        if (settingsCache.logo)
+          $("site-header-bg").style.backgroundImage =
+            `url('${settingsCache.logo}')`;
+        if (settingsCache.avatar) $("site-avatar").src = settingsCache.avatar;
+        $("site-nickname").textContent = settingsCache.nickname || "zz";
+        $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
         fillSettingsForms();
       }
-      
       function fillSettingsForms() {
         if ($("admin-nickname"))
           $("admin-nickname").value = settingsCache.nickname || "zz";
