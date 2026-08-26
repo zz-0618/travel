@@ -61,14 +61,9 @@
         background: #fff;
         -webkit-font-smoothing: antialiased;
       }
-      .custom-card { background: var(--card); }
-      ::selection { background:#8FA28A; color:#fff; }
-      ::-moz-selection { background:#8FA28A; color:#fff; }
-      .faq-block{margin:2rem 0;font-family:"Noto Serif TC",serif}.faq-block-title{font-size:1.75rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:2px solid var(--sand)}.faq-item{background:#fff;border:1px solid var(--sand);border-radius:12px;margin:.8rem 0;overflow:hidden}.faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative}.faq-item summary::-webkit-details-marker{display:none}.faq-item summary:after{content:"⌄";position:absolute;right:1.2rem}.faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft)}
-      .related-reading-box{margin:2rem 0;padding:1.2rem 1.4rem;background:var(--soft);border:1px solid var(--sand);border-left:5px solid var(--accent);border-radius:12px}.related-reading-box h3{font-size:1.25rem;font-weight:700;margin-bottom:.65rem}
-      .article-list-card{display:grid;grid-template-columns:220px minmax(0,1fr);gap:1.25rem}.article-cover{width:100%;height:150px;object-fit:cover;border-radius:10px;background:#ded6ce}.article-cover-placeholder{display:flex;align-items:center;justify-content:center;color:#8b7a6b;border:1px solid var(--sand)}
-      .journey-related-links{margin-top:.55rem;display:flex;flex-direction:column;gap:.25rem;font-size:.9rem}.journey-related-links a{color:var(--accent)!important;text-decoration:underline}
-      @media(max-width:767px){.article-list-card{grid-template-columns:110px minmax(0,1fr);gap:.85rem}.article-cover{height:105px}}
+      .custom-card {
+        background: var(--card);
+      }
       .dropdown-parent:hover .dropdown-child {
         display: block;
       }
@@ -296,6 +291,27 @@
         font-size: 1.1rem;
         font-weight: 700;
         margin-top: 0.25rem;
+      }
+      .journey-mobile-filter { display: none; }
+      .journey-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
+      .journey-column { min-width: 0; }
+      .journey-related-links { margin-top: .65rem; display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
+      .journey-related-links a { color: var(--accent) !important; text-decoration: underline; overflow-wrap: anywhere; }
+      .faq-block { margin: 2rem 0; font-family: "Noto Serif TC", serif; }
+      .faq-block-title { font-size: 1.75rem; font-weight: 700; padding-bottom: .75rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--sand); position: relative; }
+      .faq-block-title::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 32%; height: 2px; background: var(--accent); }
+      .faq-item { background: #fff; border: 1px solid var(--sand); border-radius: 12px; margin: .8rem 0; overflow: hidden; }
+      .faq-item summary { cursor: pointer; list-style: none; font-size: 1.08rem; font-weight: 700; padding: 1rem 3rem 1rem 1.2rem; position: relative; }
+      .faq-item summary::-webkit-details-marker { display: none; }
+      .faq-item summary::after { content: "⌄"; position: absolute; right: 1.2rem; top: .85rem; font-size: 1.4rem; }
+      .faq-item[open] summary::after { transform: rotate(180deg); }
+      .faq-answer { border-top: 1px solid var(--sand); padding: 1rem 1.2rem; background: var(--soft); }
+      #new-article-editor .faq-item, #edit-article-editor .faq-item { outline: 1px dashed transparent; }
+      #new-article-editor .faq-item:hover, #edit-article-editor .faq-item:hover { outline-color: var(--accent); }
+      @media (max-width: 767px) {
+        .journey-mobile-filter { display: block; }
+        .journey-columns { display: block; }
+        .journey-column-mobile-hidden { display: none; }
       }
       .order-btn {
         border: 1px solid var(--sand);
@@ -561,7 +577,7 @@
             class="admin-tab-content space-y-6 hidden"
           >
             <h2 class="text-2xl font-bold border-b pb-2">我的旅途管理</h2>
-            <div class="custom-card p-4 rounded-xl grid md:grid-cols-3 gap-3">
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-4 gap-3">
               <div>
                 <label class="block text-sm font-semibold mb-1">開始年月</label
                 ><input
@@ -579,6 +595,13 @@
                 />
               </div>
               <div>
+                <label class="block text-sm font-semibold mb-1">旅途分類</label
+                ><select id="journey-type" class="w-full border p-2 rounded">
+                  <option value="abroad">國外 Abroad</option>
+                  <option value="taiwan">臺灣 Taiwan</option>
+                </select>
+              </div>
+              <div>
                 <label class="block text-sm font-semibold mb-1">行程名稱</label
                 ><input
                   id="journey-name"
@@ -587,9 +610,13 @@
                   placeholder="例如：釜山自由行"
                 />
               </div>
+              <div class="md:col-span-4">
+                <label class="block text-sm font-semibold mb-1">相關文章網址</label>
+                <textarea id="journey-related-urls" class="w-full border p-2 rounded min-h-24" placeholder="每行輸入一個文章網址；儲存後前台會自動顯示文章標題與超連結"></textarea>
+              </div>
               <button
                 onclick="addJourneyEntry()"
-                class="md:col-span-3 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+                class="md:col-span-4 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
               >
                 新增旅途紀錄
               </button>
@@ -636,7 +663,6 @@
                 class="w-full border p-2 rounded"
                 placeholder="文章網址後綴，例如 Seomyeon"
               />
-              <div><label class="block font-semibold mb-1">文章封面圖</label><input type="file" id="new-article-cover" accept="image/*" class="block w-full text-sm border p-2 rounded"></div>
               <div id="new-toolbar" class="flex flex-wrap gap-2"></div>
               <div
                 id="new-article-editor"
@@ -676,7 +702,6 @@
                   class="w-full border p-2 rounded"
                   placeholder="文章網址後綴"
                 />
-                <div><label class="block font-semibold mb-1">更換文章封面圖</label><input type="file" id="edit-article-cover" accept="image/*" class="block w-full text-sm border p-2 rounded"><div id="edit-cover-preview" class="mt-2"></div></div>
                 <div id="edit-toolbar" class="flex flex-wrap gap-2"></div>
                 <div
                   id="edit-article-editor"
@@ -767,7 +792,6 @@
         </div>
       </div>
     </div>
-    <div id="related-reading-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"><div class="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto space-y-4"><div class="flex justify-between"><h3 class="text-xl font-bold">選擇延伸閱讀文章</h3><button onclick="closeRelatedReadingPicker()">×</button></div><input id="related-reading-search" oninput="renderRelatedReadingChoices()" class="w-full border p-2 rounded" placeholder="搜尋文章標題"><div id="related-reading-choices" class="space-y-2"></div><div class="text-right"><button onclick="insertSelectedRelatedReading()" class="px-5 py-2 text-white rounded bg-[#C9B59C]">加入延伸閱讀框</button></div></div></div>
     <div
       id="login-modal"
       class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
@@ -1017,7 +1041,7 @@
       }
       function buildToolbar(t) {
         $(t + "-toolbar").innerHTML =
-          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="insertFAQ('${t}')">❓ FAQ</button><button class="editor-btn" onclick="openRelatedReadingPicker('${t}')">📚 延伸閱讀</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
+          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button><button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
       }
       function cmd(t, c) {
         $(t + "-article-editor").focus();
@@ -1054,12 +1078,28 @@
           '<div class="article-alert-box"><p>請輸入提醒內容...</p></div><p><br></p>',
         );
       }
-      function insertFAQ(t){const q=prompt("請輸入常見問題");if(!q)return;const a=prompt("請輸入問題答案");if(a===null)return;const e=$(t+"-article-editor");e.focus();document.execCommand("insertHTML",false,`<section class="faq-block"><h2 class="faq-block-title">常見問題</h2><details class="faq-item"><summary>${esc(q)}</summary><div class="faq-answer"><p>${esc(a).replace(/\n/g,"<br>")}</p></div></details></section><p><br></p>`)}
-      let relatedReadingEditorTarget="new";
-      function openRelatedReadingPicker(t){relatedReadingEditorTarget=t;$("related-reading-search").value="";renderRelatedReadingChoices();$("related-reading-modal").classList.remove("hidden")}
-      function closeRelatedReadingPicker(){$("related-reading-modal").classList.add("hidden")}
-      function renderRelatedReadingChoices(){const k=$("related-reading-search").value.toLowerCase();const list=allArticlesCache.filter(a=>!k||a.title.toLowerCase().includes(k));$("related-reading-choices").innerHTML=list.map(a=>`<label class="flex gap-3 p-3 border rounded"><input type="checkbox" class="related-reading-check" value="${a.id}"><span><b>${esc(a.title)}</b><small class="block opacity-60">${esc(articlePath(a))}</small></span></label>`).join("")}
-      function insertSelectedRelatedReading(){const ids=[...document.querySelectorAll(".related-reading-check:checked")].map(x=>x.value),list=ids.map(id=>allArticlesCache.find(a=>String(a.id)===id)).filter(Boolean);if(!list.length)return alert("請至少選擇一篇文章");const e=$(relatedReadingEditorTarget+"-article-editor");e.focus();document.execCommand("insertHTML",false,`<aside class="related-reading-box"><h3>延伸閱讀</h3><ul>${list.map(a=>`<li><a href="${articlePath(a)}">${esc(a.title)}</a></li>`).join("")}</ul></aside><p><br></p>`);closeRelatedReadingPicker()}
+      function faqItemHtml() {
+        return '<details class="faq-item" open><summary>請直接點此編輯問題</summary><div class="faq-answer"><p>請直接點此編輯答案</p></div></details>';
+      }
+      function insertFAQ(t) {
+        const editor = $(t + "-article-editor");
+        editor.focus();
+        document.execCommand(
+          "insertHTML",
+          false,
+          '<section class="faq-block"><h2 class="faq-block-title">常見問題</h2>' + faqItemHtml() + '</section><p><br></p>',
+        );
+      }
+      function addFAQItem(t) {
+        const editor = $(t + "-article-editor");
+        const blocks = editor.querySelectorAll(".faq-block");
+        if (!blocks.length) return insertFAQ(t);
+        const block = blocks[blocks.length - 1];
+        block.insertAdjacentHTML("beforeend", faqItemHtml());
+        const item = block.lastElementChild;
+        item.open = true;
+        item.querySelector("summary")?.focus();
+      }
       addEventListener("DOMContentLoaded", async () => {
         buildToolbar("new");
         buildToolbar("edit");
@@ -1091,9 +1131,6 @@
         applyCategoryOrder();
         renderFrontendNav();
       }
-      function articleCoverUrl(a){return settingsCache["article_cover_"+a.id]||""}
-      function articlePlainExcerpt(content){const t=document.createElement("div");t.innerHTML=content||"";return(t.textContent||"").replace(/\s+/g," ").trim()}
-      async function uploadArticleCover(file,id){if(!file)return;const n=file.name.replace(/[^A-Za-z0-9._-]/g,"_"),{data,error}=await supabaseClient.storage.from("blog-assets").upload(`cover_${id}_${Date.now()}_${n}`,file);if(error)throw error;const url=supabaseClient.storage.from("blog-assets").getPublicUrl(data.path).data.publicUrl;await upsertSettings({["article_cover_"+id]:url})}
       async function fetchArticles(cat = "all") {
         const c = $("main-content-area"),
           { data, error } = await supabaseClient
@@ -1131,7 +1168,7 @@
           ? list
               .map(
                 (a) =>
-                  `<article class="custom-card p-4 rounded-xl shadow-sm article-list-card"><div>${articleCoverUrl(a)?`<img src="${esc(articleCoverUrl(a))}" alt="${esc(a.title)}封面圖" class="article-cover" loading="lazy">`:'<div class="article-cover article-cover-placeholder">尚無封面</div>'}</div><div><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory?" / "+esc(a.subcategory):""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><p class="line-clamp-2 mt-3 article-content-style">${esc(articlePlainExcerpt(a.content))}</p></div></article>`,
+                  `<article class="custom-card p-6 rounded-xl shadow-sm"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory ? " / " + esc(a.subcategory) : ""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><div class="line-clamp-2 mt-3 article-content-style">${a.content || ""}</div><div class="text-right mt-4"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></article>`,
               )
               .join("")
           : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
@@ -1250,7 +1287,31 @@
         const [y, m] = String(v).split("-");
         return y && m ? `${y}/${m}` : esc(v);
       }
-      function renderJourneyRelatedLinks(x){const items=(x.relatedUrls||[]).map(url=>{let path=url;try{path=new URL(url,location.origin).pathname}catch{}const a=allArticlesCache.find(v=>decodeURIComponent(articlePath(v)).toLowerCase()===decodeURIComponent(path).toLowerCase());return{url,title:a?.title||url}});return items.length?`<div class="journey-related-links">${items.map(v=>`<a href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">${esc(v.title)}</a>`).join("")}</div>`:""}
+      function resolveJourneyArticle(url) {
+        let path = String(url || "");
+        try { path = new URL(path, location.origin).pathname; } catch {}
+        return allArticlesCache.find(
+          (a) => decodeURIComponent(articlePath(a)).toLowerCase() === decodeURIComponent(path).toLowerCase(),
+        );
+      }
+      function renderJourneyRelatedLinks(entry) {
+        const urls = Array.isArray(entry.relatedUrls) ? entry.relatedUrls : [];
+        if (!urls.length) return "";
+        return `<div class="journey-related-links">${urls.map((url) => {
+          const article = resolveJourneyArticle(url);
+          const href = article ? articlePath(article) : url;
+          const title = article ? article.title : url;
+          const click = article ? ` onclick="event.preventDefault();viewSingleArticle('${article.id}')"` : ' target="_blank" rel="noopener noreferrer"';
+          return `<a href="${esc(href)}"${click}>${esc(title)}</a>`;
+        }).join("")}</div>`;
+      }
+      function setJourneyMobileType(type) {
+        const abroad = $("journey-column-abroad"),
+          taiwan = $("journey-column-taiwan");
+        if (!abroad || !taiwan) return;
+        abroad.classList.toggle("journey-column-mobile-hidden", type !== "abroad");
+        taiwan.classList.toggle("journey-column-mobile-hidden", type !== "taiwan");
+      }
       function viewJourney(opt = {}) {
         const cat = categoryByName("我的旅途");
         if (opt.updateHistory !== false && cat)
@@ -1258,11 +1319,14 @@
         document.title = "我的旅途｜zz 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
-        const list = [...journeyEntries].sort((a, b) =>
-          String(a.start).localeCompare(String(b.start)),
-        );
-        $("main-content-area").innerHTML =
-          `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75">走過的地方與留下的旅程紀錄</p><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div>${renderJourneyRelatedLinks(x)}</article>`).join("") : '<div class="custom-card p-6 rounded-xl">目前尚無旅途紀錄。</div>'}</div></section>`;
+        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
+        const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
+        const renderGroup = (type, title, icon) => {
+          const list = sorted.filter((x) => normalizedType(x) === type);
+          const mobileClass = type === "taiwan" ? " journey-column-mobile-hidden" : "";
+          return `<section id="journey-column-${type}" class="journey-column custom-card p-5 rounded-xl${mobileClass}"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2 mb-4">${icon} ${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div>${renderJourneyRelatedLinks(x)}</article>`).join("") : '<div class="p-4 opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
+        };
+        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="abroad" selected>國外 Abroad</option><option value="taiwan">臺灣 Taiwan</option></select></div><div class="journey-columns">${renderGroup("abroad", "國外 Abroad", "🌏")}${renderGroup("taiwan", "臺灣 Taiwan", "🇹🇼")}</div></section>`;
         renderLatestArticles();
         scrollTo({ top: 0 });
       }
@@ -1586,7 +1650,7 @@
               ])
               .select()
               .single();
-          if(error)throw error;const cover=$("new-article-cover").files[0];if(cover)await uploadArticleCover(cover,data.id);$("new-article-cover").value="";
+          if (error) throw error;
           alert("發布成功！\n" + location.origin + articlePath(data));
           await fetchArticles();
         } catch (e) {
@@ -1617,7 +1681,6 @@
         $("edit-article-editor").innerHTML = a.content || "";
         $("edit-article-parent-select").value = a.category || "";
         updateChildDropdown("edit", a.subcategory || "");
-        const cover=articleCoverUrl(a);$("edit-cover-preview").innerHTML=cover?`<img src="${esc(cover)}" class="w-48 h-28 object-cover rounded border">`:'<span class="text-xs opacity-60">目前沒有封面圖</span>';$("edit-article-cover").value="";
         $("edit-article-form").classList.remove("hidden");
       }
       function closeEditForm() {
@@ -1649,7 +1712,7 @@
                 },
                 { onConflict: "id" },
               );
-          if(error)throw error;const cover=$("edit-article-cover").files[0];if(cover)await uploadArticleCover(cover,id);
+          if (error) throw error;
           alert("文章更新成功");
           closeEditForm();
           loadManageArticlesList();
@@ -1768,33 +1831,30 @@
       function renderJourneyAdmin() {
         const box = $("admin-journey-list");
         if (!box) return;
-        const list = [...journeyEntries].sort((a, b) =>
-          String(a.start).localeCompare(String(b.start)),
-        );
-        box.innerHTML = list.length
-          ? list
-              .map(
-                (x) =>
-                  `<div class="custom-card p-3 rounded-lg flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div></div><div class="flex gap-2"><button onclick="editJourneyEntry('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div></div>`,
-              )
-              .join("")
-          : '<div class="opacity-60">目前尚無旅途紀錄。</div>';
+        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
+        const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
+        const renderGroup = (type, title) => {
+          const list = sorted.filter((x) => normalizedType(x) === type);
+          return `<section><h3 class="text-lg font-bold mt-5 mb-2">${title}</h3><div class="space-y-2">${list.length ? list.map((x) => `<div class="custom-card p-3 rounded-lg flex items-start justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="text-xs mt-2 opacity-75">相關文章：${(x.relatedUrls || []).length} 篇</div></div><div class="flex gap-2"><button onclick="editJourneyEntry('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div></div>`).join("") : '<div class="opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
+        };
+        box.innerHTML = renderGroup("abroad", "🌏 國外 Abroad") + renderGroup("taiwan", "🇹🇼 臺灣 Taiwan");
       }
       async function addJourneyEntry() {
         const start = $("journey-start").value,
           end = $("journey-end").value,
-          name = $("journey-name").value.trim();
-        if (!start || !end || !name)
-          return alert("請完整填寫開始年月、結束年月與行程名稱");
+          type = $("journey-type").value,
+          name = $("journey-name").value.trim(),
+          relatedUrls = $("journey-related-urls").value.split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+        if (!start || !end || !name) return alert("請完整填寫開始年月、結束年月、旅途分類與行程名稱");
         if (start > end) return alert("開始年月不可晚於結束年月");
-        journeyEntries.push({ id: String(Date.now()), start, end, name });
+        journeyEntries.push({ id: String(Date.now()), start, end, type, name, relatedUrls });
         try {
-          await upsertSettings({
-            travel_entries: JSON.stringify(journeyEntries),
-          });
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
           $("journey-start").value = "";
           $("journey-end").value = "";
+          $("journey-type").value = "abroad";
           $("journey-name").value = "";
+          $("journey-related-urls").value = "";
           renderJourneyAdmin();
           alert("旅途紀錄已新增");
         } catch (e) {
@@ -1802,7 +1862,29 @@
           alert("新增失敗：" + e.message);
         }
       }
-      async function editJourneyEntry(id){const item=journeyEntries.find(x=>String(x.id)===String(id));if(!item)return;const name=prompt("修改行程名稱",item.name||"");if(name===null||!name.trim())return;const input=prompt("相關文章網址，每行一個",(item.relatedUrls||[]).join("\n"));if(input===null)return;const old=JSON.parse(JSON.stringify(journeyEntries));item.name=name.trim();item.relatedUrls=input.split(/\n|,/).map(x=>x.trim()).filter(Boolean);try{await upsertSettings({travel_entries:JSON.stringify(journeyEntries)});renderJourneyAdmin();alert("旅途紀錄已更新")}catch(e){journeyEntries=old;alert("更新失敗："+e.message)}}
+      async function editJourneyEntry(id) {
+        const item = journeyEntries.find((x) => String(x.id) === String(id));
+        if (!item) return;
+        const name = prompt("修改行程名稱", item.name || "");
+        if (name === null || !name.trim()) return;
+        const typeInput = prompt("輸入分類：abroad 或 taiwan", item.type === "taiwan" ? "taiwan" : "abroad");
+        if (typeInput === null) return;
+        const type = typeInput.trim().toLowerCase() === "taiwan" ? "taiwan" : "abroad";
+        const urls = prompt("相關文章網址，每行一個", (item.relatedUrls || []).join("\n"));
+        if (urls === null) return;
+        const old = JSON.parse(JSON.stringify(journeyEntries));
+        item.name = name.trim();
+        item.type = type;
+        item.relatedUrls = urls.split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+        try {
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
+          renderJourneyAdmin();
+          alert("旅途紀錄已更新");
+        } catch (e) {
+          journeyEntries = old;
+          alert("更新失敗：" + e.message);
+        }
+      }
       async function deleteJourneyEntry(id) {
         if (!confirm("確定刪除這筆旅途紀錄？")) return;
         const old = [...journeyEntries];
