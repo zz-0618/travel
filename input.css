@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Noto Serif TC Variable Font */
+@font-face {
+  font-family: "NotoSerifTC";
+  src: url("/fonts/NotoSerifTC[wght].woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html,
+body {
+  font-family: "NotoSerifTC", serif;
+}
