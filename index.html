@@ -927,7 +927,7 @@
         const { data: routeArticle, error: routeError } = await supabaseClient
           .from("articles")
           .select("*")
-          .ilike("slug", last)
+          .eq("slug", last)
           .maybeSingle();
         if (routeError) console.error(routeError);
         if (routeArticle && decodeURIComponent(articlePath(routeArticle)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()) {
