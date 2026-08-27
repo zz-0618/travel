@@ -506,7 +506,7 @@
 
       function buildToolbar(t) {
         $(t + "-toolbar").innerHTML =
-          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button><button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
+          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button><button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
       }
 
       function cmd(t, c) {
@@ -538,6 +538,52 @@
           $(t + "-article-editor").focus();
           document.execCommand("createLink", false, u);
         }
+      }
+
+      function insertMapCard(t) {
+
+        const name =
+          prompt("請輸入店名");
+
+        if (!name) return;
+
+        const address =
+          prompt("請輸入地址");
+
+        if (!address) return;
+
+        const url =
+          prompt("請輸入地圖網址");
+
+        if (!url) return;
+
+        let platform = "google";
+
+        if (url.includes("naver")) {
+          platform = "naver";
+        }
+
+        if (url.includes("amap")) {
+          platform = "amap";
+        }
+
+        const html = `
+      <div
+      class="travel-map"
+      data-platform="${platform}"
+      data-name="${name}"
+      data-address="${address}"
+      data-url="${url}">
+      </div>
+
+      <p><br></p>
+      `;
+
+        document.execCommand(
+          "insertHTML",
+          false,
+          html
+        );
       }
 
       function insertBox(t) {
