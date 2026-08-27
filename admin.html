@@ -5,21 +5,32 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
     <title>網站後台管理系統｜zz 的旅遊部落格</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 使用建置後的本機 Tailwind CSS -->
+    <link rel="stylesheet" href="/css/output.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>tailwind.config={theme:{extend:{fontFamily:{serif:["Noto Serif TC","serif"]}}}};</script>
-    <style>
+<style>
+      @font-face {
+        font-family: "Noto Serif TC";
+        src: url("/fonts/NotoSerifTC-Regular.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Noto Serif TC";
+        src: url("/fonts/NotoSerifTC-Bold.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 600 900;
+        font-display: swap;
+      }
       :root{--ink:#452829;--sand:#c9b59c;--card:#efe9e3;--soft:#f9f6f0;--accent:#a56c5d;}
-      body{font-family:"Noto Serif TC",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
+      body{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
       ::selection{background:#8FA28A;color:#fff;}
       ::-moz-selection{background:#8FA28A;color:#fff;}
       .custom-card{background:var(--card);}
       .editor-btn{background:var(--card);border:1px solid var(--sand);padding:6px 10px;font-size:13px;border-radius:6px;cursor:pointer;}
       .editor-btn:hover{opacity:.8;}
-      .article-content-style,.article-content-style *{font-family:"Noto Serif TC",serif!important;color:var(--ink)!important;box-sizing:border-box;}
+      .article-content-style,.article-content-style *{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif!important;color:var(--ink)!important;box-sizing:border-box;}
       .article-content-style{font-size:16px;line-height:1.5!important;letter-spacing:.02em;overflow-wrap:anywhere;}
       .article-content-style ol{list-style-type:decimal!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
       .article-content-style ul{list-style-type:disc!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
@@ -27,7 +38,7 @@
       .article-content-style h1,.article-content-style h2,.article-content-style h3,.article-content-style h4{font-weight:700!important;line-height:1.5!important;}
       .article-alert-box{font-size:inherit;line-height:1.5!important;background:#f2eae0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0;}
       #new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.5!important;caret-color:var(--ink);}
-      .faq-block{margin:2rem 0;font-family:"Noto Serif TC",serif;}
+      .faq-block{margin:2rem 0;font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;}
       .faq-block-title{font-size:1.75rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:2px solid var(--sand);position:relative;}
       .faq-item{background:#fff;border:1px solid var(--sand);border-radius:12px;margin:.8rem 0;overflow:hidden;}
       .faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative;}
