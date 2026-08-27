@@ -2,12 +2,12 @@ module.exports = {
   content: [
     "./*.html"
   ],
-  th*me: {
+  theme: {
     extend: {
-      fontFami*y: {
+      fontFamily: {
         serif: ['"Noto Serif TC"', 'serif'],
       },
     },
-  }*
+  },
   plugins: [],
 }
