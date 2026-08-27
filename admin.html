@@ -337,6 +337,11 @@
                 <input type="file" id="new-article-cover-file" accept="image/*" class="block w-full text-sm border p-2 rounded" />
                 <p class="text-xs opacity-70">建議使用 16:9 圖片。發布文章時會自動上傳。</p>
               </div>
+              <div class="space-y-2">
+                <label class="block font-semibold" for="new-article-related-select">延伸閱讀文章</label>
+                <select id="new-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select>
+                <p class="text-xs opacity-70">可選多篇。Windows 按住 Ctrl、Mac 按住 Command 點選；不選則不顯示延伸閱讀。</p>
+              </div>
               <input
                 id="new-article-slug"
                 class="w-full border p-2 rounded"
@@ -381,6 +386,11 @@
                   <img id="edit-article-cover-preview" alt="目前封面圖" class="hidden w-48 aspect-video object-cover rounded-lg border" />
                   <input type="file" id="edit-article-cover-file" accept="image/*" class="block w-full text-sm border p-2 rounded" />
                   <p class="text-xs opacity-70">未選擇新圖片時會保留目前封面。</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="block font-semibold" for="edit-article-related-select">延伸閱讀文章</label>
+                  <select id="edit-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select>
+                  <p class="text-xs opacity-70">可重新選擇多篇延伸閱讀；目前文章不會出現在選項中。</p>
                 </div>
                 <input
                   id="edit-article-slug"
@@ -907,12 +917,30 @@
         }
         return content;
       }
+      function relatedSettingsKey(articleId) {
+        return "article_related_" + String(articleId);
+      }
+      function selectedRelatedArticleIds(type) {
+        const select = $(type + "-article-related-select");
+        return select ? [...select.selectedOptions].map((option) => String(option.value)) : [];
+      }
+      function populateRelatedArticleSelect(type, options = {}) {
+        const select = $(type + "-article-related-select");
+        if (!select) return;
+        const excludeId = String(options.excludeId || "");
+        const selected = new Set((options.selectedIds || []).map(String));
+        select.innerHTML = allArticlesCache
+          .filter((article) => String(article.id) !== excludeId)
+          .map((article) => `<option value="${esc(article.id)}" ${selected.has(String(article.id)) ? "selected" : ""}>${esc(article.title)}｜${esc(article.category || "未分類")}${article.subcategory ? " / " + esc(article.subcategory) : ""}</option>`)
+          .join("");
+      }
       async function publishNewArticle() {
         const title = $("new-article-title").value.trim(),
           category = $("new-article-parent-select").value,
           subcategory = $("new-article-child-select").value,
           slug = normalizeSlug($("new-article-slug").value) || fallbackSlug(),
-          coverFile = $("new-article-cover-file").files[0];
+          coverFile = $("new-article-cover-file").files[0],
+          relatedArticleIds = selectedRelatedArticleIds("new");
         let content;
         try {
           content = validateArticleContent(
@@ -943,10 +971,14 @@
               .select()
               .single();
           if (error) throw error;
+          await upsertSettings({
+            [relatedSettingsKey(data.id)]: JSON.stringify(relatedArticleIds),
+          });
           alert("發布成功！\n" + location.origin + articlePath(data));
           $("new-article-title").value = "";
           $("new-article-slug").value = "";
           $("new-article-cover-file").value = "";
+          $("new-article-related-select").selectedIndex = -1;
           $("new-article-editor").innerHTML = "";
           await loadManageArticlesList();
         } catch (e) {
@@ -976,6 +1008,7 @@
         if (error) return alert(error.message);
         allArticlesCache = data || [];
         populateArticleParentDropdowns();
+        populateRelatedArticleSelect("new");
         $("admin-articles-list").innerHTML = allArticlesCache
           .map(
             (a) =>
@@ -1012,6 +1045,17 @@
         preview.classList.toggle("hidden", !a.cover_image_url);
         $("edit-article-parent-select").value = a.category || "";
         updateChildDropdown("edit", a.subcategory || "");
+        let relatedArticleIds = [];
+        try {
+          const parsed = JSON.parse(settingsCache[relatedSettingsKey(a.id)] || "[]");
+          relatedArticleIds = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          relatedArticleIds = [];
+        }
+        populateRelatedArticleSelect("edit", {
+          excludeId: a.id,
+          selectedIds: relatedArticleIds,
+        });
         $("edit-article-form").classList.remove("hidden");
       }
       function closeEditForm() {
@@ -1024,7 +1068,8 @@
           category = $("edit-article-parent-select").value,
           subcategory = $("edit-article-child-select").value,
           slug = normalizeSlug($("edit-article-slug").value) || fallbackSlug(),
-          coverFile = $("edit-article-cover-file").files[0];
+          coverFile = $("edit-article-cover-file").files[0],
+          relatedArticleIds = selectedRelatedArticleIds("edit");
         let content;
         try {
           content = validateArticleContent(
@@ -1058,6 +1103,9 @@
               { onConflict: "id" },
             );
           if (error) throw error;
+          await upsertSettings({
+            [relatedSettingsKey(id)]: JSON.stringify(relatedArticleIds),
+          });
           alert("文章更新成功");
           closeEditForm();
           await loadManageArticlesList();
