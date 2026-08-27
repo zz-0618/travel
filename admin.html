@@ -772,13 +772,155 @@
         if (error) throw error;
         return supabaseClient.storage.from("blog-assets").getPublicUrl(data.path).data.publicUrl;
       }
+      async function uploadArticleContentImage(file) {
+        if (!file?.type?.startsWith("image/")) {
+          throw new Error("請選擇有效的圖片檔案");
+        }
+        const optimizedFile = await compressImage(file, {
+          maxWidth: 1400,
+          maxHeight: 1400,
+          quality: 0.8,
+        });
+        const randomPart = crypto.randomUUID?.() ||
+          `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const path = `article-images/${randomPart}.webp`;
+        const { data, error } = await supabaseClient.storage
+          .from("blog-assets")
+          .upload(path, optimizedFile, {
+            cacheControl: "31536000",
+            contentType: "image/webp",
+            upsert: false,
+          });
+        if (error) throw error;
+        return supabaseClient.storage
+          .from("blog-assets")
+          .getPublicUrl(data.path).data.publicUrl;
+      }
+      function getEditorRange(editor) {
+        const selection = window.getSelection();
+        if (
+          selection &&
+          selection.rangeCount > 0 &&
+          editor.contains(selection.anchorNode)
+        ) {
+          return selection.getRangeAt(0).cloneRange();
+        }
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false);
+        return range;
+      }
+      function insertImageAtRange(editor, imageUrl, range) {
+        const safeUrl = esc(imageUrl);
+        const imageHtml = `<figure style="margin:1.5rem 0;"><img src="${safeUrl}" alt="" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;border-radius:12px;"></figure><p><br></p>`;
+        const workingRange = range || getEditorRange(editor);
+        workingRange.deleteContents();
+        const fragment = workingRange.createContextualFragment(imageHtml);
+        const lastNode = fragment.lastChild;
+        workingRange.insertNode(fragment);
+        const nextRange = document.createRange();
+        if (lastNode?.parentNode) {
+          nextRange.setStartAfter(lastNode);
+        } else {
+          nextRange.selectNodeContents(editor);
+          nextRange.collapse(false);
+        }
+        nextRange.collapse(true);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(nextRange);
+        return nextRange.cloneRange();
+      }
+      async function handleEditorImageFiles(editor, files) {
+        const imageFiles = [...files].filter((file) =>
+          file.type?.startsWith("image/"),
+        );
+        if (!imageFiles.length) return;
+        let savedRange = getEditorRange(editor);
+        editor.setAttribute("contenteditable", "false");
+        editor.style.opacity = "0.65";
+        editor.setAttribute("aria-busy", "true");
+        try {
+          for (const file of imageFiles) {
+            const imageUrl = await uploadArticleContentImage(file);
+            savedRange = insertImageAtRange(editor, imageUrl, savedRange);
+          }
+        } finally {
+          editor.setAttribute("contenteditable", "true");
+          editor.style.opacity = "";
+          editor.removeAttribute("aria-busy");
+          editor.focus();
+        }
+      }
+      function setupArticleEditorImageUpload(editorId) {
+        const editor = $(editorId);
+        if (!editor || editor.dataset.imageUploadReady === "true") return;
+        editor.dataset.imageUploadReady = "true";
+        editor.addEventListener("paste", async (event) => {
+          const files = [...(event.clipboardData?.files || [])];
+          const imageFiles = files.filter((file) =>
+            file.type?.startsWith("image/"),
+          );
+          const pastedHtml = event.clipboardData?.getData("text/html") || "";
+          if (!imageFiles.length) {
+            if (/data:image\/[^;]+;base64,/i.test(pastedHtml)) {
+              event.preventDefault();
+              alert("偵測到 Base64 圖片，但瀏覽器未提供可上傳的圖片檔。請先將圖片存成檔案，再拖曳或貼入編輯器。");
+            }
+            return;
+          }
+          event.preventDefault();
+          try {
+            await handleEditorImageFiles(editor, imageFiles);
+          } catch (error) {
+            console.error("貼上圖片失敗：", error);
+            alert("圖片貼上失敗：" + (error?.message || String(error)));
+          }
+        });
+        editor.addEventListener("dragover", (event) => {
+          const hasImage = [...(event.dataTransfer?.items || [])].some(
+            (item) => item.type?.startsWith("image/"),
+          );
+          if (hasImage) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+          }
+        });
+        editor.addEventListener("drop", async (event) => {
+          const files = [...(event.dataTransfer?.files || [])];
+          const imageFiles = files.filter((file) =>
+            file.type?.startsWith("image/"),
+          );
+          if (!imageFiles.length) return;
+          event.preventDefault();
+          try {
+            await handleEditorImageFiles(editor, imageFiles);
+          } catch (error) {
+            console.error("拖曳圖片失敗：", error);
+            alert("圖片上傳失敗：" + (error?.message || String(error)));
+          }
+        });
+      }
+      function validateArticleContent(content) {
+        if (/data:image\/[^;]+;base64,/i.test(content)) {
+          throw new Error("文章內容仍包含 Base64 圖片。請刪除該圖片後重新貼上，系統會自動轉成 WebP 並上傳。");
+        }
+        return content;
+      }
       async function publishNewArticle() {
         const title = $("new-article-title").value.trim(),
           category = $("new-article-parent-select").value,
           subcategory = $("new-article-child-select").value,
-          content = $("new-article-editor").innerHTML.trim(),
           slug = normalizeSlug($("new-article-slug").value) || fallbackSlug(),
           coverFile = $("new-article-cover-file").files[0];
+        let content;
+        try {
+          content = validateArticleContent(
+            $("new-article-editor").innerHTML.trim(),
+          );
+        } catch (error) {
+          return alert(error.message);
+        }
         if (!title || !category) return alert("請輸入標題並選擇母標籤");
         try {
           if (await slugExists(slug)) return alert("文章網址後綴已被使用");
@@ -801,7 +943,8 @@
               .select()
               .single();
           if (error) throw error;
-          alert("發布成功！\n" + location.origin + articlePath(data));
+          alert("發布成功！
+" + location.origin + articlePath(data));
           $("new-article-title").value = "";
           $("new-article-slug").value = "";
           $("new-article-cover-file").value = "";
@@ -811,7 +954,6 @@
           alert("發布失敗：" + e.message);
         }
       }
-
       async function copyAllBlogUrls() {
         try {
           if (!categoriesCache.length) await fetchCategories();
@@ -830,7 +972,7 @@
       async function loadManageArticlesList() {
         const { data, error } = await supabaseClient
           .from("articles")
-          .select("*")
+          .select("id,title,category,subcategory,slug,created_at,updated_at,cover_image_url")
           .order("created_at", { ascending: false });
         if (error) return alert(error.message);
         allArticlesCache = data || [];
@@ -842,10 +984,25 @@
           )
           .join("");
       }
-
-      function loadArticleToEdit(id) {
-        const a = allArticlesCache.find((x) => x.id == id);
-        if (!a) return;
+      async function loadArticleToEdit(id) {
+        const { data: a, error } = await supabaseClient
+          .from("articles")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (error || !a) {
+          console.error(error);
+          alert("文章載入失敗：" + (error?.message || "找不到文章"));
+          return;
+        }
+        const index = allArticlesCache.findIndex(
+          (item) => String(item.id) === String(a.id),
+        );
+        if (index >= 0) {
+          allArticlesCache[index] = { ...allArticlesCache[index], ...a };
+        } else {
+          allArticlesCache.push(a);
+        }
         $("edit-article-id").value = a.id;
         $("edit-article-title").value = a.title;
         $("edit-article-slug").value = a.slug || "";
@@ -858,7 +1015,6 @@
         updateChildDropdown("edit", a.subcategory || "");
         $("edit-article-form").classList.remove("hidden");
       }
-
       function closeEditForm() {
         $("edit-article-form").classList.add("hidden");
       }
@@ -868,41 +1024,48 @@
           title = $("edit-article-title").value.trim(),
           category = $("edit-article-parent-select").value,
           subcategory = $("edit-article-child-select").value,
-          content = $("edit-article-editor").innerHTML.trim(),
           slug = normalizeSlug($("edit-article-slug").value) || fallbackSlug(),
           coverFile = $("edit-article-cover-file").files[0];
+        let content;
+        try {
+          content = validateArticleContent(
+            $("edit-article-editor").innerHTML.trim(),
+          );
+        } catch (error) {
+          return alert(error.message);
+        }
         if (!title || !category) return alert("請輸入標題並選擇母標籤");
         try {
           if (await slugExists(slug, id)) return alert("文章網址後綴已被使用");
           const original = allArticlesCache.find((a) => a.id == id);
+          if (!original) throw new Error("找不到原始文章資料，請重新載入後再試");
           const cover_image_url = coverFile
             ? await uploadArticleCover(coverFile)
             : (original.cover_image_url || "");
           const { error } = await supabaseClient
-              .from("articles")
-              .upsert(
-                {
-                  id: original.id,
-                  title,
-                  category,
-                  subcategory,
-                  content,
-                  slug,
-                  cover_image_url,
-                  created_at: original.created_at,
-                  updated_at: new Date().toISOString(),
-                },
-                { onConflict: "id" },
-              );
+            .from("articles")
+            .upsert(
+              {
+                id: original.id,
+                title,
+                category,
+                subcategory,
+                content,
+                slug,
+                cover_image_url,
+                created_at: original.created_at,
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "id" },
+            );
           if (error) throw error;
           alert("文章更新成功");
           closeEditForm();
-          loadManageArticlesList();
+          await loadManageArticlesList();
         } catch (e) {
           alert("更新失敗：" + e.message);
         }
       }
-
       async function deleteArticle(id) {
         if (!confirm("確定刪除這篇文章？")) return;
         const { error } = await supabaseClient
@@ -1158,6 +1321,8 @@
         try {
           buildToolbar("new");
           buildToolbar("edit");
+          setupArticleEditorImageUpload("new-article-editor");
+          setupArticleEditorImageUpload("edit-article-editor");
           await Promise.all([fetchCategories(), loadSettings()]);
           await Promise.all([loadCategoriesAdmin(), loadManageArticlesList()]);
           fillSettingsForms();
