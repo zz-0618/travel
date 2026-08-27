@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>zz 的旅遊部落格</title>
+    <title>一葉知途 的旅遊部落格</title>
     
-    <meta name="description" content="zz 的旅遊部落格">
+    <meta name="description" content="一葉知途 的旅遊部落格">
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="zz 的旅遊部落格">
-    <meta property="og:description" content="zz 的旅遊部落格">
-    <meta property="og:site_name" content="zz 的旅遊部落格">
+    <meta property="og:title" content="一葉知途 的旅遊部落格">
+    <meta property="og:description" content="一葉知途 的旅遊部落格">
+    <meta property="og:site_name" content="一葉知途 的旅遊部落格">
     <meta property="og:image" content="">
 
     <script
@@ -732,7 +732,7 @@
                 "WebSite",
 
               name:
-                "zz 的旅遊部落格",
+                "一葉知途 的旅遊部落格",
 
               url:
                 location.origin
@@ -1043,7 +1043,7 @@
         if (cacheIndex >= 0) allArticlesCache[cacheIndex] = { ...allArticlesCache[cacheIndex], ...a };
         else allArticlesCache.push(a);
         if (opt.updateHistory !== false) safePushState({ id: a.id }, articlePath(a));
-        document.title = `${a.title}｜zz 的旅遊部落格`;
+        document.title = `${a.title}｜一葉知途 的旅遊部落格`;
         $("floating-toc").classList.remove("hidden");
         toggleTOC(false);
         const f = (v) => v ? new Intl.DateTimeFormat("zh-TW", {
@@ -1115,7 +1115,7 @@
         const cat = categoryByName("我的旅途");
         if (opt.updateHistory !== false && cat)
           safePushState({ journey: true }, categoryPath(cat.name));
-        document.title = "我的旅途｜zz 的旅遊部落格";
+        document.title = "我的旅途｜一葉知途 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
@@ -1132,7 +1132,7 @@
       }
       async function goHome() {
         safePushState({}, "/");
-        document.title = "zz 的旅遊部落格";
+        document.title = "一葉知途 的旅遊部落格";
         await fetchArticles();
         updateStructuredData();
         scrollTo({ top: 0 });
