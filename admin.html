@@ -943,8 +943,7 @@
               .select()
               .single();
           if (error) throw error;
-          alert("發布成功！
-" + location.origin + articlePath(data));
+          alert("發布成功！\n" + location.origin + articlePath(data));
           $("new-article-title").value = "";
           $("new-article-slug").value = "";
           $("new-article-cover-file").value = "";
