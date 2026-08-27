@@ -1153,7 +1153,7 @@
       function renderJourneyAdmin() {
         const box = $("admin-journey-list");
         if (!box) return;
-        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
+        const sorted = [...journeyEntries].sort((a, b) => String(b.start).localeCompare(String(a.start)));
         const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
         const renderGroup = (type, title) => {
           const list = sorted.filter((x) => normalizedType(x) === type);
