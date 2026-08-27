@@ -307,6 +307,35 @@
         color: var(--accent);
       }
 
+      /* 地圖圖卡 */
+
+      .map-preview-card {
+        margin: 16px 0;
+        padding: 16px;
+        border: 1px solid var(--sand);
+        border-radius: 14px;
+        background: var(--soft);
+        box-shadow: 0 3px 8px rgba(0,0,0,.05);
+      }
+
+      .map-preview-platform {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 6px;
+      }
+
+      .map-preview-title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .map-preview-desc {
+        margin-top: 5px;
+        font-size: 14px;
+        opacity: .75;
+      }
+
       /* 手機版 Logo 採 1206:368，文章卡片改為上下排列。 */
       @media (max-width: 767px) {
         #site-header-bg {
@@ -1052,6 +1081,7 @@
         preloadImage("article-cover-preload", "");
         $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
+        enhanceArticleLinks();
         await renderRelatedArticles(a);
         updateStructuredData(a);
         scrollTo({ top: 0 });
@@ -1163,6 +1193,81 @@
         p.classList.toggle("hidden", !open);
         b.classList.toggle("hidden", open);
         b.setAttribute("aria-expanded", String(open));
+      }
+      function enhanceArticleLinks() {
+
+        const body =
+          document.getElementById(
+            "article-body-content"
+          );
+
+        if (!body) return;
+
+        body
+          .querySelectorAll("a[href]")
+          .forEach(link => {
+
+            const href = link.href;
+
+            let platform = "";
+            let emoji = "";
+
+            if (
+              href.includes("google.com") ||
+              href.includes("maps.app.goo.gl")
+            ) {
+              platform = "Google Maps";
+              emoji = "🗺️";
+            }
+
+            if (
+              href.includes("naver.com") ||
+              href.includes("naver.me")
+            ) {
+              platform = "Naver Map";
+              emoji = "📍";
+            }
+
+            if (
+              href.includes("amap.com")
+            ) {
+              platform = "高德地圖";
+              emoji = "📌";
+            }
+
+            if (!platform) return;
+
+            // 避免重複建立
+            if (
+              link.nextElementSibling?.classList?.contains(
+                "map-preview-card"
+              )
+            ) {
+              return;
+            }
+
+            link.insertAdjacentHTML(
+              "afterend",
+              `
+              <div class="map-preview-card">
+
+                <div class="map-preview-platform">
+                  ${emoji} ${platform}
+                </div>
+
+                <div class="map-preview-title">
+                  地圖位置
+                </div>
+
+                <div class="map-preview-desc">
+                  點擊上方連結即可開啟導航
+                </div>
+
+              </div>
+              `
+            );
+
+          });
       }
       function generateArticleTOC() {
         const hs = document.querySelectorAll(
