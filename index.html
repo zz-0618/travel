@@ -978,7 +978,7 @@
         document.title = "我的旅途｜zz 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
-        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
+        const sorted = [...journeyEntries].sort((a, b) => String(b.start).localeCompare(String(a.start)));
         const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
         const renderGroup = (type, title) => {
           const list = sorted.filter((x) => normalizedType(x) === type);
