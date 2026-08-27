@@ -1,0 +1,10 @@
+{
+  "name": "travel",
+  "private": true,
+  "scripts": {
+    "build-css": "tailwindcss -i ./input.css -o ./css/style.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}
