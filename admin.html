@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>網站後台管理系統｜zz 的旅遊部落格</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>tailwind.config={theme:{extend:{fontFamily:{serif:["Noto Serif TC","serif"]}}}};</script>
+    <style>
+      :root{--ink:#452829;--sand:#c9b59c;--card:#efe9e3;--soft:#f9f6f0;--accent:#a56c5d;}
+      body{font-family:"Noto Serif TC",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
+      .custom-card{background:var(--card);}
+      .editor-btn{background:var(--card);border:1px solid var(--sand);padding:6px 10px;font-size:13px;border-radius:6px;cursor:pointer;}
+      .editor-btn:hover{opacity:.8;}
+      .article-content-style,.article-content-style *{font-family:"Noto Serif TC",serif!important;color:var(--ink)!important;box-sizing:border-box;}
+      .article-content-style{font-size:16px;line-height:1.5!important;letter-spacing:.02em;overflow-wrap:anywhere;}
+      .article-content-style ol{list-style-type:decimal!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
+      .article-content-style ul{list-style-type:disc!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
+      .article-content-style li{display:list-item!important;margin:.25rem 0;}
+      .article-content-style h1,.article-content-style h2,.article-content-style h3,.article-content-style h4{font-weight:700!important;line-height:1.5!important;}
+      .article-alert-box{font-size:inherit;line-height:1.5!important;background:#f2eae0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0;}
+      #new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.5!important;caret-color:var(--ink);}
+      .faq-block{margin:2rem 0;font-family:"Noto Serif TC",serif;}
+      .faq-block-title{font-size:1.75rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:2px solid var(--sand);position:relative;}
+      .faq-item{background:#fff;border:1px solid var(--sand);border-radius:12px;margin:.8rem 0;overflow:hidden;}
+      .faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative;}
+      .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
+      .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
+      @media(max-width:767px){#new-article-editor,#edit-article-editor{padding:20px!important;}}
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <div id="admin-view" class="min-h-screen bg-white flex flex-col">
+      <header
+        class="bg-[#EFE9E3] px-8 py-4 border-b border-[#C9B59C] flex justify-between items-center"
+      >
+        <h1 class="text-xl font-bold">⚙️ 網站後台管理系統</h1>
+        <div class="space-x-4">
+          <button
+            onclick="location.href='/'"
+            class="text-sm px-4 py-2 bg-white border rounded-lg"
+          >
+            返回前台</button
+          ><button
+            onclick="logoutAdmin()"
+            class="text-sm px-4 py-2 bg-red-500 text-white rounded-lg"
+          >
+            登出系統
+          </button>
+        </div>
+      </header>
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-5">
+        <aside class="bg-[#F9F6F0] p-6 border-r space-y-2">
+          <button
+            onclick="switchAdminTab('account')"
+            id="tab-account-btn"
+            class="w-full text-left px-4 py-3 rounded-lg bg-[#C9B59C] text-white"
+          >
+            👤 帳號管理</button
+          ><button
+            onclick="switchAdminTab('logo')"
+            id="tab-logo-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🖼️ Logo 設定</button
+          ><button
+            onclick="switchAdminTab('announcement')"
+            id="tab-announcement-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            📢 公告</button
+          ><button
+            onclick="switchAdminTab('categories')"
+            id="tab-categories-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🏷️ 文章分類</button
+          ><button
+            onclick="switchAdminTab('articles')"
+            id="tab-articles-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            📝 文章管理</button
+          ><button
+            onclick="switchAdminTab('journey')"
+            id="tab-journey-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🗺️ 我的旅途
+          </button>
+        </aside>
+        <main class="md:col-span-4 p-8 max-w-5xl w-full">
+          <div id="admin-tab-account" class="admin-tab-content space-y-5">
+            <h2 class="text-2xl font-bold border-b pb-2">帳號資料管理</h2>
+            <div>
+              <label class="block font-semibold mb-1">頭像</label
+              ><input
+                type="file"
+                id="admin-avatar-file"
+                accept="image/*"
+                class="block w-full text-sm border p-2 rounded"
+              /><button
+                onclick="uploadAsset('avatar')"
+                class="mt-3 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                上傳並更新頭像
+              </button>
+            </div>
+            <div>
+              <label class="block font-semibold mb-1" for="admin-nickname"
+                >暱稱</label
+              ><input
+                id="admin-nickname"
+                class="w-full border p-2 rounded"
+                maxlength="50"
+                placeholder="zz"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1" for="admin-bio"
+                >簡介</label
+              ><textarea
+                id="admin-bio"
+                class="w-full border p-2 rounded min-h-28"
+                maxlength="300"
+                placeholder="一個隨筆紀錄的人"
+              ></textarea>
+            </div>
+            <button
+              onclick="saveProfileSettings()"
+              class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+            >
+              儲存暱稱與簡介
+            </button>
+          </div>
+          <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">更換 Logo 背景圖片</h2>
+            <input
+              type="file"
+              id="admin-logo-file"
+              accept="image/*"
+              class="block w-full text-sm border p-2 rounded"
+            /><button
+              onclick="uploadAsset('logo')"
+              class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+            >
+              上傳並更新 Logo
+            </button>
+          </div>
+          <div
+            id="admin-tab-announcement"
+            class="admin-tab-content space-y-5 hidden"
+          >
+            <h2 class="text-2xl font-bold border-b pb-2">首頁公告管理</h2>
+            <label class="flex items-center gap-2"
+              ><input
+                type="checkbox"
+                id="announcement-enabled"
+                class="w-4 h-4"
+              /><span>啟用公告</span></label
+            >
+            <div>
+              <label class="block font-semibold mb-1">公告標題</label
+              ><input
+                id="announcement-title"
+                class="w-full border p-2 rounded"
+                maxlength="100"
+                placeholder="最新公告"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">公告內容</label
+              ><textarea
+                id="announcement-content"
+                class="w-full border p-3 rounded min-h-40"
+                maxlength="3000"
+                placeholder="請輸入公告內容"
+              ></textarea>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold mb-1">開始日期</label
+                ><input
+                  type="date"
+                  id="announcement-start"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1">結束日期</label
+                ><input
+                  type="date"
+                  id="announcement-end"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+            </div>
+            <p class="text-xs opacity-70">
+              開始日與結束日皆包含在顯示期間內。未啟用、內容為空、日期未填或不在日期範圍內時，不會彈出。
+            </p>
+            <button
+              onclick="saveAnnouncement()"
+              class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+            >
+              儲存公告設定
+            </button>
+          </div>
+          <div
+            id="admin-tab-categories"
+            class="admin-tab-content space-y-6 hidden"
+          >
+            <h2 class="text-2xl font-bold border-b pb-2">文章分類管理</h2>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-4 gap-3">
+              <input
+                id="new-cat-name"
+                class="border p-2 rounded"
+                placeholder="分類名稱"
+              /><input
+                id="new-cat-slug"
+                class="border p-2 rounded"
+                placeholder="網址後綴，例如 Korea"
+              /><select id="new-cat-parent" class="border p-2 rounded"></select
+              ><button
+                onclick="addNewCategory()"
+                class="text-white rounded bg-[#C9B59C]"
+              >
+                新增分類
+              </button>
+            </div>
+            <p class="text-xs opacity-70">
+              母分類與子分類可分別設定網址後綴，例如 Korea / Busan。
+            </p>
+            <div id="admin-categories-tree" class="space-y-2"></div>
+          </div>
+          <div
+            id="admin-tab-journey"
+            class="admin-tab-content space-y-6 hidden"
+          >
+            <h2 class="text-2xl font-bold border-b pb-2">我的旅途管理</h2>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-4 gap-3">
+              <div>
+                <label class="block text-sm font-semibold mb-1">開始年月</label
+                ><input
+                  type="month"
+                  id="journey-start"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">結束年月</label
+                ><input
+                  type="month"
+                  id="journey-end"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">旅途分類</label
+                ><select id="journey-type" class="w-full border p-2 rounded">
+                  <option value="abroad">國外 Abroad</option>
+                  <option value="taiwan">臺灣 Taiwan</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">行程名稱</label
+                ><input
+                  id="journey-name"
+                  class="w-full border p-2 rounded"
+                  maxlength="100"
+                  placeholder="例如：釜山自由行"
+                />
+              </div>
+              <div class="md:col-span-4">
+                <label class="block text-sm font-semibold mb-1">相關文章網址</label>
+                <textarea id="journey-related-urls" class="w-full border p-2 rounded min-h-24" placeholder="每行輸入一個文章網址；儲存後前台會自動顯示文章標題與超連結"></textarea>
+              </div>
+              <button
+                onclick="addJourneyEntry()"
+                class="md:col-span-4 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                新增旅途紀錄
+              </button>
+            </div>
+            <div id="admin-journey-list" class="space-y-2"></div>
+          </div>
+          <div
+            id="admin-tab-articles"
+            class="admin-tab-content space-y-6 hidden"
+          >
+            <h2 class="text-2xl font-bold border-b pb-2">文章管理</h2>
+            <div class="flex gap-4">
+              <button
+                onclick="switchArticleSubTab('new')"
+                class="px-4 py-2 rounded bg-[#C9B59C] text-white"
+              >
+                新增新文章</button
+              ><button
+                onclick="switchArticleSubTab('manage')"
+                class="px-4 py-2 rounded bg-[#EFE9E3]"
+              >
+                維護舊文章
+              </button>
+            </div>
+            <div id="sub-article-new" class="space-y-4">
+              <input
+                id="new-article-title"
+                class="w-full border p-2 rounded"
+                placeholder="文章標題"
+              />
+              <div class="grid md:grid-cols-2 gap-4">
+                <select
+                  id="new-article-parent-select"
+                  onchange="updateChildDropdown('new')"
+                  class="border p-2 rounded"
+                ></select
+                ><select
+                  id="new-article-child-select"
+                  class="border p-2 rounded"
+                ></select>
+              </div>
+              <input
+                id="new-article-slug"
+                class="w-full border p-2 rounded"
+                placeholder="文章網址後綴，例如 Seomyeon"
+              />
+              <div id="new-toolbar" class="flex flex-wrap gap-2"></div>
+              <div
+                id="new-article-editor"
+                contenteditable="true"
+                class="w-full border rounded overflow-y-auto article-content-style"
+              ></div>
+              <button
+                onclick="publishNewArticle()"
+                class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                提交發布
+              </button>
+            </div>
+            <div id="sub-article-manage" class="space-y-4 hidden">
+              <div id="admin-articles-list" class="space-y-2"></div>
+              <div
+                id="edit-article-form"
+                class="hidden space-y-4 border-t pt-4"
+              >
+                <input type="hidden" id="edit-article-id" /><input
+                  id="edit-article-title"
+                  class="w-full border p-2 rounded"
+                />
+                <div class="grid md:grid-cols-2 gap-4">
+                  <select
+                    id="edit-article-parent-select"
+                    onchange="updateChildDropdown('edit')"
+                    class="border p-2 rounded"
+                  ></select
+                  ><select
+                    id="edit-article-child-select"
+                    class="border p-2 rounded"
+                  ></select>
+                </div>
+                <input
+                  id="edit-article-slug"
+                  class="w-full border p-2 rounded"
+                  placeholder="文章網址後綴"
+                />
+                <div id="edit-toolbar" class="flex flex-wrap gap-2"></div>
+                <div
+                  id="edit-article-editor"
+                  contenteditable="true"
+                  class="w-full border rounded overflow-y-auto article-content-style"
+                ></div>
+                <div class="flex justify-between">
+                  <button
+                    onclick="closeEditForm()"
+                    class="px-4 py-2 border rounded"
+                  >
+                    取消</button
+                  ><button
+                    onclick="updateExistingArticle()"
+                    class="text-white px-6 py-2 rounded bg-[#C9B59C]"
+                  >
+                    提交修改
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script>
+      const SUPABASE_URL = "https://rpzqioezweftrjtrneos.supabase.co",
+        SUPABASE_ANON_KEY = "sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye",
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [];
+      const $ = (id) => document.getElementById(id),
+        esc = (s) => String(s ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+      async function fetchCategories() {
+        const { data, error } = await supabaseClient.from("categories").select("*");
+        if (error) throw new Error("分類讀取失敗：" + error.message);
+        categoriesCache = data || [];
+        applyCategoryOrder();
+      }
+      async function loadSettings() {
+        const { data, error } = await supabaseClient.from("settings").select("*");
+        if (error) throw new Error("設定讀取失敗：" + error.message);
+        settingsCache = Object.fromEntries((data || []).map((x) => [x.key, x.value]));
+        try { categoryOrder = JSON.parse(settingsCache.category_order || "[]"); } catch { categoryOrder = []; }
+        try { journeyEntries = JSON.parse(settingsCache.travel_entries || "[]"); } catch { journeyEntries = []; }
+        applyCategoryOrder();
+        fillSettingsForms();
+      }
+      async function logoutAdmin() {
+        await supabaseClient.auth.signOut();
+        location.href = "/";
+      }
+      function normalizeSlug(v) {
+        return String(v || "")
+          .trim()
+          .replace(/^\/+|\/+$/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/[^A-Za-z0-9_-]/g, "")
+          .replace(/-+/g, "-");
+      }
+
+      function fallbackSlug() {
+        return "article-" + Date.now();
+      }
+
+      function categoryByName(n) {
+        return categoriesCache.find((c) => c.name === n);
+      }
+
+      function categorySlug(n) {
+        const c = categoryByName(n);
+        return normalizeSlug(c?.slug);
+      }
+
+      function safePath(parts) {
+        const clean = parts.map(normalizeSlug).filter(Boolean);
+        return clean.length
+          ? "/" + clean.map(encodeURIComponent).join("/")
+          : "/";
+      }
+
+      function categoryPath(n) {
+        const c = categoryByName(n);
+        if (!c) return "/";
+        const parts = [];
+        if (c.parent_id) {
+          const parent = categoriesCache.find((x) => x.id === c.parent_id);
+          parts.push(parent?.slug);
+        }
+        parts.push(c.slug);
+        return safePath(parts);
+      }
+
+      function articlePath(a) {
+        const parts = [categorySlug(a.category)];
+        if (a.subcategory) parts.push(categorySlug(a.subcategory));
+        parts.push(normalizeSlug(a.slug) || fallbackSlug());
+        return safePath(parts);
+      }
+
+      function buildToolbar(t) {
+        $(t + "-toolbar").innerHTML =
+          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button><button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button><button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button><button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button><button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button><button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button><select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select><select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
+      }
+
+      function cmd(t, c) {
+        $(t + "-article-editor").focus();
+        document.execCommand(c, false, null);
+      }
+
+      function fontSize(t, size) {
+        if (!size) return;
+        const e = $(t + "-article-editor");
+        e.focus();
+        document.execCommand("fontSize", false, "7");
+        e.querySelectorAll('font[size="7"]').forEach((n) => {
+          n.removeAttribute("size");
+          n.style.fontSize = size;
+        });
+      }
+
+      function block(t, v) {
+        if (v) {
+          $(t + "-article-editor").focus();
+          document.execCommand("formatBlock", false, v);
+        }
+      }
+
+      function addLink(t) {
+        const u = prompt("請輸入網址");
+        if (u) {
+          $(t + "-article-editor").focus();
+          document.execCommand("createLink", false, u);
+        }
+      }
+
+      function insertBox(t) {
+        $(t + "-article-editor").focus();
+        document.execCommand(
+          "insertHTML",
+          false,
+          '<div class="article-alert-box"><p>請輸入提醒內容...</p></div><p><br></p>',
+        );
+      }
+
+      function faqItemHtml() {
+        return '<details class="faq-item" open><summary>請直接點此編輯問題</summary><div class="faq-answer"><p>請直接點此編輯答案</p></div></details>';
+      }
+
+      function insertFAQ(t) {
+        const editor = $(t + "-article-editor");
+        editor.focus();
+        document.execCommand(
+          "insertHTML",
+          false,
+          '<section class="faq-block"><h2 class="faq-block-title">常見問題</h2>' + faqItemHtml() + '</section><p><br></p>',
+        );
+      }
+
+      function addFAQItem(t) {
+        const editor = $(t + "-article-editor");
+        const blocks = editor.querySelectorAll(".faq-block");
+        if (!blocks.length) return insertFAQ(t);
+        const block = blocks[blocks.length - 1];
+        block.insertAdjacentHTML("beforeend", faqItemHtml());
+        const item = block.lastElementChild;
+        item.open = true;
+        item.querySelector("summary")?.focus();
+      }
+
+      function applyCategoryOrder() {
+        if (!categoryOrder.length) return;
+        const rank = new Map(categoryOrder.map((id, i) => [String(id), i]));
+        categoriesCache.sort(
+          (a, b) =>
+            (rank.get(String(a.id)) ?? 9999) - (rank.get(String(b.id)) ?? 9999),
+        );
+      }
+
+      async function moveCategory(id, direction) {
+        const item = categoriesCache.find((c) => String(c.id) === String(id));
+        if (!item) return;
+        const siblings = categoriesCache.filter(
+          (c) => String(c.parent_id || "") === String(item.parent_id || ""),
+        );
+        const index = siblings.findIndex((c) => String(c.id) === String(id)),
+          target = index + direction;
+        if (target < 0 || target >= siblings.length) return;
+        [siblings[index], siblings[target]] = [
+          siblings[target],
+          siblings[index],
+        ];
+        const ids = siblings.map((c) => String(c.id)),
+          ordered = [];
+        for (const c of categoriesCache) {
+          if (String(c.parent_id || "") === String(item.parent_id || "")) {
+            if (!ordered.length) ordered.push(...siblings);
+          } else ordered.push(c);
+        }
+        categoriesCache = ordered;
+        categoryOrder = categoriesCache.map((c) => String(c.id));
+        try {
+          await upsertSettings({
+            category_order: JSON.stringify(categoryOrder),
+          });
+          renderFrontendNav();
+          await loadCategoriesAdmin();
+        } catch (e) {
+          alert("分類順序儲存失敗：" + e.message);
+        }
+      }
+
+      async function addNewCategory() {
+        const name = $("new-cat-name").value.trim(),
+          slug = normalizeSlug($("new-cat-slug").value),
+          parent_id = $("new-cat-parent").value || null;
+        if (!name || !slug) return alert("請輸入分類名稱與網址後綴");
+        const { error } = await supabaseClient
+          .from("categories")
+          .insert([{ name, slug, parent_id }]);
+        if (error) return alert(error.message);
+        $("new-cat-name").value = "";
+        $("new-cat-slug").value = "";
+        loadCategoriesAdmin();
+      }
+
+      async function updateCategorySlug(id) {
+        try {
+          const slug = normalizeSlug($("cat-slug-" + id).value);
+          if (!slug) return alert("請輸入有效網址後綴");
+          const original = categoriesCache.find(
+            (c) => String(c.id) === String(id),
+          );
+          if (!original) throw new Error("找不到分類資料，請重新整理後再試");
+          const payload = { ...original, slug };
+          const { data, error } = await supabaseClient
+            .from("categories")
+            .upsert(payload, { onConflict: "id" })
+            .select()
+            .single();
+          if (error) throw error;
+          const index = categoriesCache.findIndex(
+            (c) => String(c.id) === String(id),
+          );
+          if (index !== -1) categoriesCache[index] = data;
+          alert("分類網址已更新");
+          await loadCategoriesAdmin();
+        } catch (e) {
+          console.error(e);
+          alert("分類網址更新失敗：" + (e?.message || String(e)));
+        }
+      }
+
+      async function deleteCategory(id) {
+        if (!confirm("確定刪除？")) return;
+        const { error } = await supabaseClient
+          .from("categories")
+          .delete()
+          .eq("id", id);
+        if (error) return alert(error.message);
+        loadCategoriesAdmin();
+      }
+
+      function populateArticleParentDropdowns() {
+        ["new", "edit"].forEach((t) => {
+          const p = categoriesCache.filter((c) => !c.parent_id);
+          $(t + "-article-parent-select").innerHTML =
+            '<option value="">請選擇母標籤</option>' +
+            p
+              .map(
+                (x) => `<option value="${esc(x.name)}">${esc(x.name)}</option>`,
+              )
+              .join("");
+          $(t + "-article-child-select").innerHTML =
+            '<option value="">請先選擇母標籤</option>';
+        });
+      }
+
+      function updateChildDropdown(t, selected = "") {
+        const n = $(t + "-article-parent-select").value,
+          p = categoriesCache.find((c) => c.name === n && !c.parent_id),
+          ch = p ? categoriesCache.filter((c) => c.parent_id === p.id) : [];
+        $(t + "-article-child-select").innerHTML =
+          '<option value="">(不選子標籤)</option>' +
+          ch
+            .map(
+              (x) =>
+                `<option value="${esc(x.name)}" ${x.name === selected ? "selected" : ""}>${esc(x.name)}</option>`,
+            )
+            .join("");
+      }
+
+      async function slugExists(slug, exclude = null) {
+        let q = supabaseClient
+          .from("articles")
+          .select("id")
+          .ilike("slug", slug)
+          .limit(1);
+        if (exclude) q = q.neq("id", exclude);
+        const { data, error } = await q;
+        if (error) throw error;
+        return !!data?.length;
+      }
+
+      async function publishNewArticle() {
+        const title = $("new-article-title").value.trim(),
+          category = $("new-article-parent-select").value,
+          subcategory = $("new-article-child-select").value,
+          content = $("new-article-editor").innerHTML.trim(),
+          slug = normalizeSlug($("new-article-slug").value) || fallbackSlug();
+        if (!title || !category) return alert("請輸入標題並選擇母標籤");
+        try {
+          if (await slugExists(slug)) return alert("文章網址後綴已被使用");
+          const now = new Date().toISOString(),
+            { data, error } = await supabaseClient
+              .from("articles")
+              .insert([
+                {
+                  title,
+                  category,
+                  subcategory,
+                  content,
+                  slug,
+                  created_at: now,
+                  updated_at: now,
+                },
+              ])
+              .select()
+              .single();
+          if (error) throw error;
+          alert("發布成功！\n" + location.origin + articlePath(data));
+          await loadManageArticlesList();
+        } catch (e) {
+          alert("發布失敗：" + e.message);
+        }
+      }
+
+      async function loadManageArticlesList() {
+        const { data, error } = await supabaseClient
+          .from("articles")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) return alert(error.message);
+        allArticlesCache = data || [];
+        populateArticleParentDropdowns();
+        $("admin-articles-list").innerHTML = allArticlesCache
+          .map(
+            (a) =>
+              `<div class="p-3 bg-[#F9F6F0] border rounded flex justify-between"><div><b>${esc(a.title)}</b><div class="text-xs opacity-60">${esc(articlePath(a))}</div></div><div><button onclick="loadArticleToEdit('${a.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button> <button onclick="deleteArticle('${a.id}')" class="text-xs bg-red-500 text-white px-3 py-1 rounded">刪除</button></div></div>`,
+          )
+          .join("");
+      }
+
+      function loadArticleToEdit(id) {
+        const a = allArticlesCache.find((x) => x.id == id);
+        if (!a) return;
+        $("edit-article-id").value = a.id;
+        $("edit-article-title").value = a.title;
+        $("edit-article-slug").value = a.slug || "";
+        $("edit-article-editor").innerHTML = a.content || "";
+        $("edit-article-parent-select").value = a.category || "";
+        updateChildDropdown("edit", a.subcategory || "");
+        $("edit-article-form").classList.remove("hidden");
+      }
+
+      function closeEditForm() {
+        $("edit-article-form").classList.add("hidden");
+      }
+
+      async function updateExistingArticle() {
+        const id = $("edit-article-id").value,
+          title = $("edit-article-title").value.trim(),
+          category = $("edit-article-parent-select").value,
+          subcategory = $("edit-article-child-select").value,
+          content = $("edit-article-editor").innerHTML.trim(),
+          slug = normalizeSlug($("edit-article-slug").value) || fallbackSlug();
+        if (!title || !category) return alert("請輸入標題並選擇母標籤");
+        try {
+          if (await slugExists(slug, id)) return alert("文章網址後綴已被使用");
+          const original = allArticlesCache.find((a) => a.id == id),
+            { error } = await supabaseClient
+              .from("articles")
+              .upsert(
+                {
+                  id: original.id,
+                  title,
+                  category,
+                  subcategory,
+                  content,
+                  slug,
+                  created_at: original.created_at,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "id" },
+              );
+          if (error) throw error;
+          alert("文章更新成功");
+          closeEditForm();
+          loadManageArticlesList();
+        } catch (e) {
+          alert("更新失敗：" + e.message);
+        }
+      }
+
+      async function deleteArticle(id) {
+        if (!confirm("確定刪除這篇文章？")) return;
+        const { error } = await supabaseClient
+          .from("articles")
+          .delete()
+          .eq("id", id);
+        if (error) return alert(error.message);
+        loadManageArticlesList();
+      }
+
+      async function upsertSettings(items) {
+        const rows = Object.entries(items).map(([key, value]) => ({
+          key,
+          value: String(value ?? ""),
+        }));
+        const { error } = await supabaseClient
+          .from("settings")
+          .upsert(rows, { onConflict: "key" });
+        if (error) throw error;
+        Object.assign(settingsCache, items);
+      }
+
+      function fillSettingsForms() {
+        if ($("admin-nickname"))
+          $("admin-nickname").value = settingsCache.nickname || "zz";
+        if ($("admin-bio"))
+          $("admin-bio").value = settingsCache.bio || "一個隨筆紀錄的人";
+        if ($("announcement-enabled"))
+          $("announcement-enabled").checked =
+            settingsCache.announcement_enabled === "true";
+        if ($("announcement-title"))
+          $("announcement-title").value =
+            settingsCache.announcement_title || "";
+        if ($("announcement-content"))
+          $("announcement-content").value =
+            settingsCache.announcement_content || "";
+        if ($("announcement-start"))
+          $("announcement-start").value =
+            settingsCache.announcement_start || "";
+        if ($("announcement-end"))
+          $("announcement-end").value = settingsCache.announcement_end || "";
+      }
+
+      async function saveProfileSettings() {
+        const nickname = $("admin-nickname").value.trim(),
+          bio = $("admin-bio").value.trim();
+        if (!nickname) return alert("暱稱不可空白");
+        try {
+          await upsertSettings({ nickname, bio });
+          $("site-nickname").textContent = nickname;
+          $("site-bio").textContent = bio;
+          alert("帳號資料已更新");
+        } catch (e) {
+          alert("更新失敗：" + e.message);
+        }
+      }
+
+      async function saveAnnouncement() {
+        const enabled = $("announcement-enabled").checked,
+          title = $("announcement-title").value.trim(),
+          content = $("announcement-content").value.trim(),
+          start = $("announcement-start").value,
+          end = $("announcement-end").value;
+        if (enabled && (!content || !start || !end))
+          return alert("啟用公告時，請填寫公告內容、開始日期與結束日期");
+        if (start && end && start > end)
+          return alert("開始日期不可晚於結束日期");
+        try {
+          await upsertSettings({
+            announcement_enabled: String(enabled),
+            announcement_title: title,
+            announcement_content: content,
+            announcement_start: start,
+            announcement_end: end,
+          });
+          alert("公告設定已儲存");
+        } catch (e) {
+          alert("公告儲存失敗：" + e.message);
+        }
+      }
+
+      function formatMonth(v) {
+        if (!v) return "";
+        const [y, m] = String(v).split("-");
+        return y && m ? `${y}/${m}` : esc(v);
+      }
+
+      function renderJourneyAdmin() {
+        const box = $("admin-journey-list");
+        if (!box) return;
+        const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
+        const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
+        const renderGroup = (type, title) => {
+          const list = sorted.filter((x) => normalizedType(x) === type);
+          return `<section><h3 class="text-lg font-bold mt-5 mb-2">${title}</h3><div class="space-y-2">${list.length ? list.map((x) => `<div class="custom-card p-3 rounded-lg flex items-start justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="text-xs mt-2 opacity-75">相關文章：${(x.relatedUrls || []).length} 篇</div></div><div class="flex gap-2"><button onclick="editJourneyEntry('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div></div>`).join("") : '<div class="opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
+        };
+        box.innerHTML = renderGroup("abroad", "🌏 國外 Abroad") + renderGroup("taiwan", "🇹🇼 臺灣 Taiwan");
+      }
+
+      async function addJourneyEntry() {
+        const start = $("journey-start").value,
+          end = $("journey-end").value,
+          type = $("journey-type").value,
+          name = $("journey-name").value.trim(),
+          relatedUrls = $("journey-related-urls").value.split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+        if (!start || !end || !name) return alert("請完整填寫開始年月、結束年月、旅途分類與行程名稱");
+        if (start > end) return alert("開始年月不可晚於結束年月");
+        journeyEntries.push({ id: String(Date.now()), start, end, type, name, relatedUrls });
+        try {
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
+          $("journey-start").value = "";
+          $("journey-end").value = "";
+          $("journey-type").value = "abroad";
+          $("journey-name").value = "";
+          $("journey-related-urls").value = "";
+          renderJourneyAdmin();
+          alert("旅途紀錄已新增");
+        } catch (e) {
+          journeyEntries.pop();
+          alert("新增失敗：" + e.message);
+        }
+      }
+
+      async function editJourneyEntry(id) {
+        const item = journeyEntries.find((x) => String(x.id) === String(id));
+        if (!item) return;
+        const name = prompt("修改行程名稱", item.name || "");
+        if (name === null || !name.trim()) return;
+        const typeInput = prompt("輸入分類：abroad 或 taiwan", item.type === "taiwan" ? "taiwan" : "abroad");
+        if (typeInput === null) return;
+        const type = typeInput.trim().toLowerCase() === "taiwan" ? "taiwan" : "abroad";
+        const urls = prompt("相關文章網址，每行一個", (item.relatedUrls || []).join("\n"));
+        if (urls === null) return;
+        const old = JSON.parse(JSON.stringify(journeyEntries));
+        item.name = name.trim();
+        item.type = type;
+        item.relatedUrls = urls.split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+        try {
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
+          renderJourneyAdmin();
+          alert("旅途紀錄已更新");
+        } catch (e) {
+          journeyEntries = old;
+          alert("更新失敗：" + e.message);
+        }
+      }
+
+      async function deleteJourneyEntry(id) {
+        if (!confirm("確定刪除這筆旅途紀錄？")) return;
+        const old = [...journeyEntries];
+        journeyEntries = journeyEntries.filter(
+          (x) => String(x.id) !== String(id),
+        );
+        try {
+          await upsertSettings({
+            travel_entries: JSON.stringify(journeyEntries),
+          });
+          renderJourneyAdmin();
+        } catch (e) {
+          journeyEntries = old;
+          alert("刪除失敗：" + e.message);
+        }
+      }
+
+      async function uploadAsset(t) {
+        const file = $("admin-" + t + "-file").files[0];
+        if (!file) return alert("請先選擇檔案");
+        const safeName = file.name.replace(/[^A-Za-z0-9._-]/g, "_"),
+          { data, error } = await supabaseClient.storage
+            .from("blog-assets")
+            .upload(`${t}_${Date.now()}_${safeName}`, file);
+        if (error) return alert(error.message);
+        const url = supabaseClient.storage
+          .from("blog-assets")
+          .getPublicUrl(data.path).data.publicUrl;
+        try {
+          await upsertSettings({ [t]: url });
+          alert("更新成功");
+          await loadSettings();
+        } catch (e) {
+          alert(e.message);
+        }
+      }
+
+      async function loadCategoriesAdmin() {
+        await fetchCategories();
+        const p = categoriesCache.filter((c) => !c.parent_id);
+        $("new-cat-parent").innerHTML =
+          '<option value="">無（設為母分類）</option>' +
+          p
+            .map((x) => `<option value="${x.id}">${esc(x.name)}</option>`)
+            .join("");
+        $("admin-categories-tree").innerHTML = p
+          .map(
+            (x) =>
+              `<div class="p-3 border rounded space-y-2"><div class="flex flex-wrap items-center gap-2"><b>📁 ${esc(x.name)}</b><button class="order-btn" onclick="moveCategory('${x.id}',-1)">↑</button><button class="order-btn" onclick="moveCategory('${x.id}',1)">↓</button><input id="cat-slug-${x.id}" value="${esc(x.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${x.id}')" class="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded">刪除</button></div><div class="pl-6 space-y-2">${categoriesCache
+                .filter((c) => c.parent_id === x.id)
+                .map(
+                  (y) =>
+                    `<div class="flex flex-wrap items-center gap-2">└ <span>${esc(y.name)}</span><button class="order-btn" onclick="moveCategory('${y.id}',-1)">↑</button><button class="order-btn" onclick="moveCategory('${y.id}',1)">↓</button><input id="cat-slug-${y.id}" value="${esc(y.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${y.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${y.id}')" class="text-xs text-red-600">刪除</button></div>`,
+                )
+                .join("")}</div></div>`,
+          )
+          .join("");
+      }
+
+      function switchAdminTab(n) {
+        [
+          "account",
+          "logo",
+          "announcement",
+          "categories",
+          "articles",
+          "journey",
+        ].forEach((t) => {
+          $("admin-tab-" + t).classList.toggle("hidden", t !== n);
+          $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
+          $("tab-" + t + "-btn").classList.toggle("text-white", t === n);
+        });
+        if (n === "categories") loadCategoriesAdmin();
+        if (n === "articles") populateArticleParentDropdowns();
+        if (n === "journey") renderJourneyAdmin();
+        if (n === "account" || n === "announcement") fillSettingsForms();
+      }
+
+      function switchArticleSubTab(s) {
+        $("sub-article-new").classList.toggle("hidden", s !== "new");
+        $("sub-article-manage").classList.toggle("hidden", s !== "manage");
+        if (s === "manage") loadManageArticlesList();
+      }
+
+      addEventListener("DOMContentLoaded", async () => {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) { location.replace("/"); return; }
+        try {
+          buildToolbar("new");
+          buildToolbar("edit");
+          await fetchCategories();
+          await loadSettings();
+          await loadCategoriesAdmin();
+          await loadManageArticlesList();
+          fillSettingsForms();
+          renderJourneyAdmin();
+        } catch (error) {
+          console.error(error);
+          alert("後台載入失敗：" + (error?.message || String(error)));
+        }
+      });
+    </script>
+  </body>
+</html>
