@@ -9,17 +9,26 @@
     <link rel="preconnect" href="https://rpzqioezweftrjtrneos.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="//rpzqioezweftrjtrneos.supabase.co" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preload" href="/fonts/NotoSerifTC[wght].woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
 <style>
-      /* 使用系統中文字型，避免載入約 15 MB 的完整中文字型檔。 */
+      @font-face {
+        font-family: "Noto Serif TC Local";
+        src: url("/fonts/NotoSerifTC[wght].woff2") format("woff2");
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      /* 專案內自託管的可變中文字型，使用 swap 避免文字不可見。 */
 :root{--ink:#452829;--sand:#c9b59c;--card:#efe9e3;--soft:#f9f6f0;--accent:#a56c5d;}
-      body{font-family:"Songti TC","PMingLiU","Noto Serif TC",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
+      body{font-family:"Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
       ::selection{background:#8FA28A;color:#fff;}
       ::-moz-selection{background:#8FA28A;color:#fff;}
       .custom-card{background:var(--card);}
+      .admin-tab-content{content-visibility:auto;contain-intrinsic-size:auto 700px;}
       .editor-btn{background:var(--card);border:1px solid var(--sand);padding:6px 10px;font-size:13px;border-radius:6px;cursor:pointer;}
       .editor-btn:hover{opacity:.8;}
-      .article-content-style,.article-content-style *{font-family:"Songti TC","PMingLiU","Noto Serif TC",serif!important;color:var(--ink)!important;box-sizing:border-box;}
+      .article-content-style,.article-content-style *{font-family:"Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif!important;color:var(--ink)!important;box-sizing:border-box;}
       .article-content-style{font-size:16px;line-height:1.5!important;letter-spacing:.02em;overflow-wrap:anywhere;}
       .article-content-style ol{list-style-type:decimal!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
       .article-content-style ul{list-style-type:disc!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
@@ -27,7 +36,7 @@
       .article-content-style h1,.article-content-style h2,.article-content-style h3,.article-content-style h4{font-weight:700!important;line-height:1.5!important;}
       .article-alert-box{font-size:inherit;line-height:1.5!important;background:#f2eae0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0;}
       #new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.5!important;caret-color:var(--ink);}
-      .faq-block{margin:2rem 0;font-family:"Songti TC","PMingLiU","Noto Serif TC",serif;}
+      .faq-block{margin:2rem 0;font-family:"Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif;}
       .faq-block-title{font-size:1.75rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:2px solid var(--sand);position:relative;}
       .faq-item{background:#fff;border:1px solid var(--sand);border-radius:12px;margin:.8rem 0;overflow:hidden;}
       .faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative;}
@@ -1152,9 +1161,8 @@
           buildToolbar("new");
           buildToolbar("edit");
           await Promise.all([fetchCategories(), loadSettings()]);
-          await Promise.all([loadCategoriesAdmin(), loadManageArticlesList()]);
+          // 文章全文、分類樹與旅途清單改在使用者開啟對應分頁時才產生。
           fillSettingsForms();
-          renderJourneyAdmin();
         } catch (error) {
           console.error(error);
           alert("後台載入失敗：" + (error?.message || String(error)));
