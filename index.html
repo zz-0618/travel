@@ -231,17 +231,36 @@
         }
       }
 
+      #site-header-bg {
+        display: block;
+        margin: 0;
+        padding: 0;
+      }
+      #site-logo-image {
+        display: block;
+      }
+      #site-header-bg + nav {
+        margin-top: 0;
+      }
       .article-list-card {
-        display: grid;
-        grid-template-columns: clamp(120px, 30%, 240px) minmax(0, 1fr);
+        display: flex;
+        flex-direction: column;
         gap: 1.25rem;
-        align-items: stretch;
         padding: 1rem;
       }
+      .article-list-card > a {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        background: var(--sand);
+      }
       .article-list-cover {
+        display: block;
         width: 100%;
         height: 100%;
-        min-height: 150px;
+        min-height: 0;
         aspect-ratio: 16 / 9;
         object-fit: cover;
         border-radius: 0.75rem;
@@ -254,8 +273,8 @@
         background: linear-gradient(135deg, var(--card), var(--sand));
       }
       @media (max-width: 520px) {
-        .article-list-card { grid-template-columns: 112px minmax(0, 1fr); gap: .85rem; padding: .85rem; }
-        .article-list-cover { min-height: 112px; }
+        .article-list-card { gap: .85rem; padding: .85rem; }
+        .article-list-cover { min-height: 0; }
         .article-list-card h2 { font-size: 1.15rem; }
       }
       .latest-articles-box {
@@ -267,6 +286,15 @@
         color: var(--ink);
       }
       .latest-articles-box a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .related-articles-box {
+        background: #fff;
+        border: 1px solid var(--sand);
+        color: var(--ink);
+      }
+      .related-articles-box a:hover {
         color: var(--accent);
         text-decoration: underline;
       }
@@ -403,6 +431,19 @@
               最新文章
             </h3>
             <ol id="latest-articles-list" class="space-y-3 text-sm"></ol>
+          </section>
+          <section
+            id="related-articles-box"
+            class="related-articles-box hidden p-5 rounded-xl shadow-sm"
+            aria-labelledby="related-articles-title"
+          >
+            <h3
+              id="related-articles-title"
+              class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3"
+            >
+              延伸閱讀
+            </h3>
+            <ol id="related-articles-list" class="space-y-3 text-sm"></ol>
           </section>
         </aside>
       </main>
@@ -823,6 +864,7 @@
         }
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
+        hideRelatedArticles();
         const firstCoverIndex = list.findIndex((article) => article.cover_image_url);
         const firstCoverUrl = firstCoverIndex >= 0 ? list[firstCoverIndex].cover_image_url : "";
         preloadImage("home-article-cover-preload", firstCoverUrl);
@@ -836,6 +878,53 @@
             }).join("")
           : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
         renderLatestArticles();
+      }
+      function relatedSettingsKey(articleId) {
+        return "article_related_" + String(articleId);
+      }
+      function hideRelatedArticles() {
+        const section = $("related-articles-box");
+        if (section) section.classList.add("hidden");
+      }
+      async function renderRelatedArticles(article) {
+        const section = $("related-articles-box"),
+          list = $("related-articles-list");
+        if (!section || !list || !article?.id) return;
+        let ids = [];
+        try {
+          const parsed = JSON.parse(settingsCache[relatedSettingsKey(article.id)] || "[]");
+          ids = Array.isArray(parsed) ? parsed.map(String).filter((id) => id !== String(article.id)) : [];
+        } catch {
+          ids = [];
+        }
+        if (!ids.length) {
+          list.innerHTML = "";
+          section.classList.add("hidden");
+          return;
+        }
+        const cached = new Map(allArticlesCache.map((item) => [String(item.id), item]));
+        const missingIds = ids.filter((id) => !cached.has(id));
+        if (missingIds.length) {
+          const { data, error } = await supabaseClient
+            .from("articles")
+            .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url")
+            .in("id", missingIds);
+          if (error) console.error("延伸閱讀讀取失敗：", error);
+          (data || []).forEach((item) => {
+            cached.set(String(item.id), item);
+            if (!allArticlesCache.some((a) => String(a.id) === String(item.id))) allArticlesCache.push(item);
+          });
+        }
+        const related = ids.map((id) => cached.get(id)).filter(Boolean);
+        if (!related.length) {
+          list.innerHTML = "";
+          section.classList.add("hidden");
+          return;
+        }
+        list.innerHTML = related.map((a) =>
+          `<li><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block"><span class="block font-semibold">${esc(a.title)}</span><span class="block text-xs opacity-60 mt-1">${formatArticleDate(a.created_at)}</span></a></li>`
+        ).join("");
+        section.classList.remove("hidden");
       }
       function renderLatestArticles() {
         const box = $("latest-articles-list");
@@ -907,12 +996,10 @@
         const f = (v) => v ? new Intl.DateTimeFormat("zh-TW", {
           timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
         }).format(new Date(v)) : "";
-        preloadImage("article-cover-preload", a.cover_image_url || "");
-        const articleCover = a.cover_image_url
-          ? `<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}封面圖" class="w-full aspect-video object-cover rounded-xl mb-6" loading="eager" fetchpriority="high" decoding="async">`
-          : "";
-        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article>${articleCover}<h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
+        preloadImage("article-cover-preload", "");
+        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
+        await renderRelatedArticles(a);
         updateStructuredData(a);
         scrollTo({ top: 0 });
       }
@@ -978,6 +1065,7 @@
         document.title = "我的旅途｜zz 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
+        hideRelatedArticles();
         const sorted = [...journeyEntries].sort((a, b) => String(b.start).localeCompare(String(a.start)));
         const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
         const renderGroup = (type, title) => {
@@ -1004,6 +1092,7 @@
       }
       function showNotFound() {
         $("floating-toc").classList.add("hidden");
+        hideRelatedArticles();
         $("main-content-area").innerHTML =
           '<div class="custom-card p-8 rounded text-center"><h2 class="text-2xl font-bold">找不到這篇文章</h2><button onclick="goHome()" class="mt-5 px-4 py-2 text-white rounded bg-[#C9B59C]">返回首頁</button></div>';
       }
