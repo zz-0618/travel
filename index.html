@@ -242,13 +242,21 @@
       #site-header-bg + nav {
         margin-top: 0;
       }
+
+      /* 首頁及分類頁文章卡片：桌機版左圖、右文。 */
       .article-list-card {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        align-items: stretch;
         gap: 1.25rem;
         padding: 1rem;
       }
-      .article-list-card > a {
+      .article-list-image-wrap {
+        flex: 0 0 38%;
+        max-width: 38%;
+        min-width: 0;
+      }
+      .article-list-image-link {
         display: block;
         width: 100%;
         aspect-ratio: 16 / 9;
@@ -272,8 +280,52 @@
         color: rgba(69, 40, 41, .65);
         background: linear-gradient(135deg, var(--card), var(--sand));
       }
-      @media (max-width: 520px) {
-        .article-list-card { gap: .85rem; padding: .85rem; }
+      .article-list-content {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .article-list-breadcrumb {
+        margin-top: .4rem;
+        color: rgba(69, 40, 41, .7);
+        font-size: .75rem;
+        line-height: 1.5;
+      }
+      .article-list-breadcrumb a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .read-more-link {
+        color: var(--ink);
+        font-weight: 600;
+        text-decoration-line: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+      }
+      .read-more-link:hover {
+        color: var(--accent);
+      }
+
+      /* 手機版 Logo 採 1206:368，文章卡片改為上下排列。 */
+      @media (max-width: 767px) {
+        #site-header-bg {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 1206 / 368;
+          min-height: 0;
+          max-height: none;
+        }
+        .article-list-card {
+          flex-direction: column;
+          gap: .85rem;
+          padding: .85rem;
+        }
+        .article-list-image-wrap {
+          flex: none;
+          width: 100%;
+          max-width: 100%;
+        }
         .article-list-cover { min-height: 0; }
         .article-list-card h2 { font-size: 1.15rem; }
       }
@@ -376,7 +428,7 @@
     <div id="frontend-view">
       <header
         id="site-header-bg"
-        class="relative w-full h-32 md:h-44 overflow-hidden shadow-sm border-b border-[#EFE9E3]"
+        class="relative w-full md:h-44 overflow-hidden shadow-sm border-b border-[#EFE9E3]"
       >
         <img
           id="site-logo-image"
@@ -874,7 +926,8 @@
               const cover = a.cover_image_url
                 ? `<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}封面圖" class="article-list-cover" loading="${isPriorityCover ? "eager" : "lazy"}" fetchpriority="${isPriorityCover ? "high" : "auto"}" decoding="async">`
                 : `<div class="article-list-cover article-list-cover-placeholder" aria-hidden="true">Travel</div>`;
-              return `<article class="custom-card article-list-card rounded-xl shadow-sm"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block">${cover}</a><div class="min-w-0 flex flex-col"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory ? " / " + esc(a.subcategory) : ""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><p class="line-clamp-2 mt-3 article-content-style">${esc(a.excerpt || "")}</p><div class="text-right mt-auto pt-3"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></div></article>`;
+              const listBreadcrumb = `<nav class="article-list-breadcrumb" aria-label="文章分類索引"><a href="/" onclick="event.preventDefault();event.stopPropagation();goHome()">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""}</nav>`;
+              return `<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${cover}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2>${listBreadcrumb}<p class="line-clamp-2 mt-3 article-content-style">${esc(a.excerpt || "")}</p><div class="text-right mt-auto pt-3"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="read-more-link">繼續閱讀</a></div></div></article>`;
             }).join("")
           : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
         renderLatestArticles();
