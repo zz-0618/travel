@@ -6,31 +6,20 @@
     <meta name="robots" content="noindex,nofollow" />
     <title>網站後台管理系統｜zz 的旅遊部落格</title>
     <!-- 使用建置後的本機 Tailwind CSS -->
+    <link rel="preconnect" href="https://rpzqioezweftrjtrneos.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="//rpzqioezweftrjtrneos.supabase.co" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-      @font-face {
-        font-family: "Noto Serif TC";
-        src: url("/fonts/NotoSerifTC-Regular.woff2") format("woff2");
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: "Noto Serif TC";
-        src: url("/fonts/NotoSerifTC-Bold.woff2") format("woff2");
-        font-style: normal;
-        font-weight: 600 900;
-        font-display: swap;
-      }
-      :root{--ink:#452829;--sand:#c9b59c;--card:#efe9e3;--soft:#f9f6f0;--accent:#a56c5d;}
-      body{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
+      /* 使用系統中文字型，避免載入約 15 MB 的完整中文字型檔。 */
+:root{--ink:#452829;--sand:#c9b59c;--card:#efe9e3;--soft:#f9f6f0;--accent:#a56c5d;}
+      body{font-family:"Songti TC","PMingLiU","Noto Serif TC",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
       ::selection{background:#8FA28A;color:#fff;}
       ::-moz-selection{background:#8FA28A;color:#fff;}
       .custom-card{background:var(--card);}
       .editor-btn{background:var(--card);border:1px solid var(--sand);padding:6px 10px;font-size:13px;border-radius:6px;cursor:pointer;}
       .editor-btn:hover{opacity:.8;}
-      .article-content-style,.article-content-style *{font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif!important;color:var(--ink)!important;box-sizing:border-box;}
+      .article-content-style,.article-content-style *{font-family:"Songti TC","PMingLiU","Noto Serif TC",serif!important;color:var(--ink)!important;box-sizing:border-box;}
       .article-content-style{font-size:16px;line-height:1.5!important;letter-spacing:.02em;overflow-wrap:anywhere;}
       .article-content-style ol{list-style-type:decimal!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
       .article-content-style ul{list-style-type:disc!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
@@ -38,7 +27,7 @@
       .article-content-style h1,.article-content-style h2,.article-content-style h3,.article-content-style h4{font-weight:700!important;line-height:1.5!important;}
       .article-alert-box{font-size:inherit;line-height:1.5!important;background:#f2eae0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0;}
       #new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.5!important;caret-color:var(--ink);}
-      .faq-block{margin:2rem 0;font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;}
+      .faq-block{margin:2rem 0;font-family:"Songti TC","PMingLiU","Noto Serif TC",serif;}
       .faq-block-title{font-size:1.75rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:2px solid var(--sand);position:relative;}
       .faq-item{background:#fff;border:1px solid var(--sand);border-radius:12px;margin:.8rem 0;overflow:hidden;}
       .faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative;}
@@ -123,6 +112,7 @@
               >
                 上傳並更新頭像
               </button>
+              <p class="mt-2 text-xs opacity-70">上傳時會自動裁切為正方形、縮放至 256 × 256 並轉成 WebP。</p>
             </div>
             <div>
               <label class="block font-semibold mb-1" for="admin-nickname"
@@ -164,6 +154,7 @@
             >
               上傳並更新 Logo
             </button>
+            <p class="text-xs opacity-70">上傳時會自動限制為 1600 × 600 以內並轉成 WebP。</p>
           </div>
           <div
             id="admin-tab-announcement"
@@ -421,6 +412,7 @@
         </main>
       </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       const SUPABASE_URL = "https://rpzqioezweftrjtrneos.supabase.co",
         SUPABASE_ANON_KEY = "sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye",
@@ -700,14 +692,77 @@
         return !!data?.length;
       }
 
+      async function compressImage(file, options = {}) {
+        if (!file?.type?.startsWith("image/")) {
+          throw new Error("請選擇有效的圖片檔案");
+        }
+        const {
+          maxWidth = 1600,
+          maxHeight = 1200,
+          quality = 0.82,
+          square = false,
+        } = options;
+        const bitmap = await createImageBitmap(file);
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = bitmap.width;
+        let sourceHeight = bitmap.height;
+        if (square) {
+          const side = Math.min(bitmap.width, bitmap.height);
+          sourceX = Math.floor((bitmap.width - side) / 2);
+          sourceY = Math.floor((bitmap.height - side) / 2);
+          sourceWidth = side;
+          sourceHeight = side;
+        }
+        const scale = Math.min(
+          1,
+          maxWidth / sourceWidth,
+          maxHeight / sourceHeight,
+        );
+        const width = Math.max(1, Math.round(sourceWidth * scale));
+        const height = Math.max(1, Math.round(sourceHeight * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d", { alpha: false });
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        context.drawImage(
+          bitmap,
+          sourceX,
+          sourceY,
+          sourceWidth,
+          sourceHeight,
+          0,
+          0,
+          width,
+          height,
+        );
+        bitmap.close();
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob(
+            (result) => result ? resolve(result) : reject(new Error("圖片壓縮失敗")),
+            "image/webp",
+            quality,
+          );
+        });
+        return new File([blob], `${Date.now()}.webp`, { type: "image/webp" });
+      }
       async function uploadArticleCover(file) {
         if (!file) return "";
-        if (!file.type.startsWith("image/")) throw new Error("封面圖必須是圖片檔案");
-        const safeName = file.name.replace(/[^A-Za-z0-9._-]/g, "_");
-        const path = `article-covers/${Date.now()}_${safeName}`;
+        const optimizedFile = await compressImage(file, {
+          maxWidth: 1280,
+          maxHeight: 720,
+          quality: 0.82,
+        });
+        const path = `article-covers/${Date.now()}.webp`;
         const { data, error } = await supabaseClient.storage
           .from("blog-assets")
-          .upload(path, file, { cacheControl: "3600", upsert: false });
+          .upload(path, optimizedFile, {
+            cacheControl: "31536000",
+            contentType: "image/webp",
+            upsert: false,
+          });
         if (error) throw error;
         return supabaseClient.storage.from("blog-assets").getPublicUrl(data.path).data.publicUrl;
       }
@@ -891,8 +946,6 @@
         if (!nickname) return alert("暱稱不可空白");
         try {
           await upsertSettings({ nickname, bio });
-          $("site-nickname").textContent = nickname;
-          $("site-bio").textContent = bio;
           alert("帳號資料已更新");
         } catch (e) {
           alert("更新失敗：" + e.message);
@@ -1007,22 +1060,41 @@
       }
 
       async function uploadAsset(t) {
-        const file = $("admin-" + t + "-file").files[0];
+        const fileInput = $("admin-" + t + "-file");
+        const file = fileInput.files[0];
         if (!file) return alert("請先選擇檔案");
-        const safeName = file.name.replace(/[^A-Za-z0-9._-]/g, "_"),
-          { data, error } = await supabaseClient.storage
-            .from("blog-assets")
-            .upload(`${t}_${Date.now()}_${safeName}`, file);
-        if (error) return alert(error.message);
-        const url = supabaseClient.storage
-          .from("blog-assets")
-          .getPublicUrl(data.path).data.publicUrl;
         try {
+          const optimizedFile = t === "avatar"
+            ? await compressImage(file, {
+                maxWidth: 256,
+                maxHeight: 256,
+                quality: 0.82,
+                square: true,
+              })
+            : await compressImage(file, {
+                maxWidth: 1600,
+                maxHeight: 600,
+                quality: 0.84,
+              });
+          const path = `${t}_${Date.now()}.webp`;
+          const { data, error } = await supabaseClient.storage
+            .from("blog-assets")
+            .upload(path, optimizedFile, {
+              cacheControl: "31536000",
+              contentType: "image/webp",
+              upsert: false,
+            });
+          if (error) throw error;
+          const url = supabaseClient.storage
+            .from("blog-assets")
+            .getPublicUrl(data.path).data.publicUrl;
           await upsertSettings({ [t]: url });
-          alert("更新成功");
+          fileInput.value = "";
+          alert("圖片已轉換為 WebP、壓縮並更新成功");
           await loadSettings();
-        } catch (e) {
-          alert(e.message);
+        } catch (error) {
+          console.error(error);
+          alert("圖片更新失敗：" + (error?.message || String(error)));
         }
       }
 
@@ -1079,10 +1151,8 @@
         try {
           buildToolbar("new");
           buildToolbar("edit");
-          await fetchCategories();
-          await loadSettings();
-          await loadCategoriesAdmin();
-          await loadManageArticlesList();
+          await Promise.all([fetchCategories(), loadSettings()]);
+          await Promise.all([loadCategoriesAdmin(), loadManageArticlesList()]);
           fillSettingsForms();
           renderJourneyAdmin();
         } catch (error) {
