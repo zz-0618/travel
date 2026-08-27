@@ -725,42 +725,27 @@
         const c = $("main-content-area"),
           { data, error } = await supabaseClient
             .from("articles")
-            .select("*")
+            .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt")
             .order("created_at", { ascending: false });
-        if (error)
-          return (c.innerHTML =
-            '<div class="custom-card p-6 rounded">讀取失敗：' +
-            esc(error.message) +
-            "</div>");
+        if (error) {
+          c.innerHTML = '<div class="custom-card p-6 rounded">讀取失敗：' + esc(error.message) + "</div>";
+          return;
+        }
         allArticlesCache = data || [];
         let list = allArticlesCache;
         if (cat !== "all") {
           const target = categoryByName(cat);
           if (target && !target.parent_id) {
-            const names = [
-              target.name,
-              ...categoriesCache
-                .filter((x) => x.parent_id === target.id)
-                .map((x) => x.name),
-            ];
-            list = list.filter(
-              (a) =>
-                names.includes(a.category) || names.includes(a.subcategory),
-            );
-          } else
-            list = list.filter(
-              (a) => a.category === cat || a.subcategory === cat,
-            );
+            const names = [target.name, ...categoriesCache.filter((x) => x.parent_id === target.id).map((x) => x.name)];
+            list = list.filter((a) => names.includes(a.category) || names.includes(a.subcategory));
+          } else {
+            list = list.filter((a) => a.category === cat || a.subcategory === cat);
+          }
         }
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         c.innerHTML = list.length
-          ? list
-              .map(
-                (a) =>
-                  `<article class="custom-card p-6 rounded-xl shadow-sm"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory ? " / " + esc(a.subcategory) : ""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><div class="line-clamp-2 mt-3 article-content-style">${a.content || ""}</div><div class="text-right mt-4"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></article>`,
-              )
-              .join("")
+          ? list.map((a) => `<article class="custom-card p-6 rounded-xl shadow-sm"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory ? " / " + esc(a.subcategory) : ""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><p class="line-clamp-2 mt-3 article-content-style">${esc(a.excerpt || "")}</p><div class="text-right mt-4"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></article>`).join("")
           : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
         renderLatestArticles();
       }
@@ -809,67 +794,59 @@
       function breadcrumbLink(name) {
         return `<a href="${categoryPath(name)}" onclick="event.preventDefault();filterCategory('${jsq(name)}')" class="hover:underline">${esc(name)}</a>`;
       }
-      function viewSingleArticle(id, opt = {}) {
-        const a = allArticlesCache.find((x) => x.id == id);
-        if (!a) return;
-        if (opt.updateHistory !== false)
-          safePushState({ id: a.id }, articlePath(a));
+      async function viewSingleArticle(id, opt = {}) {
+        let a = opt.article || null;
+        if (!a || !Object.prototype.hasOwnProperty.call(a, "content")) {
+          const { data, error } = await supabaseClient
+            .from("articles")
+            .select("*")
+            .eq("id", id)
+            .single();
+          if (error || !data) {
+            console.error(error);
+            showNotFound();
+            return;
+          }
+          a = data;
+        }
+        const cacheIndex = allArticlesCache.findIndex((x) => x.id == a.id);
+        if (cacheIndex >= 0) allArticlesCache[cacheIndex] = { ...allArticlesCache[cacheIndex], ...a };
+        else allArticlesCache.push(a);
+        if (opt.updateHistory !== false) safePushState({ id: a.id }, articlePath(a));
         document.title = `${a.title}｜zz 的旅遊部落格`;
         $("floating-toc").classList.remove("hidden");
         toggleTOC(false);
-        const f = (v) =>
-          v
-            ? new Intl.DateTimeFormat("zh-TW", {
-                timeZone: "Asia/Taipei",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              }).format(new Date(v))
-            : "";
-        $("main-content-area").innerHTML =
-          `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
+        const f = (v) => v ? new Intl.DateTimeFormat("zh-TW", {
+          timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
+        }).format(new Date(v)) : "";
+        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
         updateStructuredData(a);
         scrollTo({ top: 0 });
       }
       async function handleCurrentRoute() {
-        const parts = decodeURIComponent(location.pathname)
-          .split("/")
-          .filter(Boolean);
+        const parts = decodeURIComponent(location.pathname).split("/").filter(Boolean);
         if (!parts.length || parts[0] === "index.html") {
           await fetchArticles();
           showAnnouncementIfActive();
           return;
         }
         const last = parts.at(-1);
-        let a = allArticlesCache.find(
-          (x) => x.slug?.toLowerCase() === last.toLowerCase(),
-        );
-        if (!a) {
-          const { data } = await supabaseClient
-            .from("articles")
-            .select("*")
-            .ilike("slug", last)
-            .maybeSingle();
-          a = data;
-          if (a && !allArticlesCache.some((x) => x.id == a.id))
-            allArticlesCache.push(a);
+        const { data: routeArticle, error: routeError } = await supabaseClient
+          .from("articles")
+          .select("*")
+          .ilike("slug", last)
+          .maybeSingle();
+        if (routeError) console.error(routeError);
+        if (routeArticle && decodeURIComponent(articlePath(routeArticle)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()) {
+          return viewSingleArticle(routeArticle.id, { updateHistory: false, article: routeArticle });
         }
-        if (
-          a &&
-          decodeURIComponent(articlePath(a)).toLowerCase() ===
-            ("/" + parts.join("/")).toLowerCase()
-        )
-          return viewSingleArticle(a.id, { updateHistory: false });
-        const cat = categoriesCache.find(
-          (c) =>
-            decodeURIComponent(categoryPath(c.name)).toLowerCase() ===
-            ("/" + parts.join("/")).toLowerCase(),
+        const cat = categoriesCache.find((c) =>
+          decodeURIComponent(categoryPath(c.name)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()
         );
-        if (cat)
-          return cat.name === "我的旅途"
-            ? viewJourney({ updateHistory: false })
-            : fetchArticles(cat.name);
+        if (cat) return cat.name === "我的旅途"
+          ? viewJourney({ updateHistory: false })
+          : fetchArticles(cat.name);
         showNotFound();
       }
       function formatMonth(v) {
@@ -1009,11 +986,8 @@
       }
       async function openAdminPanel() {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-          location.href = "/admin.html";
-        } else {
-          $("login-modal").classList.remove("hidden");
-        }
+        if (session) location.href = "/admin.html";
+        else $("login-modal").classList.remove("hidden");
       }
       async function loginWithEmail() {
         const email = $("admin-email-input").value,
@@ -1071,7 +1045,7 @@
         $("site-nickname").textContent = settingsCache.nickname || "zz";
         $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
       }
-      
+     
     </script>
   </body>
 </html>
