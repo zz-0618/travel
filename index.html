@@ -61,6 +61,8 @@
         background: #fff;
         -webkit-font-smoothing: antialiased;
       }
+      ::selection { background: #8FA28A; color: #fff; }
+      ::-moz-selection { background: #8FA28A; color: #fff; }
       .custom-card {
         background: var(--card);
       }
@@ -236,6 +238,33 @@
         }
       }
 
+      .article-list-card {
+        display: grid;
+        grid-template-columns: clamp(120px, 30%, 240px) minmax(0, 1fr);
+        gap: 1.25rem;
+        align-items: stretch;
+        padding: 1rem;
+      }
+      .article-list-cover {
+        width: 100%;
+        height: 100%;
+        min-height: 150px;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        background: var(--sand);
+      }
+      .article-list-cover-placeholder {
+        display: grid;
+        place-items: center;
+        color: rgba(69, 40, 41, .65);
+        background: linear-gradient(135deg, var(--card), var(--sand));
+      }
+      @media (max-width: 520px) {
+        .article-list-card { grid-template-columns: 112px minmax(0, 1fr); gap: .85rem; padding: .85rem; }
+        .article-list-cover { min-height: 112px; }
+        .article-list-card h2 { font-size: 1.15rem; }
+      }
       .latest-articles-box {
         background: var(--soft);
         border: 1px solid var(--sand);
@@ -621,14 +650,15 @@
             plainText.substring(0, 160)
           );
 
-        if (logo) {
+        const socialImage = article.cover_image_url || logo;
+        if (socialImage) {
           document
             .querySelector(
               'meta[property="og:image"]'
             )
             ?.setAttribute(
               "content",
-              logo
+              socialImage
             );
         }
 
@@ -673,7 +703,7 @@
             },
 
             image:
-              logo || undefined
+              socialImage || undefined
           });
       }
       
@@ -725,7 +755,7 @@
         const c = $("main-content-area"),
           { data, error } = await supabaseClient
             .from("articles")
-            .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt")
+            .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url")
             .order("created_at", { ascending: false });
         if (error) {
           c.innerHTML = '<div class="custom-card p-6 rounded">讀取失敗：' + esc(error.message) + "</div>";
@@ -745,7 +775,12 @@
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         c.innerHTML = list.length
-          ? list.map((a) => `<article class="custom-card p-6 rounded-xl shadow-sm"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory ? " / " + esc(a.subcategory) : ""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><p class="line-clamp-2 mt-3 article-content-style">${esc(a.excerpt || "")}</p><div class="text-right mt-4"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></article>`).join("")
+          ? list.map((a) => {
+              const cover = a.cover_image_url
+                ? `<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}封面圖" class="article-list-cover" loading="lazy" decoding="async">`
+                : `<div class="article-list-cover article-list-cover-placeholder" aria-hidden="true">Travel</div>`;
+              return `<article class="custom-card article-list-card rounded-xl shadow-sm"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block">${cover}</a><div class="min-w-0 flex flex-col"><div class="text-xs opacity-70">${esc(a.category)}${a.subcategory ? " / " + esc(a.subcategory) : ""}</div><h2 class="text-2xl font-bold mt-1"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><p class="line-clamp-2 mt-3 article-content-style">${esc(a.excerpt || "")}</p><div class="text-right mt-auto pt-3"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="font-semibold">...查看更多</a></div></div></article>`;
+            }).join("")
           : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
         renderLatestArticles();
       }
@@ -888,12 +923,12 @@
         toggleTOC(false);
         const sorted = [...journeyEntries].sort((a, b) => String(a.start).localeCompare(String(b.start)));
         const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
-        const renderGroup = (type, title, icon) => {
+        const renderGroup = (type, title) => {
           const list = sorted.filter((x) => normalizedType(x) === type);
           const mobileClass = type === "taiwan" ? " journey-column-mobile-hidden" : "";
-          return `<section id="journey-column-${type}" class="journey-column custom-card p-5 rounded-xl${mobileClass}"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2 mb-4">${icon} ${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div>${renderJourneyRelatedLinks(x)}</article>`).join("") : '<div class="p-4 opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
+          return `<section id="journey-column-${type}" class="journey-column custom-card p-5 rounded-xl${mobileClass}"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2 mb-4">${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div>${renderJourneyRelatedLinks(x)}</article>`).join("") : '<div class="p-4 opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
         };
-        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="abroad" selected>國外 Abroad</option><option value="taiwan">臺灣 Taiwan</option></select></div><div class="journey-columns">${renderGroup("abroad", "國外 Abroad", "🌏")}${renderGroup("taiwan", "臺灣 Taiwan", "🇹🇼")}</div></section>`;
+        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="abroad" selected>國外 Abroad</option><option value="taiwan">臺灣 Taiwan</option></select></div><div class="journey-columns">${renderGroup("abroad", "國外 Abroad")}${renderGroup("taiwan", "臺灣 Taiwan")}</div></section>`;
         renderLatestArticles();
         scrollTo({ top: 0 });
       }
