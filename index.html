@@ -18,25 +18,40 @@
       type="application/ld+json">
     </script>
     
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-FR2DMRZWKH"
-    ></script>
     <script>
+      // 將非關鍵分析程式延後到主內容完成載入後，降低行動版主執行緒競爭。
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
+      function gtag() { dataLayer.push(arguments); }
+      function loadAnalytics() {
+        if (document.getElementById("google-analytics-script")) return;
+        const script = document.createElement("script");
+        script.id = "google-analytics-script";
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-FR2DMRZWKH";
+        document.head.appendChild(script);
+        gtag("js", new Date());
+        gtag("config", "G-FR2DMRZWKH");
       }
-      gtag("js", new Date());
-      gtag("config", "G-FR2DMRZWKH");
+      addEventListener("load", () => {
+        if ("requestIdleCallback" in window) requestIdleCallback(loadAnalytics, { timeout: 2500 });
+        else setTimeout(loadAnalytics, 1500);
+      }, { once: true });
     </script>
     <!-- 使用建置後的本機 Tailwind CSS -->
     <link rel="preconnect" href="https://rpzqioezweftrjtrneos.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="//rpzqioezweftrjtrneos.supabase.co" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preload" href="/fonts/NotoSerifTC[wght].woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/css/style.css" />
 <style>
-      /* 使用系統中文字型，避免載入約 15 MB 的完整中文字型檔。 */
+      @font-face {
+        font-family: "Noto Serif TC Local";
+        src: url("/fonts/NotoSerifTC[wght].woff2") format("woff2");
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      /* 專案內自託管的可變中文字型，使用 swap 避免文字不可見。 */
 :root {
         --ink: #452829;
         --sand: #c9b59c;
@@ -49,7 +64,7 @@
         scroll-behavior: smooth;
       }
       body {
-        font-family: "Songti TC", "PMingLiU", "Noto Serif TC", serif;
+        font-family: "Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif;
         color: var(--ink);
         background: #fff;
         -webkit-font-smoothing: antialiased;
@@ -81,7 +96,7 @@
       }
       .article-content-style,
       .article-content-style * {
-        font-family: "Songti TC", "PMingLiU", "Noto Serif TC", serif !important;
+        font-family: "Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif !important;
         color: var(--ink) !important;
         box-sizing: border-box;
       }
@@ -188,7 +203,7 @@
       }
       .announcement-content,
       .announcement-content * {
-        font-family: "Songti TC", "PMingLiU", "Noto Serif TC", serif !important;
+        font-family: "Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif !important;
       }
       .announcement-content {
         white-space: pre-wrap;
@@ -232,6 +247,8 @@
       }
 
       .article-list-card {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 220px;
         display: grid;
         grid-template-columns: clamp(120px, 30%, 240px) minmax(0, 1fr);
         gap: 1.25rem;
@@ -319,7 +336,7 @@
       .journey-column { min-width: 0; }
       .journey-related-links { margin-top: .65rem; display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
       .journey-related-links a { color: var(--accent) !important; text-decoration: underline; overflow-wrap: anywhere; }
-      .faq-block { margin: 2rem 0; font-family: "Songti TC", "PMingLiU", "Noto Serif TC", serif; }
+      .faq-block { margin: 2rem 0; font-family: "Noto Serif TC Local", "Noto Serif TC", "PMingLiU", serif; }
       .faq-block-title { font-size: 1.75rem; font-weight: 700; padding-bottom: .75rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--sand); position: relative; }
       .faq-block-title::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 32%; height: 2px; background: var(--accent); }
       .faq-item { background: #fff; border: 1px solid var(--sand); border-radius: 12px; margin: .8rem 0; overflow: hidden; }
@@ -383,7 +400,8 @@
               alt="頭像"
               width="96"
               height="96"
-              loading="eager"
+              loading="lazy"
+              fetchpriority="low"
               decoding="async"
               class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]"
             />
@@ -758,7 +776,6 @@
           await Promise.all([
             fetchCategories(),
             loadSettings(),
-            checkSessionState(),
           ]);
           await handleCurrentRoute();
           if (
