@@ -34,15 +34,7 @@
       .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
       .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
       @media(max-width:767px){#new-article-editor,#edit-article-editor{padding:20px!important;}}
-
-      button:not(.admin-entry) { background:#8FA28A !important; color:#fff !important; border-color:#8FA28A !important; }
-      button:not(.admin-entry):hover { filter:brightness(.94); }
-      .travel-map{display:flex;align-items:stretch;gap:16px;margin:16px 0;padding:14px;border:1px solid var(--sand);border-radius:14px;background:var(--soft);box-shadow:0 3px 8px rgba(0,0,0,.05);overflow:hidden;}
-      .travel-map .map-image{flex:0 0 38%;width:38%;min-height:150px;border-radius:10px;background:var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-      .travel-map .map-image img{width:100%;height:100%;min-height:150px;object-fit:cover}.travel-map .map-image-controls{position:absolute;inset:auto 8px 8px}.travel-map .map-image-button{padding:6px 10px;border-radius:7px}.travel-map .map-content{flex:1;align-self:center}.travel-map .map-name{font-size:18px;font-weight:700}.travel-map .map-hours,.travel-map .map-address,.travel-map .map-link{margin-top:7px}.travel-map .map-link{color:#3b82f6!important}
-      .embedded-map-block{margin:1rem 0;padding:10px;border:1px dashed var(--sand);border-radius:12px;overflow:hidden}.embedded-map-block iframe{display:block;width:100%!important;max-width:100%;border:0}
-      @media(max-width:560px){.travel-map{flex-direction:column}.travel-map .map-image{width:100%;flex:none;aspect-ratio:16/9}}
-    </style>
+    button:not(.admin-entry){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.travel-map{display:flex;gap:16px;margin:16px 0;padding:14px;border:1px solid var(--sand);border-radius:14px}.map-image{flex:0 0 38%;min-height:150px;background:var(--card);position:relative;overflow:hidden;border-radius:10px}.map-image img{width:100%;height:100%;object-fit:cover}.map-image-controls{position:absolute;bottom:8px;left:8px}.map-content{flex:1}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}</style>
   </head>
   <body class="min-h-screen">
     <div id="admin-view" class="min-h-screen bg-white flex flex-col">
@@ -72,7 +64,8 @@
             class="w-full text-left px-4 py-3 rounded-lg bg-[#C9B59C] text-white"
           >
             👤 帳號管理</button
-          ><button
+          ><button onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 社群平台</button>
+          <button
             onclick="switchAdminTab('logo')"
             id="tab-logo-btn"
             class="w-full text-left px-4 py-3 rounded-lg"
@@ -149,16 +142,7 @@
               儲存暱稱與簡介
             </button>
           </div>
-          <div id="admin-tab-social" class="admin-tab-content space-y-5 hidden">
-            <h2 class="text-2xl font-bold border-b pb-2">其他社群平台</h2>
-            <p class="text-sm opacity-70">輸入顯示名稱與完整連結，例如「Instagram」及以 https:// 開頭的網址。</p>
-            <div class="custom-card p-4 rounded-xl grid md:grid-cols-2 gap-3">
-              <input id="social-name" class="border p-2 rounded" maxlength="50" placeholder="平台名稱，例如 Instagram">
-              <input id="social-url" type="url" class="border p-2 rounded" placeholder="https://...">
-              <button onclick="addSocialLink()" class="md:col-span-2 text-white px-6 py-2 rounded-lg">新增社群平台</button>
-            </div>
-            <div id="social-links-list" class="space-y-2"></div>
-          </div>
+          <div id="admin-tab-social" class="admin-tab-content space-y-5 hidden"><h2 class="text-2xl font-bold border-b pb-2">其他社群平台</h2><div class="custom-card p-4 rounded-xl grid md:grid-cols-2 gap-3"><input id="social-name" class="border p-2 rounded" placeholder="平台名稱，例如 Instagram"><input id="social-url" type="url" class="border p-2 rounded" placeholder="https://..."><button onclick="addSocialLink()" class="md:col-span-2 px-6 py-2 rounded-lg">新增社群平台</button></div><div id="social-links-list" class="space-y-2"></div></div>
           <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">更換 Logo 背景圖片</h2>
             <input
@@ -528,8 +512,7 @@
             <button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button>
             <button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button>
             <button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button>
-            <button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖圖卡</button>
-            <button class="editor-btn" onclick="insertEmbeddedMap('${t}')">🗺️ 嵌入地圖 HTML</button>
+            <button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖圖卡</button><button class="editor-btn" onclick="insertEmbeddedMap('${t}')">🗺️ 嵌入地圖 HTML</button>
             <button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button>
             <button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button>
             <button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button>
@@ -571,26 +554,49 @@
       }
 
       function insertMapCard(t) {
-        const uid="map-image-"+Date.now()+"-"+Math.random().toString(36).slice(2);
-        const html=`<div class="travel-map"><div class="map-image" contenteditable="false"><div class="map-image-placeholder">店家照片將顯示在這裡</div><div class="map-image-controls"><button type="button" class="map-image-button" onclick="document.getElementById('${uid}').click()">插入店家照片</button><input id="${uid}" type="file" accept="image/*" hidden onchange="uploadMapCardImage(this)"></div></div><div class="map-content"><div class="map-name" contenteditable="true">店名</div><div class="map-hours" contenteditable="true">🕒 營業時間</div><div class="map-address" contenteditable="true">地址</div><div class="map-link" contenteditable="true">貼上 Google Maps 連結</div></div></div><p><br></p>`;
-        $(t+"-article-editor").focus(); document.execCommand("insertHTML",false,html);
+
+        const html = `
+      <div class="travel-map">
+
+        <div
+          class="map-name"
+          contenteditable="true">
+          店名
+        </div>
+
+        <div
+          class="map-hours"
+          contenteditable="true">
+          營業時間
+        </div>
+
+        <div
+          class="map-address"
+          contenteditable="true">
+          地址
+        </div>
+
+        <div
+          class="map-link"
+          contenteditable="true">
+          貼上 Google Maps 連結
+        </div>
+
+      </div>
+
+      <p><br></p>
+      `;
+
+        $(t + "-article-editor").focus();
+
+        document.execCommand(
+          "insertHTML",
+          false,
+          html
+        );
       }
-      async function uploadMapCardImage(input){
-        const file=input.files?.[0]; if(!file)return; const box=input.closest(".map-image"),button=box?.querySelector("button");
-        try{if(button){button.disabled=true;button.textContent="上傳中..."}const url=await uploadArticleContentImage(file);box.querySelector(".map-image-placeholder")?.remove();let img=box.querySelector("img");if(!img){img=document.createElement("img");img.alt="店家照片";box.prepend(img)}img.src=url;if(button)button.textContent="更換店家照片"}catch(e){alert("店家照片上傳失敗："+(e?.message||String(e)))}finally{if(button)button.disabled=false;input.value=""}
-      }
-      function insertEmbeddedMap(t){
-        const raw=prompt("請貼上地圖商提供的 iframe HTML："); if(!raw)return;
-        const doc=new DOMParser().parseFromString(raw,"text/html"),iframe=doc.querySelector("iframe");
-        if(!iframe)return alert("找不到 iframe，請貼上地圖商提供的完整嵌入 HTML。");
-        const src=iframe.getAttribute("src")||"";
-        if(!/^https:\/\//i.test(src))return alert("地圖 iframe 必須使用 https:// 網址。");
-        const safe=document.createElement("iframe");
-        ["src","width","height","title","loading","referrerpolicy","allowfullscreen"].forEach(a=>{if(iframe.hasAttribute(a))safe.setAttribute(a,iframe.getAttribute(a)||"")});
-        safe.src=src;safe.loading=iframe.getAttribute("loading")||"lazy";safe.referrerPolicy=iframe.getAttribute("referrerpolicy")||"no-referrer-when-downgrade";safe.style.width="100%";safe.style.minHeight="360px";safe.style.border="0";
-        const wrap=document.createElement("div");wrap.className="embedded-map-block";wrap.appendChild(safe);
-        const editor=$(t+"-article-editor");editor.focus();document.execCommand("insertHTML",false,wrap.outerHTML+"<p><br></p>");
-      }
+
+      function insertEmbeddedMap(t){const raw=prompt("請貼上地圖商提供的 iframe HTML：");if(!raw)return;const doc=new DOMParser().parseFromString(raw,"text/html"),source=doc.querySelector("iframe");if(!source)return alert("找不到 iframe");const src=source.getAttribute("src")||"";if(!/^https:\/\//i.test(src))return alert("iframe 必須使用 https://");const iframe=document.createElement("iframe");["src","width","height","title","loading","referrerpolicy","allowfullscreen"].forEach(a=>{if(source.hasAttribute(a))iframe.setAttribute(a,source.getAttribute(a)||"")});iframe.src=src;iframe.loading="lazy";iframe.style.width="100%";iframe.style.minHeight="360px";iframe.style.border="0";const wrap=document.createElement("div");wrap.className="embedded-map-block";wrap.appendChild(iframe);$(t+"-article-editor").focus();document.execCommand("insertHTML",false,wrap.outerHTML+"<p><br></p>")}
       function insertBox(t) {
         $(t + "-article-editor").focus();
         document.execCommand(
@@ -962,7 +968,6 @@
           }
         });
       }
-      function serializeArticleContent(editorId){const clone=$(editorId).cloneNode(true);clone.querySelectorAll(".map-image-controls").forEach(n=>n.remove());clone.querySelectorAll("[contenteditable]").forEach(n=>n.removeAttribute("contenteditable"));clone.querySelectorAll("[id^='map-image-']").forEach(n=>n.removeAttribute("id"));return clone.innerHTML.trim()}
       function validateArticleContent(content) {
         if (/data:image\/[^;]+;base64,/i.test(content)) {
           throw new Error("文章內容仍包含 Base64 圖片。請刪除該圖片後重新貼上，系統會自動轉成 WebP 並上傳。");
@@ -996,7 +1001,7 @@
         let content;
         try {
           content = validateArticleContent(
-            serializeArticleContent("new-article-editor"),
+            $("new-article-editor").innerHTML.trim(),
           );
         } catch (error) {
           return alert(error.message);
@@ -1125,7 +1130,7 @@
         let content;
         try {
           content = validateArticleContent(
-            serializeArticleContent("edit-article-editor"),
+            $("edit-article-editor").innerHTML.trim(),
           );
         } catch (error) {
           return alert(error.message);
@@ -1209,9 +1214,9 @@
       }
 
       function getSocialLinks(){try{const v=JSON.parse(settingsCache.social_links||"[]");return Array.isArray(v)?v:[]}catch{return[]}}
-      function renderSocialLinksAdmin(){const box=$("social-links-list");if(!box)return;const links=getSocialLinks();box.innerHTML=links.length?links.map((x,i)=>`<div class="p-3 border rounded flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-60 break-all">${esc(x.url)}</div></div><button onclick="deleteSocialLink(${i})" class="px-3 py-1 rounded text-sm">刪除</button></div>`).join(""):'<div class="opacity-60">尚未新增社群平台。</div>'}
-      async function addSocialLink(){const name=$("social-name").value.trim(),url=$("social-url").value.trim();if(!name)return alert("請輸入平台名稱");if(!/^https?:\/\//i.test(url))return alert("請輸入以 http:// 或 https:// 開頭的完整網址");const links=getSocialLinks();links.push({name,url});try{await upsertSettings({social_links:JSON.stringify(links)});$("social-name").value="";$("social-url").value="";renderSocialLinksAdmin()}catch(e){alert("新增失敗："+e.message)}}
-      async function deleteSocialLink(index){const links=getSocialLinks();links.splice(index,1);try{await upsertSettings({social_links:JSON.stringify(links)});renderSocialLinksAdmin()}catch(e){alert("刪除失敗："+e.message)}}
+      function renderSocialLinksAdmin(){const b=$("social-links-list");if(!b)return;const links=getSocialLinks();b.innerHTML=links.length?links.map((x,i)=>`<div class="p-3 border rounded flex justify-between"><div><b>${esc(x.name)}</b><div class="text-xs opacity-60">${esc(x.url)}</div></div><button onclick="deleteSocialLink(${i})" class="px-3 py-1 rounded">刪除</button></div>`).join(""):"<div class='opacity-60'>尚未新增社群平台。</div>"}
+      async function addSocialLink(){const name=$("social-name").value.trim(),url=$("social-url").value.trim();if(!name||!/^https?:\/\//i.test(url))return alert("請輸入名稱及完整網址");const links=getSocialLinks();links.push({name,url});await upsertSettings({social_links:JSON.stringify(links)});$("social-name").value="";$("social-url").value="";renderSocialLinksAdmin()}
+      async function deleteSocialLink(i){const links=getSocialLinks();links.splice(i,1);await upsertSettings({social_links:JSON.stringify(links)});renderSocialLinksAdmin()}
       async function saveProfileSettings() {
         const nickname = $("admin-nickname").value.trim(),
           bio = $("admin-bio").value.trim();
@@ -1403,9 +1408,9 @@
           "articles",
           "journey",
         ].forEach((t) => {
-          $("admin-tab-" + t).classList.toggle("hidden", t !== n);
-          $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
-          $("tab-" + t + "-btn").classList.toggle("text-white", t === n);
+          const panel=$("admin-tab-"+t),button=$("tab-"+t+"-btn");
+          if(panel)panel.classList.toggle("hidden",t!==n);
+          if(button){button.classList.toggle("bg-[#C9B59C]",t===n);button.classList.toggle("text-white",t===n)}
         });
         if (n === "categories") loadCategoriesAdmin();
         if (n === "articles") populateArticleParentDropdowns();
