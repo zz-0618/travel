@@ -494,15 +494,15 @@
         font-size: 12px;
       }
     
-      button:not(.admin-entry){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}
-      button:not(.admin-entry):hover{filter:brightness(.94)}
-      .article-meta-muted{color:#C7D3C0!important}
-      .latest-articles-box,.related-articles-box{position:static!important}.related-articles-box{clear:both}
-      .map-preview-card{display:flex!important;align-items:stretch;gap:16px;padding:14px!important;overflow:hidden}
-      .map-preview-image{flex:0 0 38%;width:38%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}.map-preview-content{flex:1;min-width:0;align-self:center}
-      .embedded-map-block{margin:1.5rem 0;width:100%;overflow:hidden;border-radius:12px}.embedded-map-block iframe{display:block;width:100%!important;max-width:100%;border:0}
-      .social-platforms-box{background:var(--soft);border:1px solid var(--sand)}.social-platforms-list{display:flex;flex-direction:column;gap:.65rem}.social-platform-link{display:flex;gap:.55rem;padding:.65rem .8rem;border:1px solid var(--sand);border-radius:9px;background:#fff}
-      @media(max-width:560px){.map-preview-card{flex-direction:column}.map-preview-image{width:100%;flex:none;aspect-ratio:16/9}}
+      button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}
+      .announcement-close-button{background:transparent!important;color:var(--ink)!important;border:0!important}
+      .article-meta-muted{color:#778873!important}.latest-articles-box,.related-articles-box{position:static!important}.related-articles-box{clear:both}
+      .tag-filter-bar{display:flex;flex-wrap:wrap;gap:.55rem;margin:0 0 1.25rem;padding:.8rem 0;border-bottom:1px solid var(--sand);font-family:"Noto Serif TC",serif}
+      .tag-filter-button{background:#fff!important;color:var(--ink)!important;border:1px solid var(--sand)!important;padding:.42rem .75rem;border-radius:999px;font-family:inherit}
+      .tag-filter-button.active{background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}
+      .article-tags{display:inline-flex;flex-wrap:wrap;gap:.45rem}.article-tag{color:#778873;font-family:"Noto Serif TC",serif;font-weight:600}
+      .map-preview-card{display:flex!important;gap:16px}.map-preview-image{width:38%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}.map-preview-content{flex:1}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}
+      @media(max-width:560px){.map-preview-card{flex-direction:column}.map-preview-image{width:100%;aspect-ratio:16/9}}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -578,7 +578,6 @@
             </h3>
             <ol id="related-articles-list" class="space-y-3 text-sm"></ol>
           </section>
-          <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">其他社群平台</h3><div id="social-platforms-list" class="social-platforms-list text-sm"></div></section>
         </aside>
       </main>
     </div>
@@ -629,7 +628,7 @@
           <button
             onclick="closeAnnouncement()"
             aria-label="關閉公告"
-            class="text-2xl leading-none px-2"
+            class="announcement-close-button text-2xl leading-none px-2"
           >
             ×
           </button>
@@ -641,7 +640,7 @@
         <div class="px-6 pb-6 text-right">
           <button
             onclick="closeAnnouncement()"
-            class="text-white px-6 py-2 rounded-lg bg-[#A56C5D]"
+            class="announcement-close-button px-6 py-2 rounded-lg border border-[#452829]"
           >
             我知道了
           </button>
@@ -683,7 +682,14 @@
     >
       ↑
     </button>
-    <footer class="w-full py-4 text-center text-xs border-t mt-12"><div>©一葉知途 版權所有 轉載請註明出處</div><div class="mt-2 flex justify-center"><a href="//www.dmca.com/Protection/Status.aspx?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" title="DMCA.com Protection Status" class="dmca-badge"><img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" alt="DMCA.com Protection Status"></a></div><button onclick="openAdminPanel()" class="admin-entry mt-1"><span id="floating-btn-text">網站管理</span></button></footer><script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
+    <footer class="w-full py-4 text-center text-xs border-t mt-12">
+      <div>©2026 一葉知途 版權所有 轉載請註明出處</div>
+      <button onclick="openAdminPanel()" class="admin-entry mt-1">
+        <span id="floating-btn-text">網站管理</span>
+      </button>
+      <div class="mt-2 flex justify-center"><a href="//www.dmca.com/Protection/Status.aspx?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" title="DMCA.com Protection Status" class="dmca-badge"><img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" alt="DMCA.com Protection Status"></a></div>
+    </footer>
+    <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
     
     <script>
       const SUPABASE_URL = "https://rpzqioezweftrjtrneos.supabase.co",
@@ -970,7 +976,14 @@
         applyCategoryOrder();
         renderFrontendNav();
       }
-      async function fetchArticles(cat = "all") {
+      function articleStatusKey(id){return "article_status_"+String(id)}
+      function articleTagsKey(id){return "article_tags_"+String(id)}
+      function isPublishedArticle(article){return settingsCache[articleStatusKey(article.id)]!=="draft"}
+      function getArticleTags(article){try{const value=JSON.parse(settingsCache[articleTagsKey(article.id)]||"[]");return Array.isArray(value)?value.map(x=>String(x).trim()).filter(Boolean):[]}catch{return[]}}
+      let activeCategoryName="all",activeTagFilters=[];
+      function renderTagFilterBar(category,list){const target=categoryByName(category);if(!target?.parent_id)return"";const tags=[...new Set(list.flatMap(getArticleTags))].sort((a,b)=>a.localeCompare(b,"zh-Hant"));if(!tags.length)return"";return `<div class="tag-filter-bar" aria-label="文章標籤篩選">${tags.map(tag=>`<button class="tag-filter-button ${activeTagFilters.includes(tag)?"active":""}" onclick="toggleCategoryTag('${jsq(tag)}')">#${esc(tag)}</button>`).join("")}</div>`}
+      function toggleCategoryTag(tag){activeTagFilters=activeTagFilters.includes(tag)?activeTagFilters.filter(x=>x!==tag):[...activeTagFilters,tag];fetchArticles(activeCategoryName,{preserveTags:true})}
+      async function fetchArticles(cat = "all",options={}) {
         const c = $("main-content-area"),
           { data, error } = await supabaseClient
             .from("articles")
@@ -980,7 +993,9 @@
           c.innerHTML = '<div class="custom-card p-6 rounded">讀取失敗：' + esc(error.message) + "</div>";
           return;
         }
-        allArticlesCache = data || [];
+        allArticlesCache = (data || []).filter(isPublishedArticle);
+        activeCategoryName=cat;
+        if(!options.preserveTags)activeTagFilters=[];
         let list = allArticlesCache;
         if (cat !== "all") {
           const target = categoryByName(cat);
@@ -991,13 +1006,16 @@
             list = list.filter((a) => a.category === cat || a.subcategory === cat);
           }
         }
+        const categoryList=[...list];
+        if(activeTagFilters.length)list=list.filter(article=>activeTagFilters.every(tag=>getArticleTags(article).includes(tag)));
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
         const firstCoverIndex = list.findIndex((article) => article.cover_image_url);
         const firstCoverUrl = firstCoverIndex >= 0 ? list[firstCoverIndex].cover_image_url : "";
         preloadImage("home-article-cover-preload", firstCoverUrl);
-        c.innerHTML = list.length
+        const tagBar=renderTagFilterBar(cat,categoryList);
+        c.innerHTML = tagBar + (list.length
           ? list.map((a, index) => {
               const isPriorityCover = index === firstCoverIndex;
               const cover = a.cover_image_url
@@ -1006,7 +1024,7 @@
               const listBreadcrumb = `<nav class="article-list-breadcrumb" aria-label="文章分類索引"><a href="/" onclick="event.preventDefault();event.stopPropagation();goHome()">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""}</nav>`;
               return `<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${cover}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2>${listBreadcrumb}<p class="line-clamp-2 mt-3 article-content-style">${esc(a.excerpt || "")}</p><div class="text-right mt-auto pt-3"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="read-more-link">繼續閱讀</a></div></div></article>`;
             }).join("")
-          : '<div class="custom-card p-6 rounded">目前尚無文章。</div>';
+          : '<div class="custom-card p-6 rounded">目前尚無符合條件的文章。</div>');
         renderLatestArticles();
       }
       function relatedSettingsKey(articleId) {
@@ -1056,11 +1074,10 @@
         ).join("");
         section.classList.remove("hidden");
       }
-      function renderSocialPlatforms(){const section=$("social-platforms-box"),list=$("social-platforms-list");if(!section||!list)return;let items=[];try{const p=JSON.parse(settingsCache.social_links||"[]");items=Array.isArray(p)?p:[]}catch{}items=items.filter(x=>x&&String(x.name||"").trim()&&/^https?:\/\//i.test(String(x.url||"").trim()));if(!items.length){list.innerHTML="";section.classList.add("hidden");return}list.innerHTML=items.map(x=>`<a class="social-platform-link" href="${esc(String(x.url).trim())}" target="_blank" rel="noopener noreferrer"><span>${esc(String(x.name).trim())}</span></a>`).join("");section.classList.remove("hidden")}
       function renderLatestArticles() {
         const box = $("latest-articles-list");
         if (!box) return;
-        const latest = [...allArticlesCache]
+        const latest = [...allArticlesCache].filter(isPublishedArticle)
           .sort(
             (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
           )
@@ -1117,6 +1134,7 @@
           }
           a = data;
         }
+        if(!isPublishedArticle(a)){showNotFound();return;}
         const cacheIndex = allArticlesCache.findIndex((x) => x.id == a.id);
         if (cacheIndex >= 0) allArticlesCache[cacheIndex] = { ...allArticlesCache[cacheIndex], ...a };
         else allArticlesCache.push(a);
@@ -1128,7 +1146,7 @@
           timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
         }).format(new Date(v)) : "";
         preloadImage("article-cover-preload", "");
-        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
+        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm text-gray-500"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm text-gray-500 border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(tag=>`<span class="article-tag">#${esc(tag)}</span>`).join("")}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
         renderMapCards();
         await renderRelatedArticles(a);
@@ -1149,7 +1167,7 @@
           .eq("slug", last)
           .maybeSingle();
         if (routeError) console.error(routeError);
-        if (routeArticle && decodeURIComponent(articlePath(routeArticle)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()) {
+        if (routeArticle && isPublishedArticle(routeArticle) && decodeURIComponent(articlePath(routeArticle)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()) {
           return viewSingleArticle(routeArticle.id, { updateHistory: false, article: routeArticle });
         }
         const cat = categoriesCache.find((c) =>
@@ -1243,9 +1261,112 @@
         b.classList.toggle("hidden", open);
         b.setAttribute("aria-expanded", String(open));
       }
-      function renderMapCards(){document.querySelectorAll(".travel-map").forEach(card=>{const url=card.querySelector(".map-link")?.textContent?.trim();if(!url)return;let icon="📍",platform="地圖";if(url.includes("google")){icon="🗺️";platform="Google Maps"}else if(url.includes("naver")){platform="Naver Map"}else if(url.includes("amap")){icon="📌";platform="高德地圖"}const imageUrl=card.querySelector(".map-image img")?.src||"",name=card.querySelector(".map-name")?.textContent?.trim()||"店家",hours=card.querySelector(".map-hours")?.textContent?.trim()||"",address=card.querySelector(".map-address")?.textContent?.trim()||"";card.outerHTML=`<a class="map-preview-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${imageUrl?`<img class="map-preview-image" src="${esc(imageUrl)}" alt="${esc(name)}照片">`:""}<div class="map-preview-content"><div class="map-preview-platform">${icon} ${platform}</div><div class="map-preview-title">${esc(name)}</div>${hours?`<div class="map-preview-hours">${esc(hours)}</div>`:""}${address?`<div class="map-preview-desc">${esc(address)}</div>`:""}</div></a>`})}
+      function renderMapCards() {
+
+        document
+          .querySelectorAll(".travel-map")
+          .forEach(card => {
+
+            const url =
+              card.querySelector(".map-link")
+                ?.textContent
+                ?.trim();
+
+            if (!url) return;
+
+            let icon = "📍";
+            let platform = "地圖";
+
+            if (
+              url.includes("google")
+            ) {
+              icon = "🗺️";
+              platform = "Google Maps";
+            }
+
+            if (
+              url.includes("naver")
+            ) {
+              icon = "📍";
+              platform = "Naver Map";
+            }
+
+            if (
+              url.includes("amap")
+            ) {
+              icon = "📌";
+              platform = "高德地圖";
+            }
+
+            const name =
+              card.querySelector(".map-name")
+                ?.textContent
+                ?.trim();
+
+            const hours =
+              card.querySelector(".map-hours")
+                ?.textContent
+                ?.trim();
+
+            const address =
+              card.querySelector(".map-address")
+                ?.textContent
+                ?.trim();
+
+            card.outerHTML =
+            `
+            <a
+              class="map-preview-card"
+              href="${url}"
+              target="_blank"
+              rel="noopener noreferrer">
+
+              <div class="map-preview-platform">
+                ${icon} ${platform}
+              </div>
+
+              <div class="map-preview-title">
+                ${name}
+              </div>
+
+              ${
+                hours
+                ? `
+                <div class="map-preview-hours">
+                  🕒 ${hours}
+                </div>
+                `
+                : ""
+              }
+
+              ${
+                address
+                ? `
+                <div class="map-preview-desc">
+                  ${address}
+                </div>
+                `
+                : ""
+              }
+
+            </a>
+            `;
+          });
+      }
       function scrollToArticleHeading(event,headingId){event.preventDefault();event.stopPropagation();const target=document.getElementById(headingId);if(!target)return;toggleTOC(false);requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:"start"}));history.replaceState(history.state,"",location.pathname+location.search+"#"+encodeURIComponent(headingId))}
-      function generateArticleTOC(){const hs=document.querySelectorAll("#article-body-content h1,#article-body-content h2,#article-body-content h3,#article-body-content h4");$("table-of-contents").innerHTML=hs.length?[...hs].map((h,i)=>{h.id=h.id||"heading-"+i;return `<li style="padding-left:${(Number(h.tagName[1])-1)*12}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')" class="block">• ${esc(h.innerText)}</a></li>`}).join(""):"<li>此文章無段落標題</li>"}
+      function generateArticleTOC() {
+        const hs = document.querySelectorAll(
+          "#article-body-content h1,#article-body-content h2,#article-body-content h3,#article-body-content h4",
+        );
+        $("table-of-contents").innerHTML = hs.length
+          ? [...hs]
+              .map((h, i) => {
+                h.id = h.id || "heading-" + i;
+                return `<li style="padding-left:${(Number(h.tagName[1]) - 1) * 12}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')" class="block">• ${esc(h.innerText)}</a></li>`;
+              })
+              .join("")
+          : "<li>此文章無段落標題</li>";
+      }
       function localDateString() {
         const p = new Intl.DateTimeFormat("en-CA", {
           timeZone: "Asia/Taipei",
@@ -1341,7 +1462,6 @@
         applyCategoryOrder();
         renderFrontendNav();
         renderLatestArticles();
-        renderSocialPlatforms();
         const heroImage = $("site-logo-image");
         if (settingsCache.logo) {
           preloadImage("hero-image-preload", settingsCache.logo, "high");
