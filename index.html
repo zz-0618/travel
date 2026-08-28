@@ -316,8 +316,8 @@
         border:1px solid var(--sand);
         border-radius:14px;
         background:var(--soft);
-        text-decoration:none !important;
         color:inherit !important;
+        text-decoration:none !important;
         box-shadow:0 3px 8px rgba(0,0,0,.05);
         transition:.2s ease;
       }
@@ -334,6 +334,7 @@
       }
 
       .travel-map {
+
         border:1px dashed #c9b59c;
         border-radius:10px;
         padding:12px;
@@ -347,15 +348,16 @@
 
       .travel-map .map-hours {
         margin-top:6px;
-      }
-
+        }
+  
       .travel-map .map-address {
         margin-top:6px;
       }
 
-      .travel-map .map-url {
-        display:block;
-        margin-top:8px;
+      .travel-map .map-link {
+        margin-top:6px;
+        color:#3b82f6;
+        cursor:text;
       }
 
       .map-preview-platform {
@@ -1240,33 +1242,32 @@
           .querySelectorAll(".travel-map")
           .forEach(card => {
 
-            const mapLink =
-              card.querySelector(".map-url");
+            const url =
+              card.querySelector(".map-link")
+                ?.textContent
+                ?.trim();
 
-            if (!mapLink) return;
-
-            const href =
-              mapLink.href;
+            if (!url) return;
 
             let icon = "📍";
             let platform = "地圖";
 
             if (
-              href.includes("google")
+              url.includes("google")
             ) {
               icon = "🗺️";
               platform = "Google Maps";
             }
 
             if (
-              href.includes("naver")
+              url.includes("naver")
             ) {
               icon = "📍";
               platform = "Naver Map";
             }
 
             if (
-              href.includes("amap")
+              url.includes("amap")
             ) {
               icon = "📌";
               platform = "高德地圖";
@@ -1274,25 +1275,30 @@
 
             const name =
               card.querySelector(".map-name")
-                ?.textContent?.trim()
-              || "店名";
+                ?.textContent
+                ?.trim();
 
             const hours =
               card.querySelector(".map-hours")
-                ?.textContent?.trim()
-              || "";
+                ?.textContent
+                ?.trim();
 
             const address =
               card.querySelector(".map-address")
-                ?.textContent?.trim()
-              || "";
+                ?.textContent
+                ?.trim();
 
             card.outerHTML =
             `
             <a
-              href="${href}"
+              class="map-preview-card"
+              href="${url}"
               target="_blank"
-              rel="noopener noreferrer        </div>
+              rel="noopener noreferrer">
+
+              <div class="map-preview-platform">
+                ${icon} ${platform}
+              </div>
 
               <div class="map-preview-title">
                 ${name}
