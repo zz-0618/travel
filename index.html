@@ -310,12 +310,52 @@
       /* 地圖圖卡 */
 
       .map-preview-card {
-        margin: 16px 0;
-        padding: 16px;
-        border: 1px solid var(--sand);
-        border-radius: 14px;
-        background: var(--soft);
-        box-shadow: 0 3px 8px rgba(0,0,0,.05);
+        display:block;
+        margin:16px 0;
+        padding:18px;
+        border:1px solid var(--sand);
+        border-radius:14px;
+        background:var(--soft);
+        text-decoration:none !important;
+        color:inherit !important;
+        box-shadow:0 3px 8px rgba(0,0,0,.05);
+        transition:.2s ease;
+      }
+
+      .map-preview-card:hover {
+        transform:translateY(-2px);
+        box-shadow:0 8px 18px rgba(0,0,0,.08);
+      }
+
+      .map-preview-hours {
+        margin-top:8px;
+        font-size:14px;
+        color:#7b6358;
+      }
+
+      .travel-map {
+        border:1px dashed #c9b59c;
+        border-radius:10px;
+        padding:12px;
+        margin:12px 0;
+      }
+
+      .travel-map .map-name {
+        font-size:20px;
+        font-weight:700;
+      }
+
+      .travel-map .map-hours {
+        margin-top:6px;
+      }
+
+      .travel-map .map-address {
+        margin-top:6px;
+      }
+
+      .travel-map .map-url {
+        display:block;
+        margin-top:8px;
       }
 
       .map-preview-platform {
@@ -1198,60 +1238,87 @@
 
         document
           .querySelectorAll(".travel-map")
-          .forEach(el => {
+          .forEach(card => {
 
-            const platform =
-              el.dataset.platform;
+            const mapLink =
+              card.querySelector(".map-url");
 
-            const name =
-              el.dataset.name;
+            if (!mapLink) return;
 
-            const address =
-              el.dataset.address;
-
-            const url =
-              el.dataset.url;
+            const href =
+              mapLink.href;
 
             let icon = "📍";
-            let title = "地圖";
+            let platform = "地圖";
 
-            if (platform === "google") {
-              title = "Google Maps";
+            if (
+              href.includes("google")
+            ) {
               icon = "🗺️";
+              platform = "Google Maps";
             }
 
-            if (platform === "naver") {
-              title = "Naver Map";
+            if (
+              href.includes("naver")
+            ) {
               icon = "📍";
+              platform = "Naver Map";
             }
 
-            if (platform === "amap") {
-              title = "高德地圖";
+            if (
+              href.includes("amap")
+            ) {
               icon = "📌";
+              platform = "高德地圖";
             }
 
-            el.outerHTML = `
-              <div class="map-preview-card">
+            const name =
+              card.querySelector(".map-name")
+                ?.textContent?.trim()
+              || "店名";
 
-                <div class="map-preview-platform">
-                  ${icon} ${title}
+            const hours =
+              card.querySelector(".map-hours")
+                ?.textContent?.trim()
+              || "";
+
+            const address =
+              card.querySelector(".map-address")
+                ?.textContent?.trim()
+              || "";
+
+            card.outerHTML =
+            `
+            <a
+              href="${href}"
+              target="_blank"
+              rel="noopener noreferrer        </div>
+
+              <div class="map-preview-title">
+                ${name}
+              </div>
+
+              ${
+                hours
+                ? `
+                <div class="map-preview-hours">
+                  🕒 ${hours}
                 </div>
+                `
+                : ""
+              }
 
-                <div class="map-preview-title">
-                  ${name}
-                </div>
-
+              ${
+                address
+                ? `
                 <div class="map-preview-desc">
                   ${address}
                 </div>
+                `
+                : ""
+              }
 
-                <div class="mt-2">
-                  ${url}
-                    開啟地圖
-                  </a>
-                </div>
-
-              </div>
+            </a>
             `;
           });
       }
