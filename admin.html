@@ -34,9 +34,7 @@
       .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
       .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
       @media(max-width:767px){#new-article-editor,#edit-article-editor{padding:20px!important;}}
-    
-      button:not(.admin-entry){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.draft-card{background:#fff8e8;border:1px solid var(--sand)}.tag-help{font-size:12px;opacity:.7}
-</style>
+    button:not(.admin-entry){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.draft-card{background:#fff8e8;border:1px solid var(--sand)}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}</style>
   </head>
   <body class="min-h-screen">
     <div id="admin-view" class="min-h-screen bg-white flex flex-col">
@@ -67,7 +65,7 @@
           >
             👤 帳號管理</button
           ><button
-            onclick="switchAdminTab('logo')"
+            onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 社群平台</button><button onclick="switchAdminTab('logo')"
             id="tab-logo-btn"
             class="w-full text-left px-4 py-3 rounded-lg"
           >
@@ -315,7 +313,7 @@
                 class="px-4 py-2 rounded bg-[#EFE9E3]"
               >
                 維護舊文章
-              </button><button onclick="switchArticleSubTab('drafts')" class="px-4 py-2 rounded bg-[#EFE9E3]">草稿區</button>
+              </button><button onclick="switchArticleSubTab('drafts')" class="px-4 py-2 rounded">草稿區</button>
             </div>
             <div id="sub-article-new" class="space-y-4">
               <input
@@ -344,7 +342,7 @@
                 <select id="new-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select>
                 <p class="text-xs opacity-70">可選多篇。Windows 按住 Ctrl、Mac 按住 Command 點選；不選則不顯示延伸閱讀。</p>
               </div>
-              <div><label class="block font-semibold mb-1" for="new-article-tags">文章標籤</label><input id="new-article-tags" class="w-full border p-2 rounded" placeholder="例如：金門美食, 必吃小吃"><p class="tag-help">使用半形逗號或換行分隔，可複選篩選。</p></div>
+              <div><label>文章標籤</label><input id="new-article-tags" class="w-full border p-2 rounded" placeholder="金門美食, 必吃小吃"></div>
               <input
                 id="new-article-slug"
                 class="w-full border p-2 rounded"
@@ -356,15 +354,14 @@
                 contenteditable="true"
                 class="w-full border rounded overflow-y-auto article-content-style"
               ></div>
-              <div class="flex gap-3"><button onclick="saveNewArticleDraft()" class="px-6 py-2 rounded-lg">存為草稿</button><button
+              <div class="flex gap-3"><button onclick="saveNewArticleDraft()" class="px-6 py-2 rounded">存為草稿</button><button
                 onclick="publishNewArticle()"
                 class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
               >
                 提交發布
               </button></div>
             </div>
-            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list" class="space-y-2"></div><div id="draft-edit-form" class="hidden space-y-4 border-t pt-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded" placeholder="文章標題"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-child-select" class="border p-2 rounded"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded" placeholder="標籤，以逗號分隔"><input id="draft-edit-slug" class="w-full border p-2 rounded" placeholder="文章網址後綴"><div id="draft-edit-toolbar" class="flex flex-wrap gap-2"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded overflow-y-auto article-content-style"></div><div class="flex gap-3"><button onclick="saveDraftEdits()" class="px-5 py-2 rounded">儲存草稿</button><button onclick="publishDraft()" class="px-5 py-2 rounded">發布</button></div></div></div>
-            <div id="sub-article-manage" class="space-y-4 hidden">
+            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list"></div><div id="draft-edit-form" class="hidden space-y-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-article-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-article-child-select" class="border p-2 rounded"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded"><input id="draft-edit-slug" class="w-full border p-2 rounded"><div id="draft-edit-toolbar"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded article-content-style"></div><button onclick="saveDraftEdits()">儲存草稿</button><button onclick="publishDraft()">發布</button></div></div><div id="sub-article-manage" class="space-y-4 hidden">
               <div id="admin-articles-list" class="space-y-2"></div>
               <div
                 id="edit-article-form"
@@ -396,7 +393,7 @@
                   <select id="edit-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select>
                   <p class="text-xs opacity-70">可重新選擇多篇延伸閱讀；目前文章不會出現在選項中。</p>
                 </div>
-                <div><label class="block font-semibold mb-1">文章標籤</label><input id="edit-article-tags" class="w-full border p-2 rounded" placeholder="標籤，以逗號分隔"></div>
+                <input id="edit-article-tags" class="w-full border p-2 rounded" placeholder="標籤，以逗號分隔">
                 <input
                   id="edit-article-slug"
                   class="w-full border p-2 rounded"
@@ -419,7 +416,7 @@
                     class="text-white px-6 py-2 rounded bg-[#C9B59C]"
                   >
                     提交修改
-                  </button><button onclick="moveExistingArticleToDraft()" class="px-4 py-2 rounded">移至草稿</button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -729,23 +726,24 @@
       function populateArticleParentDropdowns() {
         ["new", "edit", "draft-edit"].forEach((t) => {
           const p = categoriesCache.filter((c) => !c.parent_id);
-          $(t + "-article-parent-select").innerHTML =
-            '<option value="">請選擇母標籤</option>' +
+          const parentSelect=$(t+"-article-parent-select"),childSelect=$(t+"-article-child-select");
+          if(!parentSelect||!childSelect)return;
+          parentSelect.innerHTML = '<option value="">請選擇母標籤</option>' +
             p
               .map(
                 (x) => `<option value="${esc(x.name)}">${esc(x.name)}</option>`,
               )
               .join("");
-          $(t + "-article-child-select").innerHTML =
-            '<option value="">請先選擇母標籤</option>';
+          childSelect.innerHTML='<option value="">請先選擇母標籤</option>';
         });
       }
 
       function updateChildDropdown(t, selected = "") {
-        const n = $(t + "-article-parent-select").value,
+        const parentSelect=$(t+"-article-parent-select"),childSelect=$(t+"-article-child-select");if(!parentSelect||!childSelect)return;
+        const n = parentSelect.value,
           p = categoriesCache.find((c) => c.name === n && !c.parent_id),
           ch = p ? categoriesCache.filter((c) => c.parent_id === p.id) : [];
-        $(t + "-article-child-select").innerHTML =
+        childSelect.innerHTML =
           '<option value="">(不選子標籤)</option>' +
           ch
             .map(
@@ -993,25 +991,22 @@
           .map((article) => `<option value="${esc(article.id)}" ${selected.has(String(article.id)) ? "selected" : ""}>${esc(article.title)}｜${esc(article.category || "未分類")}${article.subcategory ? " / " + esc(article.subcategory) : ""}</option>`)
           .join("");
       }
-      function parseTags(value){return [...new Set(String(value||"").split(/[,，\n]/).map(x=>x.trim().replace(/^#/,"")).filter(Boolean))]}
-      function draftsKey(){return "article_drafts"}
-      function getDrafts(){try{const value=JSON.parse(settingsCache[draftsKey()]||"[]");return Array.isArray(value)?value:[]}catch{return[]}}
-      async function saveDrafts(items){await upsertSettings({[draftsKey()]:JSON.stringify(items)})}
-      function collectNewDraft(){return{id:crypto.randomUUID?.()||String(Date.now()),title:$("new-article-title").value.trim(),category:$("new-article-parent-select").value,subcategory:$("new-article-child-select").value,slug:normalizeSlug($("new-article-slug").value)||fallbackSlug(),tags:parseTags($("new-article-tags").value),content:validateArticleContent($("new-article-editor").innerHTML.trim()),updated_at:new Date().toISOString()}}
-      async function saveNewArticleDraft(){try{const draft=collectNewDraft();if(!draft.title)return alert("請輸入文章標題");const drafts=getDrafts();drafts.unshift(draft);await saveDrafts(drafts);alert("已存入草稿區");renderDraftsList()}catch(e){alert("草稿儲存失敗："+e.message)}}
-      function renderDraftsList(){const box=$("admin-drafts-list");if(!box)return;const drafts=getDrafts();box.innerHTML=drafts.length?drafts.map(d=>`<div class="draft-card p-3 rounded flex justify-between items-center"><div><b>${esc(d.title||"未命名草稿")}</b><div class="text-xs opacity-60">${esc(d.category||"未分類")}${d.subcategory?" / "+esc(d.subcategory):""}</div></div><div><button onclick="loadDraftToEdit('${d.id}')" class="px-3 py-1 rounded text-sm">修改</button> <button onclick="deleteDraft('${d.id}')" class="px-3 py-1 rounded text-sm">刪除</button></div></div>`).join(""):"<div class='opacity-60'>目前沒有草稿。</div>"}
-      function loadDraftToEdit(id){const d=getDrafts().find(x=>String(x.id)===String(id));if(!d)return;$("draft-edit-id").value=d.id;$("draft-edit-title").value=d.title||"";$("draft-edit-slug").value=d.slug||"";$("draft-edit-tags").value=(d.tags||[]).join(", ");$("draft-edit-article-editor").innerHTML=d.content||"";$("draft-edit-parent-select").value=d.category||"";updateChildDropdown("draft-edit",d.subcategory||"");$("draft-edit-form").classList.remove("hidden")}
-      async function saveDraftEdits(){const drafts=getDrafts(),i=drafts.findIndex(x=>String(x.id)===$("draft-edit-id").value);if(i<0)return;drafts[i]={...drafts[i],title:$("draft-edit-title").value.trim(),category:$("draft-edit-parent-select").value,subcategory:$("draft-edit-child-select").value,slug:normalizeSlug($("draft-edit-slug").value)||fallbackSlug(),tags:parseTags($("draft-edit-tags").value),content:validateArticleContent($("draft-edit-article-editor").innerHTML.trim()),updated_at:new Date().toISOString()};await saveDrafts(drafts);renderDraftsList();alert("草稿已更新")}
-      async function deleteDraft(id){if(!confirm("確定刪除此草稿？"))return;await saveDrafts(getDrafts().filter(x=>String(x.id)!==String(id)));renderDraftsList()}
-      async function publishDraft(){await saveDraftEdits();const id=$("draft-edit-id").value,d=getDrafts().find(x=>String(x.id)===id);if(!d)return;try{if(await slugExists(d.slug))return alert("文章網址後綴已被使用");const now=new Date().toISOString(),{data,error}=await supabaseClient.from("articles").insert([{title:d.title,category:d.category,subcategory:d.subcategory,content:d.content,slug:d.slug,cover_image_url:"",created_at:now,updated_at:now}]).select().single();if(error)throw error;await upsertSettings({["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(d.tags||[])});await saveDrafts(getDrafts().filter(x=>String(x.id)!==id));renderDraftsList();$("draft-edit-form").classList.add("hidden");alert("草稿已發布")}catch(e){alert("發布失敗："+e.message)}}
+      function parseTags(v){return [...new Set(String(v||"").split(/[,，\n]/).map(x=>x.trim().replace(/^#/,"")).filter(Boolean))]}
+      function getDrafts(){try{const v=JSON.parse(settingsCache.article_drafts||"[]");return Array.isArray(v)?v:[]}catch{return[]}}
+      async function saveDrafts(v){await upsertSettings({article_drafts:JSON.stringify(v)})}
+      async function saveNewArticleDraft(){const d={id:crypto.randomUUID?.()||String(Date.now()),title:$("new-article-title").value.trim(),category:$("new-article-parent-select").value,subcategory:$("new-article-child-select").value,slug:normalizeSlug($("new-article-slug").value)||fallbackSlug(),tags:parseTags($("new-article-tags").value),content:$("new-article-editor").innerHTML.trim()};if(!d.title)return alert("請輸入標題");const v=getDrafts();v.unshift(d);await saveDrafts(v);alert("已存為草稿")}
+      function renderDraftsList(){const b=$("admin-drafts-list"),v=getDrafts();if(!b)return;b.innerHTML=v.length?v.map(d=>`<div class="draft-card p-3 rounded"><b>${esc(d.title)}</b> <button onclick="loadDraftToEdit('${d.id}')">修改</button> <button onclick="deleteDraft('${d.id}')">刪除</button></div>`).join(""):"目前沒有草稿"}
+      function loadDraftToEdit(id){const d=getDrafts().find(x=>String(x.id)===String(id));if(!d)return;$("draft-edit-id").value=d.id;$("draft-edit-title").value=d.title;$("draft-edit-slug").value=d.slug;$("draft-edit-tags").value=(d.tags||[]).join(", ");$("draft-edit-article-editor").innerHTML=d.content;$("draft-edit-article-parent-select").value=d.category;updateChildDropdown("draft-edit",d.subcategory);$("draft-edit-form").classList.remove("hidden")}
+      async function saveDraftEdits(){const v=getDrafts(),i=v.findIndex(x=>String(x.id)===$("draft-edit-id").value);if(i<0)return;v[i]={...v[i],title:$("draft-edit-title").value,category:$("draft-edit-article-parent-select").value,subcategory:$("draft-edit-article-child-select").value,slug:normalizeSlug($("draft-edit-slug").value),tags:parseTags($("draft-edit-tags").value),content:$("draft-edit-article-editor").innerHTML};await saveDrafts(v);renderDraftsList();alert("草稿已更新")}
+      async function deleteDraft(id){await saveDrafts(getDrafts().filter(x=>String(x.id)!==String(id)));renderDraftsList()}
+      async function publishDraft(){await saveDraftEdits();const id=$("draft-edit-id").value,d=getDrafts().find(x=>String(x.id)===id),now=new Date().toISOString();if(!d)return;const{data,error}=await supabaseClient.from("articles").insert([{title:d.title,category:d.category,subcategory:d.subcategory,slug:d.slug,content:d.content,cover_image_url:"",created_at:now,updated_at:now}]).select().single();if(error)return alert(error.message);await upsertSettings({["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(d.tags||[])});await deleteDraft(id);alert("已發布")}
       async function publishNewArticle() {
         const title = $("new-article-title").value.trim(),
           category = $("new-article-parent-select").value,
           subcategory = $("new-article-child-select").value,
           slug = normalizeSlug($("new-article-slug").value) || fallbackSlug(),
           coverFile = $("new-article-cover-file").files[0],
-          relatedArticleIds = selectedRelatedArticleIds("new"),
-          articleTags = parseTags($("new-article-tags").value);
+          relatedArticleIds=selectedRelatedArticleIds("new"), articleTags=parseTags($("new-article-tags").value);
         let content;
         try {
           content = validateArticleContent(
@@ -1042,7 +1037,9 @@
               .select()
               .single();
           if (error) throw error;
-          await upsertSettings({[relatedSettingsKey(data.id)]:JSON.stringify(relatedArticleIds),["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(articleTags)});
+          await upsertSettings({
+            [relatedSettingsKey(data.id)]:JSON.stringify(relatedArticleIds),["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(articleTags),
+          });
           alert("發布成功！\n" + location.origin + articlePath(data));
           $("new-article-title").value = "";
           $("new-article-slug").value = "";
@@ -1075,7 +1072,7 @@
           .select("id,title,category,subcategory,slug,created_at,updated_at,cover_image_url")
           .order("created_at", { ascending: false });
         if (error) return alert(error.message);
-        allArticlesCache = (data || []).filter(a=>settingsCache["article_status_"+a.id]!=="draft");
+        allArticlesCache = data || [];
         populateArticleParentDropdowns();
         populateRelatedArticleSelect("new");
         $("admin-articles-list").innerHTML = allArticlesCache
@@ -1107,7 +1104,6 @@
         $("edit-article-id").value = a.id;
         $("edit-article-title").value = a.title;
         $("edit-article-slug").value = a.slug || "";
-        try{$("edit-article-tags").value=(JSON.parse(settingsCache["article_tags_"+a.id]||"[]")||[]).join(", ")}catch{$("edit-article-tags").value=""}
         $("edit-article-editor").innerHTML = a.content || "";
         $("edit-article-cover-file").value = "";
         const preview = $("edit-article-cover-preview");
@@ -1173,7 +1169,9 @@
               { onConflict: "id" },
             );
           if (error) throw error;
-          await upsertSettings({[relatedSettingsKey(id)]:JSON.stringify(relatedArticleIds),["article_status_"+id]:"published",["article_tags_"+id]:JSON.stringify(parseTags($("edit-article-tags").value))});
+          await upsertSettings({
+            [relatedSettingsKey(id)]: JSON.stringify(relatedArticleIds),
+          });
           alert("文章更新成功");
           closeEditForm();
           await loadManageArticlesList();
@@ -1181,7 +1179,6 @@
           alert("更新失敗：" + e.message);
         }
       }
-      async function moveExistingArticleToDraft(){const id=$("edit-article-id").value,a=allArticlesCache.find(x=>String(x.id)===String(id));if(!a)return;const drafts=getDrafts();drafts.unshift({id:crypto.randomUUID?.()||String(Date.now()),sourceArticleId:id,title:$("edit-article-title").value.trim(),category:$("edit-article-parent-select").value,subcategory:$("edit-article-child-select").value,slug:normalizeSlug($("edit-article-slug").value),tags:parseTags($("edit-article-tags").value),content:$("edit-article-editor").innerHTML.trim(),updated_at:new Date().toISOString()});await saveDrafts(drafts);await upsertSettings({["article_status_"+id]:"draft"});closeEditForm();alert("文章已移至草稿區，前台不再顯示");await loadManageArticlesList()}
       async function deleteArticle(id) {
         if (!confirm("確定刪除這篇文章？")) return;
         const { error } = await supabaseClient
@@ -1425,7 +1422,9 @@
       }
 
       function switchArticleSubTab(s) {
-        $("sub-article-new").classList.toggle("hidden",s!=="new");$("sub-article-manage").classList.toggle("hidden",s!=="manage");$("sub-article-drafts").classList.toggle("hidden",s!=="drafts");if(s==="manage")loadManageArticlesList();if(s==="drafts")renderDraftsList();
+        $("sub-article-new").classList.toggle("hidden", s !== "new");
+        $("sub-article-manage").classList.toggle("hidden",s!=="manage");$("sub-article-drafts").classList.toggle("hidden",s!=="drafts");
+        if(s==="manage")loadManageArticlesList();if(s==="drafts")renderDraftsList();
       }
 
       addEventListener("DOMContentLoaded", async () => {
@@ -1434,8 +1433,7 @@
         if (!session) { location.replace("/"); return; }
         try {
           buildToolbar("new");
-          buildToolbar("edit");
-          buildToolbar("draft-edit");
+          buildToolbar("edit");buildToolbar("draft-edit");
           setupArticleEditorImageUpload("new-article-editor");
           setupArticleEditorImageUpload("edit-article-editor");
           await Promise.all([fetchCategories(), loadSettings()]);
