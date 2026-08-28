@@ -33,6 +33,19 @@
       .faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative;}
       .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
       .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
+
+      .travel-map{display:flex;align-items:stretch;gap:16px;margin:16px 0;padding:14px;border:1px solid var(--sand);border-radius:14px;background:var(--soft);box-shadow:0 3px 8px rgba(0,0,0,.05);overflow:hidden;}
+      .travel-map .map-image{flex:0 0 38%;width:38%;min-height:150px;border-radius:10px;background:var(--card);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+      .travel-map .map-image img{display:block;width:100%;height:100%;min-height:150px;object-fit:cover;}
+      .travel-map .map-image-placeholder{padding:16px;text-align:center;font-size:13px;opacity:.7;}
+      .travel-map .map-image-controls{position:absolute;inset:auto 8px 8px 8px;display:flex;justify-content:center;}
+      .travel-map .map-image-button{border:1px solid var(--sand);background:rgba(255,255,255,.94);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:12px;}
+      .travel-map .map-content{flex:1;min-width:0;align-self:center;}
+      .travel-map .map-platform{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+      .travel-map .map-name{font-size:18px;font-weight:700;}
+      .travel-map .map-hours,.travel-map .map-address,.travel-map .map-link{margin-top:7px;}
+      .travel-map .map-link{color:#3b82f6!important;}
+      @media(max-width:560px){.travel-map{flex-direction:column}.travel-map .map-image{width:100%;flex:none;aspect-ratio:16/9}}
       @media(max-width:767px){#new-article-editor,#edit-article-editor{padding:20px!important;}}
     </style>
   </head>
@@ -551,49 +564,57 @@
         }
       }
 
-      function insertMapCard(t) {
-
-        const html = `
-      <div class="travel-map">
-
-        <div
-          class="map-name"
-          contenteditable="true">
-          店名
-        </div>
-
-        <div
-          class="map-hours"
-          contenteditable="true">
-          營業時間
-        </div>
-
-        <div
-          class="map-address"
-          contenteditable="true">
-          地址
-        </div>
-
-        <div
-          class="map-link"
-          contenteditable="true">
-          貼上 Google Maps 連結
-        </div>
-
-      </div>
-
-      <p><br></p>
-      `;
-
-        $(t + "-article-editor").focus();
-
-        document.execCommand(
-          "insertHTML",
-          false,
-          html
-        );
-      }
-
+      function insertMapCard(t) {  
+        const uid = "map-image-" + Date.now() + "-" + Math.random().toString(36).slice(2);  
+        const html = `  
+      <div class="travel-map">  
+        <div class="map-image" contenteditable="false">  
+          <div class="map-image-placeholder">店家照片將顯示在這裡</div>  
+          <div class="map-image-controls">  
+            <button type="button" class="map-image-button" onclick="document.getElementById('${uid}').click()">插入店家照片</button>  
+            <input id="${uid}" class="map-image-input" type="file" accept="image/*" hidden onchange="uploadMapCardImage(this)">  
+          </div>  
+        </div>  
+        <div class="map-content">  
+          <div class="map-platform">📍 地圖圖卡</div>  
+          <div class="map-name" contenteditable="true">店名</div>  
+          <div class="map-hours" contenteditable="true">🕒 營業時間</div>  
+          <div class="map-address" contenteditable="true">地址</div>  
+          <div class="map-link" contenteditable="true">貼上 Google Maps 連結</div>  
+        </div>  
+      </div>  
+      <p><br></p>`;  
+        $(t + "-article-editor").focus();  
+        document.execCommand("insertHTML", false, html);  
+      }  
+      async function uploadMapCardImage(input) {  
+        const file = input.files?.[0];  
+        if (!file) return;  
+        const imageBox = input.closest(".map-image");  
+        const button = imageBox?.querySelector(".map-image-button");  
+        if (button) { button.disabled = true; button.textContent = "上傳中..."; }  
+        try {  
+          const imageUrl = await uploadArticleContentImage(file);  
+          imageBox.querySelector(".map-image-placeholder")?.remove();  
+          let image = imageBox.querySelector("img");  
+          if (!image) {  
+            image = document.createElement("img");  
+            image.alt = "店家照片";  
+            image.loading = "lazy";  
+            image.decoding = "async";  
+            imageBox.prepend(image);  
+          }  
+          image.src = imageUrl;  
+          if (button) button.textContent = "更換店家照片";  
+        } catch (error) {  
+          console.error(error);  
+          alert("店家照片上傳失敗：" + (error?.message || String(error)));  
+          if (button) button.textContent = "重新選擇照片";  
+        } finally {  
+          if (button) button.disabled = false;  
+          input.value = "";  
+        }  
+      }  
       function insertBox(t) {
         $(t + "-article-editor").focus();
         document.execCommand(
@@ -965,6 +986,14 @@
           }
         });
       }
+      function serializeArticleContent(editorId) {  
+        const editor = $(editorId);  
+        const clone = editor.cloneNode(true);  
+        clone.querySelectorAll(".map-image-controls").forEach((node) => node.remove());  
+        clone.querySelectorAll("[contenteditable]").forEach((node) => node.removeAttribute("contenteditable"));  
+        clone.querySelectorAll("[id^='map-image-']").forEach((node) => node.removeAttribute("id"));  
+        return clone.innerHTML.trim();  
+      }  
       function validateArticleContent(content) {
         if (/data:image\/[^;]+;base64,/i.test(content)) {
           throw new Error("文章內容仍包含 Base64 圖片。請刪除該圖片後重新貼上，系統會自動轉成 WebP 並上傳。");
@@ -998,7 +1027,7 @@
         let content;
         try {
           content = validateArticleContent(
-            $("new-article-editor").innerHTML.trim(),
+            serializeArticleContent("new-article-editor"),
           );
         } catch (error) {
           return alert(error.message);
@@ -1127,7 +1156,7 @@
         let content;
         try {
           content = validateArticleContent(
-            $("edit-article-editor").innerHTML.trim(),
+            serializeArticleContent("edit-article-editor"),
           );
         } catch (error) {
           return alert(error.message);
