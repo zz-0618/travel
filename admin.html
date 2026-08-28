@@ -3,33 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>一葉知途 的旅遊部落格</title>
-    
-    <meta name="description" content="一葉知途 的旅遊部落格">
-
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="一葉知途 的旅遊部落格">
-    <meta property="og:description" content="一葉知途 的旅遊部落格">
-    <meta property="og:site_name" content="一葉知途 的旅遊部落格">
-    <meta property="og:image" content="">
-
-    <script
-      id="structured-data"
-      type="application/ld+json">
-    </script>
-    
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-FR2DMRZWKH"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-FR2DMRZWKH");
-    </script>
+    <meta name="robots" content="noindex,nofollow" />
+    <title>網站後台管理系統｜一葉知途 的旅遊部落格</title>
     <!-- 使用建置後的本機 Tailwind CSS -->
     <link rel="preconnect" href="https://rpzqioezweftrjtrneos.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="//rpzqioezweftrjtrneos.supabase.co" />
@@ -37,649 +12,418 @@
     <link rel="stylesheet" href="/css/style.css" />
 <style>
       /* 使用系統中文字型，避免載入約 15 MB 的完整中文字型檔。 */
-:root {
-        --ink: #452829;
-        --sand: #c9b59c;
-        --card: #efe9e3;
-        --soft: #f9f6f0;
-        --accent: #a56c5d;
-        --nav: #4b4038;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        font-family: "Noto Serif TC", serif;
-        color: var(--ink);
-        background: #fff;
-        -webkit-font-smoothing: antialiased;
-      }
-      ::selection { background: #8FA28A; color: #fff; }
-      ::-moz-selection { background: #8FA28A; color: #fff; }
-      .custom-card {
-        background: var(--card);
-      }
-      .dropdown-parent:hover .dropdown-child {
-        display: block;
-      }
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .editor-btn {
-        background: var(--card);
-        border: 1px solid var(--sand);
-        padding: 6px 10px;
-        font-size: 13px;
-        border-radius: 6px;
-        cursor: pointer;
-      }
-      .editor-btn:hover {
-        opacity: 0.8;
-      }
-      .article-content-style,
-      .article-content-style * {
-        font-family: "Noto Serif TC", serif !important;
-        color: var(--ink) !important;
-        box-sizing: border-box;
-      }
-      .article-content-style {
-        font-size: 16px;
-        line-height: 1.5 !important;
-        letter-spacing: 0.02em;
-        overflow-wrap: anywhere;
-      }
-      .article-content-style p,
-      .article-content-style ul,
-      .article-content-style ol,
-      .article-content-style li,
-      .article-content-style blockquote {
-        font-size: inherit;
-        line-height: 1.5 !important;
-      }
-      
-      .article-content-style ol {
-        list-style-type: decimal !important;
-        list-style-position: outside;
-        padding-left: 2rem !important;
-        margin: 1rem 0;
-      }
-
-      .article-content-style ul {
-        list-style-type: disc !important;
-        list-style-position: outside;
-        padding-left: 2rem !important;
-        margin: 1rem 0;
-      }
-
-      .article-content-style li {
-        display: list-item !important;
-        margin: .25rem 0;
-      }
-      
-      .article-content-style h1,
-      .article-content-style h2,
-      .article-content-style h3,
-      .article-content-style h4 {
-        font-weight: 700 !important;
-        line-height: 1.5 !important;
-      }
-      .article-alert-box {
-        font-size: inherit;
-        line-height: 1.5 !important;
-        background: #f2eae0;
-        border: 1px solid var(--sand);
-        border-radius: 12px;
-        padding: 18px 20px;
-        margin: 1.8em 0;
-      }
-      .article-alert-box,
-      .article-alert-box * {
-        line-height: 1.5 !important;
-      }
-      .article-alert-box p:last-child {
-        margin-bottom: 0 !important;
-      }
-      #article-body-content {
-        max-width: 760px;
-        margin: auto;
-        padding-bottom: 2rem;
-      }
-      #new-article-editor,
-      #edit-article-editor {
-        height: 34rem;
-        min-height: 28rem;
-        max-width: 760px;
-        padding: 28px 32px !important;
-        background: #fff;
-        line-height: 1.5 !important;
-        caret-color: var(--ink);
-      }
-      #floating-toc {
-        position: fixed;
-        right: 1rem;
-        top: 1rem;
-        z-index: 40;
-      }
-      #toc-panel {
-        width: min(82vw, 320px);
-        max-height: 70vh;
-        overflow-y: auto;
-      }
-      #back-to-top {
-        position: fixed;
-        right: 1.25rem;
-        bottom: 1.25rem;
-        z-index: 39;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(8px);
-        transition: 0.2s ease;
-      }
-      #back-to-top.show {
-        opacity: 0.88;
-        visibility: visible;
-        transform: none;
-      }
-      #back-to-top:hover {
-        opacity: 1;
-      }
-      .announcement-content,
-      .announcement-content * {
-        font-family: "Noto Serif TC", serif !important;
-      }
-      .announcement-content {
-        white-space: pre-wrap;
-        line-height: 1.7;
-      }
-      .admin-entry {
-        background: transparent;
-        color: #8b7a6b;
-        border: 0;
-        font-size: 11px;
-        opacity: 0.55;
-        cursor: pointer;
-        padding: 3px 7px;
-      }
-      .admin-entry:hover {
-        opacity: 0.9;
-        text-decoration: underline;
-      }
-      @media (max-width: 767px) {
-        .article-content-style p,
-        .article-content-style li,
-        .article-content-style ul,
-        .article-content-style ol,
-        .article-content-style blockquote,
-        .article-alert-box {
-          line-height: 1.5 !important;
-        }
-        #new-article-editor,
-        #edit-article-editor {
-          padding: 20px !important;
-          line-height: 1.5 !important;
-        }
-        #floating-toc {
-          right: 0.75rem;
-          top: 0.75rem;
-        }
-        #back-to-top {
-          right: 0.85rem;
-          bottom: 0.85rem;
-        }
-      }
-
-      #site-header-bg {
-        display: block;
-        margin: 0;
-        padding: 0;
-      }
-      #site-logo-image {
-        display: block;
-      }
-      #site-header-bg + nav {
-        margin-top: 0;
-      }
-
-      /* 首頁及分類頁文章卡片：桌機版左圖、右文。 */
-      .article-list-card {
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
-        gap: 1.25rem;
-        padding: 1rem;
-      }
-      .article-list-image-wrap {
-        flex: 0 0 38%;
-        max-width: 38%;
-        min-width: 0;
-      }
-      .article-list-image-link {
-        display: block;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        overflow: hidden;
-        border-radius: 0.75rem;
-        background: var(--sand);
-      }
-      .article-list-cover {
-        display: block;
-        width: 100%;
-        height: 100%;
-        min-height: 0;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-        border-radius: 0.75rem;
-        background: var(--sand);
-      }
-      .article-list-cover-placeholder {
-        display: grid;
-        place-items: center;
-        color: rgba(69, 40, 41, .65);
-        background: linear-gradient(135deg, var(--card), var(--sand));
-      }
-      .article-list-content {
-        flex: 1 1 auto;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      .article-list-breadcrumb {
-        margin-top: .4rem;
-        color: rgba(69, 40, 41, .7);
-        font-size: .75rem;
-        line-height: 1.5;
-      }
-      .article-list-breadcrumb a:hover {
-        color: var(--accent);
-        text-decoration: underline;
-      }
-      .read-more-link {
-        color: var(--ink);
-        font-weight: 600;
-        text-decoration-line: underline;
-        text-decoration-thickness: 1px;
-        text-underline-offset: 4px;
-      }
-      .read-more-link:hover {
-        color: var(--accent);
-      }
-
-      /* 地圖圖卡 */
-
-      .map-preview-card {
-        display:block;
-        margin:16px 0;
-        padding:18px;
-        border:1px solid var(--sand);
-        border-radius:14px;
-        background:var(--soft);
-        color:inherit !important;
-        text-decoration:none !important;
-        box-shadow:0 3px 8px rgba(0,0,0,.05);
-        transition:.2s ease;
-      }
-
-      .map-preview-card:hover {
-        transform:translateY(-2px);
-        box-shadow:0 8px 18px rgba(0,0,0,.08);
-      }
-
-      .map-preview-hours {
-        margin-top:8px;
-        font-size:14px;
-        color:#7b6358;
-      }
-
-      .travel-map {
-
-        border:1px dashed #c9b59c;
-        border-radius:10px;
-        padding:12px;
-        margin:12px 0;
-      }
-
-      .travel-map .map-name {
-        font-size:20px;
-        font-weight:700;
-      }
-
-      .travel-map .map-hours {
-        margin-top:6px;
-        }
-  
-      .travel-map .map-address {
-        margin-top:6px;
-      }
-
-      .travel-map .map-link {
-        margin-top:6px;
-        color:#3b82f6;
-        cursor:text;
-      }
-
-      .map-preview-platform {
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--accent);
-        margin-bottom: 6px;
-      }
-
-      .map-preview-title {
-        font-size: 18px;
-        font-weight: bold;
-      }
-
-      .map-preview-desc {
-        margin-top: 5px;
-        font-size: 14px;
-        opacity: .75;
-      }
-
-      /* 手機版 Logo 採 1206:368，文章卡片改為上下排列。 */
-      @media (max-width: 767px) {
-        #site-header-bg {
-          width: 100%;
-          height: auto;
-          aspect-ratio:16 / 9;
-          min-height: 0;
-          max-height: none;
-        }
-        .article-list-card {
-          flex-direction: column;
-          gap: .85rem;
-          padding: .85rem;
-        }
-        .article-list-image-wrap {
-          flex: none;
-          width: 100%;
-          max-width: 100%;
-        }
-        .article-list-cover { min-height: 0; }
-        .article-list-card h2 { font-size: 1.15rem; }
-      }
-      .latest-articles-box {
-        background: var(--soft);
-        border: 1px solid var(--sand);
-        color: var(--ink);
-      }
-      .latest-articles-box a {
-        color: var(--ink);
-      }
-      .latest-articles-box a:hover {
-        color: var(--accent);
-        text-decoration: underline;
-      }
-      .related-articles-box {
-        background: #fff;
-        border: 1px solid var(--sand);
-        color: var(--ink);
-      }
-      .related-articles-box a:hover {
-        color: var(--accent);
-        text-decoration: underline;
-      }
-      .journey-timeline {
-        position: relative;
-        margin: 1.5rem 0;
-        padding-left: 2rem;
-      }
-      .journey-timeline:before {
-        content: "";
-        position: absolute;
-        left: 0.45rem;
-        top: 0.5rem;
-        bottom: 0.5rem;
-        width: 2px;
-        background: var(--sand);
-      }
-      .journey-item {
-        position: relative;
-        background: var(--soft);
-        border: 1px solid var(--sand);
-        border-radius: 14px;
-        padding: 1rem 1.2rem;
-        margin-bottom: 1rem;
-      }
-      .journey-item:before {
-        content: "";
-        position: absolute;
-        left: -1.98rem;
-        top: 1.35rem;
-        width: 0.85rem;
-        height: 0.85rem;
-        border-radius: 50%;
-        background: var(--accent);
-        border: 3px solid #fff;
-        box-shadow: 0 0 0 1px var(--sand);
-      }
-      .journey-period {
-        font-size: 0.85rem;
-        color: #8b6f63;
-        font-weight: 700;
-      }
-      .journey-name {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-top: 0.25rem;
-      }
-      .journey-mobile-filter { display: none; }
-      .journey-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
-      .journey-column { min-width: 0; }
-      .journey-related-links { margin-top: .65rem; display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
-      .journey-related-links a { color: var(--accent) !important; text-decoration: underline; overflow-wrap: anywhere; }
-      .faq-block { margin: 2rem 0; font-family:"Noto Serif TC", serif; }
-      .faq-block-title { font-size: 1.75rem; font-weight: 700; padding-bottom: .75rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--sand); position: relative; }
-      .faq-block-title::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 32%; height: 2px; background: var(--accent); }
-      .faq-item { background: #fff; border: 1px solid var(--sand); border-radius: 12px; margin: .8rem 0; overflow: hidden; }
-      .faq-item summary { cursor: pointer; list-style: none; font-size: 1.08rem; font-weight: 700; padding: 1rem 3rem 1rem 1.2rem; position: relative; }
-      .faq-item summary::-webkit-details-marker { display: none; }
-      .faq-item summary::after { content: "⌄"; position: absolute; right: 1.2rem; top: .85rem; font-size: 1.4rem; }
-      .faq-item[open] summary::after { transform: rotate(180deg); }
-      .faq-answer { border-top: 1px solid var(--sand); padding: 1rem 1.2rem; background: var(--soft); }
-      #new-article-editor .faq-item, #edit-article-editor .faq-item { outline: 1px dashed transparent; }
-      #new-article-editor .faq-item:hover, #edit-article-editor .faq-item:hover { outline-color: var(--accent); }
-      @media (max-width: 767px) {
-        .journey-mobile-filter { display: block; }
-        .journey-columns { display: block; }
-        .journey-column-mobile-hidden { display: none; }
-      }
-      .order-btn {
-        border: 1px solid var(--sand);
-        background: #fff;
-        border-radius: 6px;
-        padding: 2px 8px;
-        font-size: 12px;
-      }
-    
-button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.announcement-close-button{background:transparent!important;color:var(--ink)!important;border:0!important}.article-meta-muted{color:#778873!important}.latest-articles-box,.related-articles-box{position:static!important}.tag-filter-bar{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1.25rem;padding:.8rem 0;border-bottom:1px solid var(--sand);font-family:"Noto Serif TC",serif}.tag-filter-button{background:#fff!important;color:var(--ink)!important;border:1px solid var(--sand)!important;padding:.42rem .75rem;border-radius:999px}.tag-filter-button.active{background:#8FA28A!important;color:#fff!important}.article-tags{display:inline-flex;flex-wrap:wrap;gap:.45rem}.article-tag{color:#778873;font-weight:600}.social-platforms-box{background:var(--soft);border:1px solid var(--sand)}.social-platform-link{display:block;padding:.65rem;border:1px solid var(--sand);border-radius:9px;background:#fff;margin:.5rem 0}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}
-</style>
+:root{--ink:#452829;--sand:#c9b59c;--card:#efe9e3;--soft:#f9f6f0;--accent:#a56c5d;}
+      body{font-family:"Noto Serif TC",serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
+      ::selection{background:#8FA28A;color:#fff;}
+      ::-moz-selection{background:#8FA28A;color:#fff;}
+      .custom-card{background:var(--card);}
+      .editor-btn{background:var(--card);border:1px solid var(--sand);padding:6px 10px;font-size:13px;border-radius:6px;cursor:pointer;}
+      .editor-btn:hover{opacity:.8;}
+      .article-content-style,.article-content-style *{font-family:"Noto Serif TC",serif!important;color:var(--ink)!important;box-sizing:border-box;}
+      .article-content-style{font-size:16px;line-height:1.5!important;letter-spacing:.02em;overflow-wrap:anywhere;}
+      .article-content-style ol{list-style-type:decimal!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
+      .article-content-style ul{list-style-type:disc!important;list-style-position:outside;padding-left:2rem!important;margin:1rem 0;}
+      .article-content-style li{display:list-item!important;margin:.25rem 0;}
+      .article-content-style h1,.article-content-style h2,.article-content-style h3,.article-content-style h4{font-weight:700!important;line-height:1.5!important;}
+      .article-alert-box{font-size:inherit;line-height:1.5!important;background:#f2eae0;border:1px solid var(--sand);border-radius:12px;padding:18px 20px;margin:1.8em 0;}
+      #new-article-editor,#edit-article-editor{height:34rem;min-height:28rem;max-width:760px;padding:28px 32px!important;background:#fff;line-height:1.5!important;caret-color:var(--ink);}
+      .faq-block{margin:2rem 0;font-family:"Noto Serif TC",serif;}
+      .faq-block-title{font-size:1.75rem;font-weight:700;padding-bottom:.75rem;margin-bottom:1.25rem;border-bottom:2px solid var(--sand);position:relative;}
+      .faq-item{background:#fff;border:1px solid var(--sand);border-radius:12px;margin:.8rem 0;overflow:hidden;}
+      .faq-item summary{cursor:pointer;list-style:none;font-size:1.08rem;font-weight:700;padding:1rem 3rem 1rem 1.2rem;position:relative;}
+      .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
+      .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
+      @media(max-width:767px){#new-article-editor,#edit-article-editor{padding:20px!important;}}
+    button:not(.admin-entry){background:#A56C5D!important;color:#fff!important;border-color:#A56C5D!important}.draft-card{background:#fff8e8;border:1px solid var(--sand)}.embedded-map-block{position:relative;width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}.embedded-map-block iframe{display:block;width:100%!important;min-height:360px;border:0}</style>
   </head>
-  <body class="min-h-screen flex flex-col justify-between">
-    <div id="frontend-view">
+  <body class="min-h-screen">
+    <div id="admin-view" class="min-h-screen bg-white flex flex-col">
       <header
-        id="site-header-bg"
-        class="relative w-full md:h-44 overflow-hidden shadow-sm border-b border-[#EFE9E3]"
+        class="bg-[#EFE9E3] px-8 py-4 border-b border-[#C9B59C] flex justify-between items-center"
       >
-        <img
-          id="site-logo-image"
-          alt="網站橫幅"
-          class="absolute inset-0 w-full h-full object-cover object-center"
-          width="1600"
-          height="440"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
+        <h1 class="text-xl font-bold">⚙️ 網站後台管理系統</h1>
+        <div class="space-x-4">
+          <button
+            onclick="location.href='/'"
+            class="text-sm px-4 py-2 bg-white border rounded-lg"
+          >
+            返回前台</button
+          ><button
+            onclick="logoutAdmin()"
+            class="text-sm px-4 py-2 bg-red-500 text-white rounded-lg"
+          >
+            登出系統
+          </button>
+        </div>
       </header>
-      <nav class="text-white shadow-md relative z-30 bg-[#4B4038]">
-        <ul
-          id="frontend-nav-tabs"
-          class="flex justify-center flex-wrap gap-x-6 py-3 text-lg font-semibold"
-        ></ul>
-      </nav>
-      <main
-        class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-4 gap-8"
-      >
-        <section
-          class="md:col-span-3 space-y-6"
-          id="main-content-area"
-        ></section>
-        <aside class="space-y-6">
-          <div
-            class="custom-card p-6 rounded-xl shadow-sm border text-center flex flex-col items-center"
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-5">
+        <aside class="bg-[#F9F6F0] p-6 border-r space-y-2">
+          <button
+            onclick="switchAdminTab('account')"
+            id="tab-account-btn"
+            class="w-full text-left px-4 py-3 rounded-lg bg-[#C9B59C] text-white"
           >
-            <img
-              id="site-avatar"
-              alt="頭像"
-              width="96"
-              height="96"
-              loading="eager"
-              decoding="async"
-              class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]"
-            />
-            <h3 id="site-nickname" class="text-xl font-bold">zz</h3>
-            <p id="site-bio" class="text-sm mt-1 opacity-90">
-              一個隨筆紀錄的人
-            </p>
-          </div>
-          <section
-            class="latest-articles-box p-5 rounded-xl shadow-sm "
-            aria-labelledby="latest-articles-title"
+            👤 帳號管理</button
+          ><button
+            onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 社群平台</button><button onclick="switchAdminTab('logo')"
+            id="tab-logo-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
           >
-            <h3
-              id="latest-articles-title"
-              class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3"
-            >
-              最新文章
-            </h3>
-            <ol id="latest-articles-list" class="space-y-3 text-sm"></ol>
-          </section>
-          <section
-            id="related-articles-box"
-            class="related-articles-box hidden p-5 rounded-xl shadow-sm"
-            aria-labelledby="related-articles-title"
+            🖼️ Logo 設定</button
+          ><button
+            onclick="switchAdminTab('announcement')"
+            id="tab-announcement-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
           >
-            <h3
-              id="related-articles-title"
-              class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3"
-            >
-              延伸閱讀
-            </h3>
-            <ol id="related-articles-list" class="space-y-3 text-sm"></ol>
-          </section><section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list"></div></section>
+            📢 公告</button
+          ><button
+            onclick="switchAdminTab('categories')"
+            id="tab-categories-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🏷️ 文章分類</button
+          ><button
+            onclick="switchAdminTab('articles')"
+            id="tab-articles-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            📝 文章管理</button
+          ><button
+            onclick="switchAdminTab('journey')"
+            id="tab-journey-btn"
+            class="w-full text-left px-4 py-3 rounded-lg"
+          >
+            🗺️ 我的旅途
+          </button>
         </aside>
-      </main>
-    </div>
-    
-    <div id="floating-toc" class="hidden">
-      <button
-        id="toc-open-btn"
-        onclick="toggleTOC(true)"
-        aria-label="開啟文章目錄"
-        aria-expanded="false"
-        class="bg-[#4B4038] text-white shadow-lg rounded-full w-12 h-12 text-xl"
-      >
-        ☰
-      </button>
-      <section
-        id="toc-panel"
-        class="hidden bg-[#F9F6F0] border border-[#C9B59C] rounded-xl shadow-xl p-4"
-      >
-        <div
-          class="flex justify-between items-center border-b border-[#C9B59C] pb-2 mb-3"
-        >
-          <h4 class="font-bold">📂 文章目錄</h4>
-          <button
-            onclick="toggleTOC(false)"
-            aria-label="關閉文章目錄"
-            class="text-2xl leading-none px-1"
+        <main class="md:col-span-4 p-8 max-w-5xl w-full">
+          <div id="admin-tab-account" class="admin-tab-content space-y-5">
+            <h2 class="text-2xl font-bold border-b pb-2">帳號資料管理</h2>
+            <div>
+              <label class="block font-semibold mb-1">頭像</label
+              ><input
+                type="file"
+                id="admin-avatar-file"
+                accept="image/*"
+                class="block w-full text-sm border p-2 rounded"
+              /><button
+                onclick="uploadAsset('avatar')"
+                class="mt-3 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                上傳並更新頭像
+              </button>
+              <p class="mt-2 text-xs opacity-70">上傳時會自動裁切為正方形、縮放至 256 × 256 並轉成 WebP。</p>
+            </div>
+            <div>
+              <label class="block font-semibold mb-1" for="admin-nickname"
+                >暱稱</label
+              ><input
+                id="admin-nickname"
+                class="w-full border p-2 rounded"
+                maxlength="50"
+                placeholder="zz"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1" for="admin-bio"
+                >簡介</label
+              ><textarea
+                id="admin-bio"
+                class="w-full border p-2 rounded min-h-28"
+                maxlength="300"
+                placeholder="一個隨筆紀錄的人"
+              ></textarea>
+            </div>
+            <button
+              onclick="saveProfileSettings()"
+              class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+            >
+              儲存暱稱與簡介
+            </button>
+          </div>
+          <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">更換 Logo 背景圖片</h2>
+            <input
+              type="file"
+              id="admin-logo-file"
+              accept="image/*"
+              class="block w-full text-sm border p-2 rounded"
+            /><button
+              onclick="uploadAsset('logo')"
+              class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+            >
+              上傳並更新 Logo
+            </button>
+            <p class="text-xs opacity-70">上傳時會自動限制為 1600 × 600 以內並轉成 WebP。</p>
+          </div>
+          <div
+            id="admin-tab-announcement"
+            class="admin-tab-content space-y-5 hidden"
           >
-            ×
-          </button>
-        </div>
-        <ul id="table-of-contents" class="text-sm space-y-2"></ul>
-      </section>
-    </div>
-    <div
-      id="announcement-modal"
-      class="hidden fixed inset-0 bg-[#452829]/55 flex items-center justify-center p-4 z-50"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="announcement-modal-title"
-    >
-      <div
-        class="bg-[#F9F6F0] border-2 border-[#C9B59C] rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
-      >
-        <div
-          class="bg-[#EFE9E3] border-b border-[#C9B59C] px-6 py-4 flex items-center justify-between"
-        >
-          <h2 id="announcement-modal-title" class="text-xl font-bold"></h2>
-          <button
-            onclick="closeAnnouncement()"
-            aria-label="關閉公告"
-            class="announcement-close-button text-2xl leading-none px-2"
+            <h2 class="text-2xl font-bold border-b pb-2">首頁公告管理</h2>
+            <label class="flex items-center gap-2"
+              ><input
+                type="checkbox"
+                id="announcement-enabled"
+                class="w-4 h-4"
+              /><span>啟用公告</span></label
+            >
+            <div>
+              <label class="block font-semibold mb-1">公告標題</label
+              ><input
+                id="announcement-title"
+                class="w-full border p-2 rounded"
+                maxlength="100"
+                placeholder="最新公告"
+              />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">公告內容</label
+              ><textarea
+                id="announcement-content"
+                class="w-full border p-3 rounded min-h-40"
+                maxlength="3000"
+                placeholder="請輸入公告內容"
+              ></textarea>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold mb-1">開始日期</label
+                ><input
+                  type="date"
+                  id="announcement-start"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1">結束日期</label
+                ><input
+                  type="date"
+                  id="announcement-end"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+            </div>
+            <p class="text-xs opacity-70">
+              開始日與結束日皆包含在顯示期間內。未啟用、內容為空、日期未填或不在日期範圍內時，不會彈出。
+            </p>
+            <button
+              onclick="saveAnnouncement()"
+              class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+            >
+              儲存公告設定
+            </button>
+          </div>
+          <div
+            id="admin-tab-categories"
+            class="admin-tab-content space-y-6 hidden"
           >
-            ×
-          </button>
-        </div>
-        <div
-          id="announcement-modal-content"
-          class="announcement-content px-6 py-6"
-        ></div>
-        <div class="px-6 pb-6 text-right">
-          <button
-            onclick="closeAnnouncement()"
-            class="announcement-close-button px-6 py-2 rounded-lg"
+            <h2 class="text-2xl font-bold border-b pb-2">文章分類管理</h2>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-4 gap-3">
+              <input
+                id="new-cat-name"
+                class="border p-2 rounded"
+                placeholder="分類名稱"
+              /><input
+                id="new-cat-slug"
+                class="border p-2 rounded"
+                placeholder="網址後綴，例如 Korea"
+              /><select id="new-cat-parent" class="border p-2 rounded"></select
+              ><button
+                onclick="addNewCategory()"
+                class="text-white rounded bg-[#C9B59C]"
+              >
+                新增分類
+              </button>
+            </div>
+            <p class="text-xs opacity-70">
+              母分類與子分類可分別設定網址後綴，例如 Korea / Busan。
+            </p>
+            <div id="admin-categories-tree" class="space-y-2"></div>
+          </div>
+          <div
+            id="admin-tab-journey"
+            class="admin-tab-content space-y-6 hidden"
           >
-            我知道了
-          </button>
-        </div>
+            <h2 class="text-2xl font-bold border-b pb-2">我的旅途管理</h2>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-4 gap-3">
+              <div>
+                <label class="block text-sm font-semibold mb-1">開始年月</label
+                ><input
+                  type="month"
+                  id="journey-start"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">結束年月</label
+                ><input
+                  type="month"
+                  id="journey-end"
+                  class="w-full border p-2 rounded"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">旅途分類</label
+                ><select id="journey-type" class="w-full border p-2 rounded">
+                  <option value="abroad">國外 Abroad</option>
+                  <option value="taiwan">臺灣 Taiwan</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1">行程名稱</label
+                ><input
+                  id="journey-name"
+                  class="w-full border p-2 rounded"
+                  maxlength="100"
+                  placeholder="例如：釜山自由行"
+                />
+              </div>
+              <div class="md:col-span-4">
+                <label class="block text-sm font-semibold mb-1">相關文章網址</label>
+                <textarea id="journey-related-urls" class="w-full border p-2 rounded min-h-24" placeholder="每行輸入一個文章網址；儲存後前台會自動顯示文章標題與超連結"></textarea>
+              </div>
+              <button
+                onclick="addJourneyEntry()"
+                class="md:col-span-4 text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                新增旅途紀錄
+              </button>
+            </div>
+            <div id="admin-journey-list" class="space-y-2"></div>
+          </div>
+          <div
+            id="admin-tab-articles"
+            class="admin-tab-content space-y-6 hidden"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-2">
+              <h2 class="text-2xl font-bold">文章管理</h2>
+              <button onclick="copyAllBlogUrls()" class="px-4 py-2 rounded-lg bg-[#8FA28A] text-white text-sm">
+                一鍵複製所有網址
+              </button>
+            </div>
+            <div class="flex gap-4">
+              <button
+                onclick="switchArticleSubTab('new')"
+                class="px-4 py-2 rounded bg-[#C9B59C] text-white"
+              >
+                新增新文章</button
+              ><button
+                onclick="switchArticleSubTab('manage')"
+                class="px-4 py-2 rounded bg-[#EFE9E3]"
+              >
+                維護舊文章
+              </button><button onclick="switchArticleSubTab('drafts')" class="px-4 py-2 rounded">草稿區</button>
+            </div>
+            <div id="sub-article-new" class="space-y-4">
+              <input
+                id="new-article-title"
+                class="w-full border p-2 rounded"
+                placeholder="文章標題"
+              />
+              <div class="grid md:grid-cols-2 gap-4">
+                <select
+                  id="new-article-parent-select"
+                  onchange="updateChildDropdown('new')"
+                  class="border p-2 rounded"
+                ></select
+                ><select
+                  id="new-article-child-select"
+                  class="border p-2 rounded"
+                ></select>
+              </div>
+              <div class="space-y-2">
+                <label class="block font-semibold" for="new-article-cover-file">文章封面圖</label>
+                <input type="file" id="new-article-cover-file" accept="image/*" class="block w-full text-sm border p-2 rounded" />
+                <p class="text-xs opacity-70">建議使用 16:9 圖片。發布文章時會自動上傳。</p>
+              </div>
+              <div class="space-y-2">
+                <label class="block font-semibold" for="new-article-related-select">延伸閱讀文章</label>
+                <select id="new-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select>
+                <p class="text-xs opacity-70">可選多篇。Windows 按住 Ctrl、Mac 按住 Command 點選；不選則不顯示延伸閱讀。</p>
+              </div>
+              <div><label>文章標籤</label><input id="new-article-tags" class="w-full border p-2 rounded" placeholder="金門美食, 必吃小吃"></div>
+              <input
+                id="new-article-slug"
+                class="w-full border p-2 rounded"
+                placeholder="文章網址後綴，例如 Seomyeon"
+              />
+              <div id="new-toolbar" class="flex flex-wrap gap-2"></div>
+              <div
+                id="new-article-editor"
+                contenteditable="true"
+                class="w-full border rounded overflow-y-auto article-content-style"
+              ></div>
+              <div class="flex gap-3"><button onclick="saveNewArticleDraft()" class="px-6 py-2 rounded">存為草稿</button><button
+                onclick="publishNewArticle()"
+                class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
+              >
+                提交發布
+              </button></div>
+            </div>
+            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list"></div><div id="draft-edit-form" class="hidden space-y-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-article-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-article-child-select" class="border p-2 rounded"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded"><input id="draft-edit-slug" class="w-full border p-2 rounded"><div id="draft-edit-toolbar"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded article-content-style"></div><div class="flex flex-wrap gap-3"><button onclick="saveDraftEdits()" class="px-6 py-2 rounded-lg">儲存草稿修改</button><button onclick="publishDraft()" class="px-6 py-2 rounded-lg">發布已儲存版本</button></div><p class="text-xs opacity-70">「儲存草稿修改」可重複使用且不會發布；「發布已儲存版本」只會發布上次儲存的內容。</p></div></div><div id="sub-article-manage" class="space-y-4 hidden">
+              <div id="admin-articles-list" class="space-y-2"></div>
+              <div
+                id="edit-article-form"
+                class="hidden space-y-4 border-t pt-4"
+              >
+                <input type="hidden" id="edit-article-id" /><input
+                  id="edit-article-title"
+                  class="w-full border p-2 rounded"
+                />
+                <div class="grid md:grid-cols-2 gap-4">
+                  <select
+                    id="edit-article-parent-select"
+                    onchange="updateChildDropdown('edit')"
+                    class="border p-2 rounded"
+                  ></select
+                  ><select
+                    id="edit-article-child-select"
+                    class="border p-2 rounded"
+                  ></select>
+                </div>
+                <div class="space-y-2">
+                  <label class="block font-semibold" for="edit-article-cover-file">更換文章封面圖</label>
+                  <img id="edit-article-cover-preview" alt="目前封面圖" class="hidden w-48 aspect-video object-cover rounded-lg border" />
+                  <input type="file" id="edit-article-cover-file" accept="image/*" class="block w-full text-sm border p-2 rounded" />
+                  <p class="text-xs opacity-70">未選擇新圖片時會保留目前封面。</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="block font-semibold" for="edit-article-related-select">延伸閱讀文章</label>
+                  <select id="edit-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select>
+                  <p class="text-xs opacity-70">可重新選擇多篇延伸閱讀；目前文章不會出現在選項中。</p>
+                </div>
+                <input id="edit-article-tags" class="w-full border p-2 rounded" placeholder="標籤，以逗號分隔">
+                <input
+                  id="edit-article-slug"
+                  class="w-full border p-2 rounded"
+                  placeholder="文章網址後綴"
+                />
+                <div id="edit-toolbar" class="flex flex-wrap gap-2"></div>
+                <div
+                  id="edit-article-editor"
+                  contenteditable="true"
+                  class="w-full border rounded overflow-y-auto article-content-style"
+                ></div>
+                <div class="flex justify-between">
+                  <button
+                    onclick="closeEditForm()"
+                    class="px-4 py-2 border rounded"
+                  >
+                    取消</button
+                  ><button
+                    onclick="updateExistingArticle()"
+                    class="text-white px-6 py-2 rounded bg-[#C9B59C]"
+                  >
+                    提交修改
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
-    <div
-      id="login-modal"
-      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-    >
-      <div class="bg-white rounded-xl p-6 max-w-sm w-full space-y-4">
-        <h3 class="font-bold text-center">後台管理者登入</h3>
-        <input
-          type="email"
-          id="admin-email-input"
-          class="w-full border p-2 rounded"
-          placeholder="管理員信箱"
-        /><input
-          type="password"
-          id="admin-password-input"
-          class="w-full border p-2 rounded"
-          placeholder="密碼"
-        /><button
-          onclick="loginWithEmail()"
-          class="w-full text-white py-2 rounded bg-[#C9B59C]"
-        >
-          登入後台</button
-        ><button onclick="closeLoginModal()" class="w-full text-xs">
-          取消
-        </button>
-      </div>
-    </div>
-    <button
-      id="back-to-top"
-      onclick="scrollToTop()"
-      aria-label="回到頁面頂端"
-      title="回到頂端"
-      class="bg-[#4B4038] text-white shadow-lg rounded-full w-11 h-11 text-lg"
-    >
-      ↑
-    </button>
-    <footer class="w-full py-4 text-center text-xs border-t mt-12">
-      <div>©2026 一葉知途 版權所有 轉載請註明出處</div>
-      <button onclick="openAdminPanel()" class="admin-entry mt-1">
-        <span id="floating-btn-text">網站管理</span>
-      </button>
-    </footer>
     
     <script>
       const SUPABASE_URL = "https://rpzqioezweftrjtrneos.supabase.co",
@@ -691,50 +435,29 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return supabaseClient;
       }
-      let allArticlesCache = [],
-        categoriesCache = [],
-        settingsCache = {},
-        journeyEntries = [],
-        categoryOrder = [];
+      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [];
       const $ = (id) => document.getElementById(id),
-        esc = (s) =>
-          String(s ?? "").replace(
-            /[&<>"']/g,
-            (c) =>
-              ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#39;",
-              })[c],
-          ),
-        jsq = (s) =>
-          String(s ?? "")
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "\\'");
+        esc = (s) => String(s ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-      function preloadImage(id, url, fetchPriority = "high") {
-        const imageUrl = String(url || "").trim();
-        let link = document.getElementById(id);
-
-        if (!imageUrl) {
-          link?.remove();
-          return;
-        }
-
-        if (!link) {
-          link = document.createElement("link");
-          link.id = id;
-          link.rel = "preload";
-          link.as = "image";
-          document.head.appendChild(link);
-        }
-
-        link.href = imageUrl;
-        link.fetchPriority = fetchPriority;
+      async function fetchCategories() {
+        const { data, error } = await supabaseClient.from("categories").select("*");
+        if (error) throw new Error("分類讀取失敗：" + error.message);
+        categoriesCache = data || [];
+        applyCategoryOrder();
       }
-
+      async function loadSettings() {
+        const { data, error } = await supabaseClient.from("settings").select("*");
+        if (error) throw new Error("設定讀取失敗：" + error.message);
+        settingsCache = Object.fromEntries((data || []).map((x) => [x.key, x.value]));
+        try { categoryOrder = JSON.parse(settingsCache.category_order || "[]"); } catch { categoryOrder = []; }
+        try { journeyEntries = JSON.parse(settingsCache.travel_entries || "[]"); } catch { journeyEntries = []; }
+        applyCategoryOrder();
+        fillSettingsForms();
+      }
+      async function logoutAdmin() {
+        await supabaseClient.auth.signOut();
+        location.href = "/";
+      }
       function normalizeSlug(v) {
         return String(v || "")
           .trim()
@@ -743,22 +466,27 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           .replace(/[^A-Za-z0-9_-]/g, "")
           .replace(/-+/g, "-");
       }
+
       function fallbackSlug() {
         return "article-" + Date.now();
       }
+
       function categoryByName(n) {
         return categoriesCache.find((c) => c.name === n);
       }
+
       function categorySlug(n) {
         const c = categoryByName(n);
         return normalizeSlug(c?.slug);
       }
+
       function safePath(parts) {
         const clean = parts.map(normalizeSlug).filter(Boolean);
         return clean.length
           ? "/" + clean.map(encodeURIComponent).join("/")
           : "/";
       }
+
       function categoryPath(n) {
         const c = categoryByName(n);
         if (!c) return "/";
@@ -770,6 +498,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         parts.push(c.slug);
         return safePath(parts);
       }
+
       function articlePath(a) {
         const parts = [categorySlug(a.category)];
         if (a.subcategory) parts.push(categorySlug(a.subcategory));
@@ -777,606 +506,156 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         return safePath(parts);
       }
 
-      function updateStructuredData(article = null) {
+      function buildToolbar(t) {
+        $(t + "-toolbar").innerHTML =
+          `<button class="editor-btn" onclick="cmd('${t}','bold')"><b>B</b></button>
+            <button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button>
+            <button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button>
+            <button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button>
+            <button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖資訊卡</button>
+            <button class="editor-btn" onclick="insertEmbeddedMap('${t}')">🗺️ 嵌入地圖 HTML</button>
+            <button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button>
+            <button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button>
+            <button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button>
+            <button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button>
+            <button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button>
+            <select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select>
+            <select class="editor-btn" onchange="block('${t}',this.value);this.value=''"><option value="">段落階層</option><option value="h1">第一階標題</option><option value="h2">第二階標題</option><option value="h3">第三階標題</option><option value="h4">第四階標題</option><option value="p">一般內文</option></select>`;
+      }
 
-        const script =
-          document.getElementById(
-            "structured-data"
-          );
+      function cmd(t, c) {
+        $(t + "-article-editor").focus();
+        document.execCommand(c, false, null);
+      }
 
-        if (!script) return;
+      function fontSize(t, size) {
+        if (!size) return;
+        const e = $(t + "-article-editor");
+        e.focus();
+        document.execCommand("fontSize", false, "7");
+        e.querySelectorAll('font[size="7"]').forEach((n) => {
+          n.removeAttribute("size");
+          n.style.fontSize = size;
+        });
+      }
 
-        const siteName =
-          settingsCache.nickname || "zz";
-
-        const logo =
-          settingsCache.logo ||
-          settingsCache.avatar ||
-          "";
-
-        if (!article) {
-
-          script.textContent =
-            JSON.stringify({
-              "@context":
-                "https://schema.org",
-
-              "@type":
-                "WebSite",
-
-              name:
-                "一葉知途 的旅遊部落格",
-
-              url:
-                location.origin
-            });
-
-          return;
+      function block(t, v) {
+        if (v) {
+          $(t + "-article-editor").focus();
+          document.execCommand("formatBlock", false, v);
         }
+      }
 
-        const tmp =
-          document.createElement("div");
-
-        tmp.innerHTML =
-          article.content || "";
-
-        const plainText =
-          tmp.textContent
-            ?.replace(/\s+/g, " ")
-            .trim()
-            .substring(0, 200) || "";
-
-        document
-          .querySelector(
-            'meta[name="description"]'
-          )
-          ?.setAttribute(
-            "content",
-            plainText.substring(0, 160)
-          );
-
-        document
-          .querySelector(
-            'meta[property="og:title"]'
-          )
-          ?.setAttribute(
-            "content",
-            article.title
-          );
-
-        document
-          .querySelector(
-            'meta[property="og:description"]'
-          )
-          ?.setAttribute(
-            "content",
-            plainText.substring(0, 160)
-          );
-
-        const socialImage = article.cover_image_url || logo;
-        if (socialImage) {
-          document
-            .querySelector(
-              'meta[property="og:image"]'
-            )
-            ?.setAttribute(
-              "content",
-              socialImage
-            );
+      function addLink(t) {
+        const u = prompt("請輸入網址");
+        if (u) {
+          $(t + "-article-editor").focus();
+          document.execCommand("createLink", false, u);
         }
+      }
 
-        script.textContent =
-          JSON.stringify({
-            "@context":
-              "https://schema.org",
+      function insertMapCard(t) {
 
-            "@type":
-              "BlogPosting",
+        const html = `
+      <div class="travel-map">
 
-            headline:
-              article.title,
+        <div
+          class="map-name"
+          contenteditable="true">
+          店名
+        </div>
 
-            description:
-              plainText,
+        <div
+          class="map-hours"
+          contenteditable="true">
+          營業時間
+        </div>
 
-            url:
-              location.href,
+        <div
+          class="map-address"
+          contenteditable="true">
+          地址
+        </div>
 
-            datePublished:
-              article.created_at,
+        <div
+          class="map-link"
+          contenteditable="true">
+          貼上 Google Maps 連結
+        </div>
 
-            dateModified:
-              article.updated_at ||
-              article.created_at,
+      </div>
 
-            author: {
-              "@type":
-                "Person",
+      <p><br></p>
+      `;
 
-              name:
-                siteName
-            },
+        $(t + "-article-editor").focus();
 
-            publisher: {
-              "@type":
-                "Organization",
-
-              name:
-                siteName
-            },
-
-            image:
-              socialImage || undefined
-          });
-      }
-      
-      function safePushState(state, path) {
-        const safe = String(path || "/");
-        if (!safe.startsWith("/") || safe.startsWith("//"))
-          throw new Error("網址路徑設定錯誤：" + safe);
-        history.pushState(state, "", safe);
-      }
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      addEventListener("DOMContentLoaded", async () => {
-        await initSupabase();
-        try {
-          await Promise.all([
-            fetchCategories(),
-            loadSettings(),
-            checkSessionState(),
-          ]);
-          await handleCurrentRoute();
-          if (
-            location.pathname === "/" ||
-            location.pathname === "/index.html"
-          ) {
-            updateStructuredData();
-          }
-        } catch (error) {
-          console.error("前台初始化失敗：", error);
-          $("main-content-area").innerHTML =
-            '<div class="custom-card p-6 rounded">網站載入失敗，請重新整理後再試。</div>';
-        }
-      });
-      addEventListener("popstate", handleCurrentRoute);
-      addEventListener(
-        "scroll",
-        () => {
-          $("back-to-top").classList.toggle("show", scrollY > 360);
-        },
-        { passive: true },
-      );
-      function scrollToTop() {
-        scrollTo({ top: 0, behavior: "smooth" });
-      }
-      async function fetchCategories() {
-        const { data, error } = await supabaseClient
-          .from("categories")
-          .select("*");
-        if (error) return alert("分類讀取失敗：" + error.message);
-        categoriesCache = data || [];
-        applyCategoryOrder();
-        renderFrontendNav();
-      }
-      function articleStatusKey(id){return "article_status_"+String(id)}
-      function articleTagsKey(id){return "article_tags_"+String(id)}
-      function isPublishedArticle(a){return settingsCache[articleStatusKey(a.id)]!=="draft"}
-      function getArticleTags(a){try{const v=JSON.parse(settingsCache[articleTagsKey(a.id)]||"[]");return Array.isArray(v)?v:[]}catch{return[]}}
-      let activeCategoryName="all",activeTagFilters=[];
-      function toggleCategoryTag(tag){activeTagFilters=activeTagFilters.includes(tag)?activeTagFilters.filter(x=>x!==tag):[...activeTagFilters,tag];fetchArticles(activeCategoryName,{preserveTags:true})}
-      function tagBar(cat,list){const c=categoryByName(cat);if(!c?.parent_id)return"";const tags=[...new Set(list.flatMap(getArticleTags))];return tags.length?`<div class="tag-filter-bar">${tags.map(t=>`<button class="tag-filter-button ${activeTagFilters.includes(t)?"active":""}" onclick="toggleCategoryTag('${jsq(t)}')">#${esc(t)}</button>`).join("")}</div>`:""}
-      async function fetchArticles(cat="all",opt={}){const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.every(t=>getArticleTags(a).includes(t)));$("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();c.innerHTML=tagBar(cat,base)+(list.length?list.map(a=>`<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" class="article-list-cover">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>");renderLatestArticles()}
-      function relatedSettingsKey(articleId) {
-        return "article_related_" + String(articleId);
-      }
-      function hideRelatedArticles() {
-        const section = $("related-articles-box");
-        if (section) section.classList.add("hidden");
-      }
-      async function renderRelatedArticles(article) {
-        const section = $("related-articles-box"),
-          list = $("related-articles-list");
-        if (!section || !list || !article?.id) return;
-        let ids = [];
-        try {
-          const parsed = JSON.parse(settingsCache[relatedSettingsKey(article.id)] || "[]");
-          ids = Array.isArray(parsed) ? parsed.map(String).filter((id) => id !== String(article.id)) : [];
-        } catch {
-          ids = [];
-        }
-        if (!ids.length) {
-          list.innerHTML = "";
-          section.classList.add("hidden");
-          return;
-        }
-        const cached = new Map(allArticlesCache.map((item) => [String(item.id), item]));
-        const missingIds = ids.filter((id) => !cached.has(id));
-        if (missingIds.length) {
-          const { data, error } = await supabaseClient
-            .from("articles")
-            .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url")
-            .in("id", missingIds);
-          if (error) console.error("延伸閱讀讀取失敗：", error);
-          (data || []).forEach((item) => {
-            cached.set(String(item.id), item);
-            if (!allArticlesCache.some((a) => String(a.id) === String(item.id))) allArticlesCache.push(item);
-          });
-        }
-        const related = ids.map((id) => cached.get(id)).filter(Boolean);
-        if (!related.length) {
-          list.innerHTML = "";
-          section.classList.add("hidden");
-          return;
-        }
-        list.innerHTML = related.map((a) =>
-          `<li><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block"><span class="block font-semibold">${esc(a.title)}</span><span class="block text-xs opacity-60 mt-1">${formatArticleDate(a.created_at)}</span></a></li>`
-        ).join("");
-        section.classList.remove("hidden");
-      }
-      function renderSocialPlatforms(){const s=$("social-platforms-box"),b=$("social-platforms-list");if(!s||!b)return;let v=[];try{v=JSON.parse(settingsCache.social_links||"[]")}catch{}if(!v.length){s.classList.add("hidden");return}b.innerHTML=v.map(x=>`<a class="social-platform-link" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.name)}</a>`).join("");s.classList.remove("hidden")}
-      function renderLatestArticles() {
-        const box = $("latest-articles-list");
-        if (!box) return;
-        const latest = [...allArticlesCache].filter(isPublishedArticle)
-          .sort(
-            (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0),
-          )
-          .slice(0, 6);
-        box.innerHTML = latest.length
-          ? latest
-              .map(
-                (a) =>
-                  `<li><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block"><span class="block font-semibold">${esc(a.title)}</span><span class="block text-xs opacity-60 mt-1">${formatArticleDate(a.created_at)}</span></a></li>`,
-              )
-              .join("")
-          : '<li class="opacity-60">目前尚無文章</li>';
-      }
-      function formatArticleDate(v) {
-        if (!v) return "";
-        return new Intl.DateTimeFormat("zh-TW", {
-          timeZone: "Asia/Taipei",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).format(new Date(v));
-      }
-      function renderFrontendNav() {
-        const p = categoriesCache.filter((c) => !c.parent_id);
-        $("frontend-nav-tabs").innerHTML =
-          '<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>' +
-          p
-            .map((x) => {
-              const ch = categoriesCache.filter((c) => c.parent_id === x.id);
-              return ch.length
-                ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
-                : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)}</a></li>`;
-            })
-            .join("");
-      }
-      function openCategory(name) {
-        name === "我的旅途" ? viewJourney() : filterCategory(name);
-      }
-      function breadcrumbLink(name) {
-        return `<a href="${categoryPath(name)}" onclick="event.preventDefault();filterCategory('${jsq(name)}')" class="hover:underline">${esc(name)}</a>`;
-      }
-      async function viewSingleArticle(id, opt = {}) {
-        let a = opt.article || null;
-        if (!a || !Object.prototype.hasOwnProperty.call(a, "content")) {
-          const { data, error } = await supabaseClient
-            .from("articles")
-            .select("*")
-            .eq("id", id)
-            .single();
-          if (error || !data) {
-            console.error(error);
-            showNotFound();
-            return;
-          }
-          a = data;
-        }
-        if(!isPublishedArticle(a)){showNotFound();return;}
-        const cacheIndex = allArticlesCache.findIndex((x) => x.id == a.id);
-        if (cacheIndex >= 0) allArticlesCache[cacheIndex] = { ...allArticlesCache[cacheIndex], ...a };
-        else allArticlesCache.push(a);
-        if (opt.updateHistory !== false) safePushState({ id: a.id }, articlePath(a));
-        document.title = `${a.title}｜一葉知途 的旅遊部落格`;
-        $("floating-toc").classList.remove("hidden");
-        toggleTOC(false);
-        const f = (v) => v ? new Intl.DateTimeFormat("zh-TW", {
-          timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
-        }).format(new Date(v)) : "";
-        preloadImage("article-cover-preload", "");
-        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
-        generateArticleTOC();
-        renderMapCards();
-        await renderRelatedArticles(a);
-        updateStructuredData(a);
-        scrollTo({ top: 0 });
-      }
-      async function handleCurrentRoute() {
-        const parts = decodeURIComponent(location.pathname).split("/").filter(Boolean);
-        if (!parts.length || parts[0] === "index.html") {
-          await fetchArticles();
-          showAnnouncementIfActive();
-          return;
-        }
-        const last = parts.at(-1);
-        const { data: routeArticle, error: routeError } = await supabaseClient
-          .from("articles")
-          .select("*")
-          .eq("slug", last)
-          .maybeSingle();
-        if (routeError) console.error(routeError);
-        if (routeArticle && isPublishedArticle(routeArticle) && decodeURIComponent(articlePath(routeArticle)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()) {
-          return viewSingleArticle(routeArticle.id, { updateHistory: false, article: routeArticle });
-        }
-        const cat = categoriesCache.find((c) =>
-          decodeURIComponent(categoryPath(c.name)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()
-        );
-        if (cat) return cat.name === "我的旅途"
-          ? viewJourney({ updateHistory: false })
-          : fetchArticles(cat.name);
-        showNotFound();
-      }
-      function formatMonth(v) {
-        if (!v) return "";
-        const [y, m] = String(v).split("-");
-        return y && m ? `${y}/${m}` : esc(v);
-      }
-      function resolveJourneyArticle(url) {
-        let path = String(url || "");
-        try { path = new URL(path, location.origin).pathname; } catch {}
-        return allArticlesCache.find(
-          (a) => decodeURIComponent(articlePath(a)).toLowerCase() === decodeURIComponent(path).toLowerCase(),
+        document.execCommand(
+          "insertHTML",
+          false,
+          html
         );
       }
-      function renderJourneyRelatedLinks(entry) {
-        const urls = Array.isArray(entry.relatedUrls) ? entry.relatedUrls : [];
-        if (!urls.length) return "";
-        return `<div class="journey-related-links">${urls.map((url) => {
-          const article = resolveJourneyArticle(url);
-          const href = article ? articlePath(article) : url;
-          const title = article ? article.title : url;
-          const click = article ? ` onclick="event.preventDefault();viewSingleArticle('${article.id}')"` : ' target="_blank" rel="noopener noreferrer"';
-          return `<a href="${esc(href)}"${click}>${esc(title)}</a>`;
-        }).join("")}</div>`;
+
+      function insertEmbeddedMap(t) {
+        const rawHtml = prompt("請貼上地圖商提供的 iframe HTML 嵌入碼：");
+        if (!rawHtml) return;
+        const template = document.createElement("template");
+        template.innerHTML = rawHtml.trim();
+        const iframe = template.content.querySelector("iframe");
+        if (!iframe) return alert("找不到 iframe，請貼上地圖商提供的完整 HTML 嵌入碼");
+        const source = iframe.getAttribute("src") || "";
+        if (!/^https:\/\//i.test(source)) return alert("地圖 iframe 必須使用 HTTPS 網址");
+        const safeIframe = document.createElement("iframe");
+        ["src", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy"].forEach((name) => {
+          if (iframe.hasAttribute(name)) safeIframe.setAttribute(name, iframe.getAttribute(name));
+        });
+        safeIframe.setAttribute("loading", iframe.getAttribute("loading") || "lazy");
+        safeIframe.setAttribute("referrerpolicy", iframe.getAttribute("referrerpolicy") || "no-referrer-when-downgrade");
+        safeIframe.style.width = "100%";
+        safeIframe.style.minHeight = "360px";
+        safeIframe.style.border = "0";
+        const wrapper = document.createElement("div");
+        wrapper.className = "embedded-map-block";
+        wrapper.appendChild(safeIframe);
+        const editor = $(t + "-article-editor");
+        editor.focus();
+        document.execCommand("insertHTML", false, wrapper.outerHTML + "<p><br></p>");
       }
-      function setJourneyMobileType(type) {
-        const abroad = $("journey-column-abroad"),
-          taiwan = $("journey-column-taiwan");
-        if (!abroad || !taiwan) return;
-        abroad.classList.toggle("journey-column-mobile-hidden", type !== "abroad");
-        taiwan.classList.toggle("journey-column-mobile-hidden", type !== "taiwan");
-      }
-      function viewJourney(opt = {}) {
-        const cat = categoryByName("我的旅途");
-        if (opt.updateHistory !== false && cat)
-          safePushState({ journey: true }, categoryPath(cat.name));
-        document.title = "我的旅途｜一葉知途 的旅遊部落格";
-        $("floating-toc").classList.add("hidden");
-        toggleTOC(false);
-        hideRelatedArticles();
-        const sorted = [...journeyEntries].sort((a, b) => String(b.start).localeCompare(String(a.start)));
-        const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
-        const renderGroup = (type, title) => {
-          const list = sorted.filter((x) => normalizedType(x) === type);
-          const mobileClass = type === "taiwan" ? " journey-column-mobile-hidden" : "";
-          return `<section id="journey-column-${type}" class="journey-column custom-card p-5 rounded-xl${mobileClass}"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2 mb-4">${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div>${renderJourneyRelatedLinks(x)}</article>`).join("") : '<div class="p-4 opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
-        };
-        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="abroad" selected>國外 Abroad</option><option value="taiwan">臺灣 Taiwan</option></select></div><div class="journey-columns">${renderGroup("abroad", "國外 Abroad")}${renderGroup("taiwan", "臺灣 Taiwan")}</div></section>`;
-        renderLatestArticles();
-        scrollTo({ top: 0 });
-      }
-      async function goHome() {
-        safePushState({}, "/");
-        document.title = "一葉知途 的旅遊部落格";
-        await fetchArticles();
-        updateStructuredData();
-        scrollTo({ top: 0 });
-        showAnnouncementIfActive();
-      }
-      function filterCategory(c) {
-        safePushState({ category: c }, categoryPath(c));
-        fetchArticles(c);
-        scrollTo({ top: 0 });
-      }
-      function showNotFound() {
-        $("floating-toc").classList.add("hidden");
-        hideRelatedArticles();
-        $("main-content-area").innerHTML =
-          '<div class="custom-card p-8 rounded text-center"><h2 class="text-2xl font-bold">找不到這篇文章</h2><button onclick="goHome()" class="mt-5 px-4 py-2 text-white rounded bg-[#C9B59C]">返回首頁</button></div>';
-      }
-      async function copyUrl() {
-        try {
-          await navigator.clipboard.writeText(location.href);
-          alert("文章網址已複製！");
-        } catch {
-          prompt("請複製網址", location.href);
-        }
-      }
-      function toggleTOC(open) {
-        const p = $("toc-panel"),
-          b = $("toc-open-btn");
-        p.classList.toggle("hidden", !open);
-        b.classList.toggle("hidden", open);
-        b.setAttribute("aria-expanded", String(open));
-      }
-      function renderMapCards() {
-
-        document
-          .querySelectorAll(".travel-map")
-          .forEach(card => {
-
-            const url =
-              card.querySelector(".map-link")
-                ?.textContent
-                ?.trim();
-
-            if (!url) return;
-
-            let icon = "📍";
-            let platform = "地圖";
-
-            if (
-              url.includes("google")
-            ) {
-              icon = "🗺️";
-              platform = "Google Maps";
-            }
-
-            if (
-              url.includes("naver")
-            ) {
-              icon = "📍";
-              platform = "Naver Map";
-            }
-
-            if (
-              url.includes("amap")
-            ) {
-              icon = "📌";
-              platform = "高德地圖";
-            }
-
-            const name =
-              card.querySelector(".map-name")
-                ?.textContent
-                ?.trim();
-
-            const hours =
-              card.querySelector(".map-hours")
-                ?.textContent
-                ?.trim();
-
-            const address =
-              card.querySelector(".map-address")
-                ?.textContent
-                ?.trim();
-
-            card.outerHTML =
-            `
-            <a
-              class="map-preview-card"
-              href="${url}"
-              target="_blank"
-              rel="noopener noreferrer">
-
-              <div class="map-preview-platform">
-                ${icon} ${platform}
-              </div>
-
-              <div class="map-preview-title">
-                ${name}
-              </div>
-
-              ${
-                hours
-                ? `
-                <div class="map-preview-hours">
-                  🕒 ${hours}
-                </div>
-                `
-                : ""
-              }
-
-              ${
-                address
-                ? `
-                <div class="map-preview-desc">
-                  ${address}
-                </div>
-                `
-                : ""
-              }
-
-            </a>
-            `;
-          });
-      }
-      function scrollToArticleHeading(event,id){event.preventDefault();event.stopPropagation();const t=document.getElementById(id);if(!t)return;toggleTOC(false);requestAnimationFrame(()=>t.scrollIntoView({behavior:"smooth",block:"start"}))}
-      function generateArticleTOC() {
-        const hs = document.querySelectorAll(
-          "#article-body-content h1,#article-body-content h2,#article-body-content h3,#article-body-content h4",
+      function insertBox(t) {
+        $(t + "-article-editor").focus();
+        document.execCommand(
+          "insertHTML",
+          false,
+          '<div class="article-alert-box"><p>請輸入提醒內容...</p></div><p><br></p>',
         );
-        $("table-of-contents").innerHTML = hs.length
-          ? [...hs]
-              .map((h, i) => {
-                h.id = h.id || "heading-" + i;
-                return `<li style="padding-left:${(Number(h.tagName[1]) - 1) * 12}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')" class="block">• ${esc(h.innerText)}</a></li>`;
-              })
-              .join("")
-          : "<li>此文章無段落標題</li>";
       }
-      function localDateString() {
-        const p = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Asia/Taipei",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).formatToParts(new Date());
-        const o = Object.fromEntries(p.map((x) => [x.type, x.value]));
-        return `${o.year}-${o.month}-${o.day}`;
+
+      function faqItemHtml() {
+        return '<details class="faq-item" open><summary>請直接點此編輯問題</summary><div class="faq-answer"><p>請直接點此編輯答案</p></div></details>';
       }
-      function showAnnouncementIfActive() {
-        const enabled = settingsCache.announcement_enabled === "true",
-          title = (settingsCache.announcement_title || "網站公告").trim(),
-          content = (settingsCache.announcement_content || "").trim(),
-          start = settingsCache.announcement_start || "",
-          end = settingsCache.announcement_end || "",
-          today = localDateString();
-        if (
-          !enabled ||
-          !content ||
-          !start ||
-          !end ||
-          today < start ||
-          today > end
-        )
-          return closeAnnouncement();
-        $("announcement-modal-title").textContent = title || "網站公告";
-        $("announcement-modal-content").textContent = content;
-        $("announcement-modal").classList.remove("hidden");
-        document.body.style.overflow = "hidden";
+
+      function insertFAQ(t) {
+        const editor = $(t + "-article-editor");
+        editor.focus();
+        document.execCommand(
+          "insertHTML",
+          false,
+          '<section class="faq-block"><h2 class="faq-block-title">常見問題</h2>' + faqItemHtml() + '</section><p><br></p>',
+        );
       }
-      function closeAnnouncement() {
-        $("announcement-modal").classList.add("hidden");
-        document.body.style.overflow = "";
+
+      function addFAQItem(t) {
+        const editor = $(t + "-article-editor");
+        const blocks = editor.querySelectorAll(".faq-block");
+        if (!blocks.length) return insertFAQ(t);
+        const block = blocks[blocks.length - 1];
+        block.insertAdjacentHTML("beforeend", faqItemHtml());
+        const item = block.lastElementChild;
+        item.open = true;
+        item.querySelector("summary")?.focus();
       }
-      async function checkSessionState() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        $("floating-btn-text").innerText = session ? "網站管理" : "網站管理";
-      }
-      async function openAdminPanel() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) location.href = "/admin.html";
-        else $("login-modal").classList.remove("hidden");
-      }
-      async function loginWithEmail() {
-        const email = $("admin-email-input").value,
-          password = $("admin-password-input").value;
-        if (!email || !password) return alert("請輸入帳號與密碼");
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) return alert("登入失敗：" + error.message);
-        location.href = "/admin.html";
-      }
-      
-      function closeLoginModal() {
-        $("login-modal").classList.add("hidden");
-      }
-      
-      
-      
-      
+
       function applyCategoryOrder() {
         if (!categoryOrder.length) return;
         const rank = new Map(categoryOrder.map((id, i) => [String(id), i]));
@@ -1385,51 +664,834 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             (rank.get(String(a.id)) ?? 9999) - (rank.get(String(b.id)) ?? 9999),
         );
       }
-      
-      async function loadSettings() {
+
+      async function moveCategory(id, direction) {
+        const item = categoriesCache.find((c) => String(c.id) === String(id));
+        if (!item) return;
+        const siblings = categoriesCache.filter(
+          (c) => String(c.parent_id || "") === String(item.parent_id || ""),
+        );
+        const index = siblings.findIndex((c) => String(c.id) === String(id)),
+          target = index + direction;
+        if (target < 0 || target >= siblings.length) return;
+        [siblings[index], siblings[target]] = [
+          siblings[target],
+          siblings[index],
+        ];
+        const ids = siblings.map((c) => String(c.id)),
+          ordered = [];
+        for (const c of categoriesCache) {
+          if (String(c.parent_id || "") === String(item.parent_id || "")) {
+            if (!ordered.length) ordered.push(...siblings);
+          } else ordered.push(c);
+        }
+        categoriesCache = ordered;
+        categoryOrder = categoriesCache.map((c) => String(c.id));
+        try {
+          await upsertSettings({
+            category_order: JSON.stringify(categoryOrder),
+          });
+          renderFrontendNav();
+          await loadCategoriesAdmin();
+        } catch (e) {
+          alert("分類順序儲存失敗：" + e.message);
+        }
+      }
+
+      async function addNewCategory() {
+        const name = $("new-cat-name").value.trim(),
+          slug = normalizeSlug($("new-cat-slug").value),
+          parent_id = $("new-cat-parent").value || null;
+        if (!name || !slug) return alert("請輸入分類名稱與網址後綴");
+        const { error } = await supabaseClient
+          .from("categories")
+          .insert([{ name, slug, parent_id }]);
+        if (error) return alert(error.message);
+        $("new-cat-name").value = "";
+        $("new-cat-slug").value = "";
+        loadCategoriesAdmin();
+      }
+
+      async function updateCategorySlug(id) {
+        try {
+          const slug = normalizeSlug($("cat-slug-" + id).value);
+          if (!slug) return alert("請輸入有效網址後綴");
+          const original = categoriesCache.find(
+            (c) => String(c.id) === String(id),
+          );
+          if (!original) throw new Error("找不到分類資料，請重新整理後再試");
+          const payload = { ...original, slug };
+          const { data, error } = await supabaseClient
+            .from("categories")
+            .upsert(payload, { onConflict: "id" })
+            .select()
+            .single();
+          if (error) throw error;
+          const index = categoriesCache.findIndex(
+            (c) => String(c.id) === String(id),
+          );
+          if (index !== -1) categoriesCache[index] = data;
+          alert("分類網址已更新");
+          await loadCategoriesAdmin();
+        } catch (e) {
+          console.error(e);
+          alert("分類網址更新失敗：" + (e?.message || String(e)));
+        }
+      }
+
+      async function deleteCategory(id) {
+        if (!confirm("確定刪除？")) return;
+        const { error } = await supabaseClient
+          .from("categories")
+          .delete()
+          .eq("id", id);
+        if (error) return alert(error.message);
+        loadCategoriesAdmin();
+      }
+
+      function populateArticleParentDropdowns() {
+        ["new", "edit", "draft-edit"].forEach((t) => {
+          const p = categoriesCache.filter((c) => !c.parent_id);
+          const parentSelect=$(t+"-article-parent-select"),childSelect=$(t+"-article-child-select");
+          if(!parentSelect||!childSelect)return;
+          parentSelect.innerHTML = '<option value="">請選擇母標籤</option>' +
+            p
+              .map(
+                (x) => `<option value="${esc(x.name)}">${esc(x.name)}</option>`,
+              )
+              .join("");
+          childSelect.innerHTML='<option value="">請先選擇母標籤</option>';
+        });
+      }
+
+      function updateChildDropdown(t, selected = "") {
+        const parentSelect=$(t+"-article-parent-select"),childSelect=$(t+"-article-child-select");if(!parentSelect||!childSelect)return;
+        const n = parentSelect.value,
+          p = categoriesCache.find((c) => c.name === n && !c.parent_id),
+          ch = p ? categoriesCache.filter((c) => c.parent_id === p.id) : [];
+        childSelect.innerHTML =
+          '<option value="">(不選子標籤)</option>' +
+          ch
+            .map(
+              (x) =>
+                `<option value="${esc(x.name)}" ${x.name === selected ? "selected" : ""}>${esc(x.name)}</option>`,
+            )
+            .join("");
+      }
+
+      async function slugExists(slug, exclude = null) {
+        let q = supabaseClient
+          .from("articles")
+          .select("id")
+          .ilike("slug", slug)
+          .limit(1);
+        if (exclude) q = q.neq("id", exclude);
+        const { data, error } = await q;
+        if (error) throw error;
+        return !!data?.length;
+      }
+
+      async function compressImage(file, options = {}) {
+        if (!file?.type?.startsWith("image/")) {
+          throw new Error("請選擇有效的圖片檔案");
+        }
+        const {
+          maxWidth = 1600,
+          maxHeight = 1200,
+          quality = 0.82,
+          square = false,
+        } = options;
+        const bitmap = await createImageBitmap(file);
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = bitmap.width;
+        let sourceHeight = bitmap.height;
+        if (square) {
+          const side = Math.min(bitmap.width, bitmap.height);
+          sourceX = Math.floor((bitmap.width - side) / 2);
+          sourceY = Math.floor((bitmap.height - side) / 2);
+          sourceWidth = side;
+          sourceHeight = side;
+        }
+        const scale = Math.min(
+          1,
+          maxWidth / sourceWidth,
+          maxHeight / sourceHeight,
+        );
+        const width = Math.max(1, Math.round(sourceWidth * scale));
+        const height = Math.max(1, Math.round(sourceHeight * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d", { alpha: false });
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        context.drawImage(
+          bitmap,
+          sourceX,
+          sourceY,
+          sourceWidth,
+          sourceHeight,
+          0,
+          0,
+          width,
+          height,
+        );
+        bitmap.close();
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob(
+            (result) => result ? resolve(result) : reject(new Error("圖片壓縮失敗")),
+            "image/webp",
+            quality,
+          );
+        });
+        return new File([blob], `${Date.now()}.webp`, { type: "image/webp" });
+      }
+      async function uploadArticleCover(file) {
+        if (!file) return "";
+        const optimizedFile = await compressImage(file, {
+          maxWidth: 1280,
+          maxHeight: 720,
+          quality: 0.82,
+        });
+        const path = `article-covers/${Date.now()}.webp`;
+        const { data, error } = await supabaseClient.storage
+          .from("blog-assets")
+          .upload(path, optimizedFile, {
+            cacheControl: "31536000",
+            contentType: "image/webp",
+            upsert: false,
+          });
+        if (error) throw error;
+        return supabaseClient.storage.from("blog-assets").getPublicUrl(data.path).data.publicUrl;
+      }
+      async function uploadArticleContentImage(file) {
+        if (!file?.type?.startsWith("image/")) {
+          throw new Error("請選擇有效的圖片檔案");
+        }
+        const optimizedFile = await compressImage(file, {
+          maxWidth: 1400,
+          maxHeight: 1400,
+          quality: 0.8,
+        });
+        const randomPart = crypto.randomUUID?.() ||
+          `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const path = `article-images/${randomPart}.webp`;
+        const { data, error } = await supabaseClient.storage
+          .from("blog-assets")
+          .upload(path, optimizedFile, {
+            cacheControl: "31536000",
+            contentType: "image/webp",
+            upsert: false,
+          });
+        if (error) throw error;
+        return supabaseClient.storage
+          .from("blog-assets")
+          .getPublicUrl(data.path).data.publicUrl;
+      }
+      function getEditorRange(editor) {
+        const selection = window.getSelection();
+        if (
+          selection &&
+          selection.rangeCount > 0 &&
+          editor.contains(selection.anchorNode)
+        ) {
+          return selection.getRangeAt(0).cloneRange();
+        }
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false);
+        return range;
+      }
+      function insertImageAtRange(editor, imageUrl, range) {
+        const safeUrl = esc(imageUrl);
+        const imageHtml = `<figure style="margin:1.5rem 0;"><img src="${safeUrl}" alt="" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;border-radius:12px;"></figure><p><br></p>`;
+        const workingRange = range || getEditorRange(editor);
+        workingRange.deleteContents();
+        const fragment = workingRange.createContextualFragment(imageHtml);
+        const lastNode = fragment.lastChild;
+        workingRange.insertNode(fragment);
+        const nextRange = document.createRange();
+        if (lastNode?.parentNode) {
+          nextRange.setStartAfter(lastNode);
+        } else {
+          nextRange.selectNodeContents(editor);
+          nextRange.collapse(false);
+        }
+        nextRange.collapse(true);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(nextRange);
+        return nextRange.cloneRange();
+      }
+      async function handleEditorImageFiles(editor, files) {
+        const imageFiles = [...files].filter((file) =>
+          file.type?.startsWith("image/"),
+        );
+        if (!imageFiles.length) return;
+        let savedRange = getEditorRange(editor);
+        editor.setAttribute("contenteditable", "false");
+        editor.style.opacity = "0.65";
+        editor.setAttribute("aria-busy", "true");
+        try {
+          for (const file of imageFiles) {
+            const imageUrl = await uploadArticleContentImage(file);
+            savedRange = insertImageAtRange(editor, imageUrl, savedRange);
+          }
+        } finally {
+          editor.setAttribute("contenteditable", "true");
+          editor.style.opacity = "";
+          editor.removeAttribute("aria-busy");
+          editor.focus();
+        }
+      }
+      function setupArticleEditorImageUpload(editorId) {
+        const editor = $(editorId);
+        if (!editor || editor.dataset.imageUploadReady === "true") return;
+        editor.dataset.imageUploadReady = "true";
+        editor.addEventListener("paste", async (event) => {
+          const files = [...(event.clipboardData?.files || [])];
+          const imageFiles = files.filter((file) =>
+            file.type?.startsWith("image/"),
+          );
+          const pastedHtml = event.clipboardData?.getData("text/html") || "";
+          if (!imageFiles.length) {
+            if (/data:image\/[^;]+;base64,/i.test(pastedHtml)) {
+              event.preventDefault();
+              alert("偵測到 Base64 圖片，但瀏覽器未提供可上傳的圖片檔。請先將圖片存成檔案，再拖曳或貼入編輯器。");
+            }
+            return;
+          }
+          event.preventDefault();
+          try {
+            await handleEditorImageFiles(editor, imageFiles);
+          } catch (error) {
+            console.error("貼上圖片失敗：", error);
+            alert("圖片貼上失敗：" + (error?.message || String(error)));
+          }
+        });
+        editor.addEventListener("dragover", (event) => {
+          const hasImage = [...(event.dataTransfer?.items || [])].some(
+            (item) => item.type?.startsWith("image/"),
+          );
+          if (hasImage) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+          }
+        });
+        editor.addEventListener("drop", async (event) => {
+          const files = [...(event.dataTransfer?.files || [])];
+          const imageFiles = files.filter((file) =>
+            file.type?.startsWith("image/"),
+          );
+          if (!imageFiles.length) return;
+          event.preventDefault();
+          try {
+            await handleEditorImageFiles(editor, imageFiles);
+          } catch (error) {
+            console.error("拖曳圖片失敗：", error);
+            alert("圖片上傳失敗：" + (error?.message || String(error)));
+          }
+        });
+      }
+      function validateArticleContent(content) {
+        if (/data:image\/[^;]+;base64,/i.test(content)) {
+          throw new Error("文章內容仍包含 Base64 圖片。請刪除該圖片後重新貼上，系統會自動轉成 WebP 並上傳。");
+        }
+        return content;
+      }
+      function relatedSettingsKey(articleId) {
+        return "article_related_" + String(articleId);
+      }
+      function selectedRelatedArticleIds(type) {
+        const select = $(type + "-article-related-select");
+        return select ? [...select.selectedOptions].map((option) => String(option.value)) : [];
+      }
+      function populateRelatedArticleSelect(type, options = {}) {
+        const select = $(type + "-article-related-select");
+        if (!select) return;
+        const excludeId = String(options.excludeId || "");
+        const selected = new Set((options.selectedIds || []).map(String));
+        select.innerHTML = allArticlesCache
+          .filter((article) => String(article.id) !== excludeId)
+          .map((article) => `<option value="${esc(article.id)}" ${selected.has(String(article.id)) ? "selected" : ""}>${esc(article.title)}｜${esc(article.category || "未分類")}${article.subcategory ? " / " + esc(article.subcategory) : ""}</option>`)
+          .join("");
+      }
+      function parseTags(v){return [...new Set(String(v||"").split(/[,，\n]/).map(x=>x.trim().replace(/^#/,"")).filter(Boolean))]}
+      function getDrafts(){try{const v=JSON.parse(settingsCache.article_drafts||"[]");return Array.isArray(v)?v:[]}catch{return[]}}
+      async function saveDrafts(v){await upsertSettings({article_drafts:JSON.stringify(v)})}
+      async function saveNewArticleDraft(){const d={id:crypto.randomUUID?.()||String(Date.now()),title:$("new-article-title").value.trim(),category:$("new-article-parent-select").value,subcategory:$("new-article-child-select").value,slug:normalizeSlug($("new-article-slug").value)||fallbackSlug(),tags:parseTags($("new-article-tags").value),content:$("new-article-editor").innerHTML.trim()};if(!d.title)return alert("請輸入標題");const v=getDrafts();v.unshift(d);await saveDrafts(v);alert("已存為草稿")}
+      function renderDraftsList(){const b=$("admin-drafts-list"),v=getDrafts();if(!b)return;b.innerHTML=v.length?v.map(d=>`<div class="draft-card p-3 rounded"><b>${esc(d.title)}</b> <button onclick="loadDraftToEdit('${d.id}')">修改</button> <button onclick="deleteDraft('${d.id}')">刪除</button></div>`).join(""):"目前沒有草稿"}
+      function loadDraftToEdit(id){const d=getDrafts().find(x=>String(x.id)===String(id));if(!d)return;$("draft-edit-id").value=d.id;$("draft-edit-title").value=d.title;$("draft-edit-slug").value=d.slug;$("draft-edit-tags").value=(d.tags||[]).join(", ");$("draft-edit-article-editor").innerHTML=d.content;$("draft-edit-article-parent-select").value=d.category;updateChildDropdown("draft-edit",d.subcategory);$("draft-edit-form").classList.remove("hidden")}
+      async function saveDraftEdits(){const v=getDrafts(),i=v.findIndex(x=>String(x.id)===$("draft-edit-id").value);if(i<0)return;v[i]={...v[i],title:$("draft-edit-title").value,category:$("draft-edit-article-parent-select").value,subcategory:$("draft-edit-article-child-select").value,slug:normalizeSlug($("draft-edit-slug").value),tags:parseTags($("draft-edit-tags").value),content:$("draft-edit-article-editor").innerHTML};await saveDrafts(v);renderDraftsList();alert("草稿已更新")}
+      async function deleteDraft(id){await saveDrafts(getDrafts().filter(x=>String(x.id)!==String(id)));renderDraftsList()}
+      async function publishDraft(){
+        const id=$("draft-edit-id").value;
+        const d=getDrafts().find(x=>String(x.id)===String(id));
+        if(!d)return alert("找不到已儲存的草稿，請先儲存草稿修改");
+        if(!d.title||!d.category)return alert("已儲存的草稿缺少標題或母標籤，請先完成內容並儲存");
+        if(!confirm("確定要發布目前已儲存的草稿版本嗎？"))return;
+        try{
+          if(await slugExists(d.slug))return alert("文章網址後綴已被使用");
+          const now=new Date().toISOString();
+          const{data,error}=await supabaseClient.from("articles").insert([{title:d.title,category:d.category,subcategory:d.subcategory,slug:d.slug,content:validateArticleContent(d.content||""),cover_image_url:"",created_at:now,updated_at:now}]).select().single();
+          if(error)throw error;
+          await upsertSettings({["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(d.tags||[])});
+          await saveDrafts(getDrafts().filter(x=>String(x.id)!==String(id)));
+          renderDraftsList();
+          $("draft-edit-form").classList.add("hidden");
+          await loadManageArticlesList();
+          alert("已發布");
+        }catch(error){
+          console.error(error);
+          alert("發布失敗："+(error?.message||String(error)));
+        }
+      }
+      async function publishNewArticle() {
+        const title = $("new-article-title").value.trim(),
+          category = $("new-article-parent-select").value,
+          subcategory = $("new-article-child-select").value,
+          slug = normalizeSlug($("new-article-slug").value) || fallbackSlug(),
+          coverFile = $("new-article-cover-file").files[0],
+          relatedArticleIds=selectedRelatedArticleIds("new"), articleTags=parseTags($("new-article-tags").value);
+        let content;
+        try {
+          content = validateArticleContent(
+            $("new-article-editor").innerHTML.trim(),
+          );
+        } catch (error) {
+          return alert(error.message);
+        }
+        if (!title || !category) return alert("請輸入標題並選擇母標籤");
+        try {
+          if (await slugExists(slug)) return alert("文章網址後綴已被使用");
+          const cover_image_url = await uploadArticleCover(coverFile);
+          const now = new Date().toISOString(),
+            { data, error } = await supabaseClient
+              .from("articles")
+              .insert([
+                {
+                  title,
+                  category,
+                  subcategory,
+                  content,
+                  slug,
+                  cover_image_url,
+                  created_at: now,
+                  updated_at: now,
+                },
+              ])
+              .select()
+              .single();
+          if (error) throw error;
+          await upsertSettings({
+            [relatedSettingsKey(data.id)]:JSON.stringify(relatedArticleIds),["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(articleTags),
+          });
+          alert("發布成功！\n" + location.origin + articlePath(data));
+          $("new-article-title").value = "";
+          $("new-article-slug").value = "";
+          $("new-article-cover-file").value = "";
+          $("new-article-related-select").selectedIndex = -1;
+          $("new-article-editor").innerHTML = "";
+          await loadManageArticlesList();
+        } catch (e) {
+          alert("發布失敗：" + e.message);
+        }
+      }
+      async function copyAllBlogUrls() {
+        try {
+          if (!categoriesCache.length) await fetchCategories();
+          if (!allArticlesCache.length) await loadManageArticlesList();
+          const urls = new Set([location.origin + "/"]);
+          categoriesCache.forEach((c) => urls.add(location.origin + categoryPath(c.name)));
+          allArticlesCache.forEach((article) => urls.add(location.origin + articlePath(article)));
+          const text = [...urls].join("\n");
+          await navigator.clipboard.writeText(text);
+          alert(`已複製 ${urls.size} 個網址`);
+        } catch (error) {
+          const urls = [location.origin + "/", ...categoriesCache.map((c) => location.origin + categoryPath(c.name)), ...allArticlesCache.map((article) => location.origin + articlePath(article))];
+          prompt("瀏覽器無法自動寫入剪貼簿，請手動複製：", [...new Set(urls)].join("\n"));
+        }
+      }
+      async function loadManageArticlesList() {
         const { data, error } = await supabaseClient
-          .from("settings")
-          .select("*");
-        if (error) {
-          console.error("設定讀取失敗：", error);
+          .from("articles")
+          .select("id,title,category,subcategory,slug,created_at,updated_at,cover_image_url")
+          .order("created_at", { ascending: false });
+        if (error) return alert(error.message);
+        allArticlesCache = data || [];
+        populateArticleParentDropdowns();
+        populateRelatedArticleSelect("new");
+        $("admin-articles-list").innerHTML = allArticlesCache
+          .map(
+            (a) =>
+              `<div class="p-3 bg-[#F9F6F0] border rounded flex justify-between"><div><b>${esc(a.title)}</b><div class="text-xs opacity-60">${esc(articlePath(a))}</div></div><div><button onclick="loadArticleToEdit('${a.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button> <button onclick="deleteArticle('${a.id}')" class="text-xs bg-red-500 text-white px-3 py-1 rounded">刪除</button></div></div>`,
+          )
+          .join("");
+      }
+      async function loadArticleToEdit(id) {
+        const { data: a, error } = await supabaseClient
+          .from("articles")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (error || !a) {
+          console.error(error);
+          alert("文章載入失敗：" + (error?.message || "找不到文章"));
           return;
         }
-        settingsCache = Object.fromEntries(
-          (data || []).map((x) => [x.key, x.value]),
+        const index = allArticlesCache.findIndex(
+          (item) => String(item.id) === String(a.id),
+        );
+        if (index >= 0) {
+          allArticlesCache[index] = { ...allArticlesCache[index], ...a };
+        } else {
+          allArticlesCache.push(a);
+        }
+        $("edit-article-id").value = a.id;
+        $("edit-article-title").value = a.title;
+        $("edit-article-slug").value = a.slug || "";
+        $("edit-article-editor").innerHTML = a.content || "";
+        $("edit-article-cover-file").value = "";
+        const preview = $("edit-article-cover-preview");
+        preview.src = a.cover_image_url || "";
+        preview.classList.toggle("hidden", !a.cover_image_url);
+        $("edit-article-parent-select").value = a.category || "";
+        updateChildDropdown("edit", a.subcategory || "");
+        let relatedArticleIds = [];
+        try {
+          const parsed = JSON.parse(settingsCache[relatedSettingsKey(a.id)] || "[]");
+          relatedArticleIds = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          relatedArticleIds = [];
+        }
+        populateRelatedArticleSelect("edit", {
+          excludeId: a.id,
+          selectedIds: relatedArticleIds,
+        });
+        $("edit-article-form").classList.remove("hidden");
+      }
+      function closeEditForm() {
+        $("edit-article-form").classList.add("hidden");
+      }
+
+      async function updateExistingArticle() {
+        const id = $("edit-article-id").value,
+          title = $("edit-article-title").value.trim(),
+          category = $("edit-article-parent-select").value,
+          subcategory = $("edit-article-child-select").value,
+          slug = normalizeSlug($("edit-article-slug").value) || fallbackSlug(),
+          coverFile = $("edit-article-cover-file").files[0],
+          relatedArticleIds = selectedRelatedArticleIds("edit");
+        let content;
+        try {
+          content = validateArticleContent(
+            $("edit-article-editor").innerHTML.trim(),
+          );
+        } catch (error) {
+          return alert(error.message);
+        }
+        if (!title || !category) return alert("請輸入標題並選擇母標籤");
+        try {
+          if (await slugExists(slug, id)) return alert("文章網址後綴已被使用");
+          const original = allArticlesCache.find((a) => a.id == id);
+          if (!original) throw new Error("找不到原始文章資料，請重新載入後再試");
+          const cover_image_url = coverFile
+            ? await uploadArticleCover(coverFile)
+            : (original.cover_image_url || "");
+          const { error } = await supabaseClient
+            .from("articles")
+            .upsert(
+              {
+                id: original.id,
+                title,
+                category,
+                subcategory,
+                content,
+                slug,
+                cover_image_url,
+                created_at: original.created_at,
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "id" },
+            );
+          if (error) throw error;
+          await upsertSettings({
+            [relatedSettingsKey(id)]: JSON.stringify(relatedArticleIds),
+          });
+          alert("文章更新成功");
+          closeEditForm();
+          await loadManageArticlesList();
+        } catch (e) {
+          alert("更新失敗：" + e.message);
+        }
+      }
+      async function deleteArticle(id) {
+        if (!confirm("確定刪除這篇文章？")) return;
+        const { error } = await supabaseClient
+          .from("articles")
+          .delete()
+          .eq("id", id);
+        if (error) return alert(error.message);
+        loadManageArticlesList();
+      }
+
+      async function upsertSettings(items) {
+        const rows = Object.entries(items).map(([key, value]) => ({
+          key,
+          value: String(value ?? ""),
+        }));
+        const { error } = await supabaseClient
+          .from("settings")
+          .upsert(rows, { onConflict: "key" });
+        if (error) throw error;
+        Object.assign(settingsCache, items);
+      }
+
+      function fillSettingsForms() {
+        if ($("admin-nickname"))
+          $("admin-nickname").value = settingsCache.nickname || "zz";
+        if ($("admin-bio"))
+          $("admin-bio").value = settingsCache.bio || "一個隨筆紀錄的人";
+        if ($("announcement-enabled"))
+          $("announcement-enabled").checked =
+            settingsCache.announcement_enabled === "true";
+        if ($("announcement-title"))
+          $("announcement-title").value =
+            settingsCache.announcement_title || "";
+        if ($("announcement-content"))
+          $("announcement-content").value =
+            settingsCache.announcement_content || "";
+        if ($("announcement-start"))
+          $("announcement-start").value =
+            settingsCache.announcement_start || "";
+        if ($("announcement-end"))
+          $("announcement-end").value = settingsCache.announcement_end || "";
+      }
+
+      async function saveProfileSettings() {
+        const nickname = $("admin-nickname").value.trim(),
+          bio = $("admin-bio").value.trim();
+        if (!nickname) return alert("暱稱不可空白");
+        try {
+          await upsertSettings({ nickname, bio });
+          alert("帳號資料已更新");
+        } catch (e) {
+          alert("更新失敗：" + e.message);
+        }
+      }
+
+      async function saveAnnouncement() {
+        const enabled = $("announcement-enabled").checked,
+          title = $("announcement-title").value.trim(),
+          content = $("announcement-content").value.trim(),
+          start = $("announcement-start").value,
+          end = $("announcement-end").value;
+        if (enabled && (!content || !start || !end))
+          return alert("啟用公告時，請填寫公告內容、開始日期與結束日期");
+        if (start && end && start > end)
+          return alert("開始日期不可晚於結束日期");
+        try {
+          await upsertSettings({
+            announcement_enabled: String(enabled),
+            announcement_title: title,
+            announcement_content: content,
+            announcement_start: start,
+            announcement_end: end,
+          });
+          alert("公告設定已儲存");
+        } catch (e) {
+          alert("公告儲存失敗：" + e.message);
+        }
+      }
+
+      function formatMonth(v) {
+        if (!v) return "";
+        const [y, m] = String(v).split("-");
+        return y && m ? `${y}/${m}` : esc(v);
+      }
+
+      function renderJourneyAdmin() {
+        const box = $("admin-journey-list");
+        if (!box) return;
+        const sorted = [...journeyEntries].sort((a, b) => String(b.start).localeCompare(String(a.start)));
+        const normalizedType = (x) => x.type === "taiwan" ? "taiwan" : "abroad";
+        const renderGroup = (type, title) => {
+          const list = sorted.filter((x) => normalizedType(x) === type);
+          return `<section><h3 class="text-lg font-bold mt-5 mb-2">${title}</h3><div class="space-y-2">${list.length ? list.map((x) => `<div class="custom-card p-3 rounded-lg flex items-start justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="text-xs mt-2 opacity-75">相關文章：${(x.relatedUrls || []).length} 篇</div></div><div class="flex gap-2"><button onclick="editJourneyEntry('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button><button onclick="deleteJourneyEntry('${x.id}')" class="text-xs text-red-600">刪除</button></div></div>`).join("") : '<div class="opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
+        };
+        box.innerHTML = renderGroup("abroad", "國外 Abroad") + renderGroup("taiwan", "臺灣 Taiwan");
+      }
+
+      async function addJourneyEntry() {
+        const start = $("journey-start").value,
+          end = $("journey-end").value,
+          type = $("journey-type").value,
+          name = $("journey-name").value.trim(),
+          relatedUrls = $("journey-related-urls").value.split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+        if (!start || !end || !name) return alert("請完整填寫開始年月、結束年月、旅途分類與行程名稱");
+        if (start > end) return alert("開始年月不可晚於結束年月");
+        journeyEntries.push({ id: String(Date.now()), start, end, type, name, relatedUrls });
+        try {
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
+          $("journey-start").value = "";
+          $("journey-end").value = "";
+          $("journey-type").value = "abroad";
+          $("journey-name").value = "";
+          $("journey-related-urls").value = "";
+          renderJourneyAdmin();
+          alert("旅途紀錄已新增");
+        } catch (e) {
+          journeyEntries.pop();
+          alert("新增失敗：" + e.message);
+        }
+      }
+
+      async function editJourneyEntry(id) {
+        const item = journeyEntries.find((x) => String(x.id) === String(id));
+        if (!item) return;
+        const name = prompt("修改行程名稱", item.name || "");
+        if (name === null || !name.trim()) return;
+        const typeInput = prompt("輸入分類：abroad 或 taiwan", item.type === "taiwan" ? "taiwan" : "abroad");
+        if (typeInput === null) return;
+        const type = typeInput.trim().toLowerCase() === "taiwan" ? "taiwan" : "abroad";
+        const urls = prompt("相關文章網址，每行一個", (item.relatedUrls || []).join("\n"));
+        if (urls === null) return;
+        const old = JSON.parse(JSON.stringify(journeyEntries));
+        item.name = name.trim();
+        item.type = type;
+        item.relatedUrls = urls.split(/\n|,/).map((x) => x.trim()).filter(Boolean);
+        try {
+          await upsertSettings({ travel_entries: JSON.stringify(journeyEntries) });
+          renderJourneyAdmin();
+          alert("旅途紀錄已更新");
+        } catch (e) {
+          journeyEntries = old;
+          alert("更新失敗：" + e.message);
+        }
+      }
+
+      async function deleteJourneyEntry(id) {
+        if (!confirm("確定刪除這筆旅途紀錄？")) return;
+        const old = [...journeyEntries];
+        journeyEntries = journeyEntries.filter(
+          (x) => String(x.id) !== String(id),
         );
         try {
-          categoryOrder = JSON.parse(settingsCache.category_order || "[]");
-        } catch {
-          categoryOrder = [];
+          await upsertSettings({
+            travel_entries: JSON.stringify(journeyEntries),
+          });
+          renderJourneyAdmin();
+        } catch (e) {
+          journeyEntries = old;
+          alert("刪除失敗：" + e.message);
         }
-        try {
-          journeyEntries = JSON.parse(settingsCache.travel_entries || "[]");
-        } catch {
-          journeyEntries = [];
-        }
-        applyCategoryOrder();
-        renderFrontendNav();
-        renderLatestArticles();
-        renderSocialPlatforms();
-        const heroImage = $("site-logo-image");
-        if (settingsCache.logo) {
-          preloadImage("hero-image-preload", settingsCache.logo, "high");
-          heroImage.src = settingsCache.logo;
-          heroImage.hidden = false;
-        } else {
-          preloadImage("hero-image-preload", "");
-          heroImage.removeAttribute("src");
-          heroImage.hidden = true;
-        }
-        if (settingsCache.avatar) {
-          $("site-avatar").src = settingsCache.avatar;
-        } else {
-          $("site-avatar").removeAttribute("src");
-        }
-        $("site-nickname").textContent = settingsCache.nickname || "zz";
-        $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
       }
-     
+
+      async function uploadAsset(t) {
+        const fileInput = $("admin-" + t + "-file");
+        const file = fileInput.files[0];
+        if (!file) return alert("請先選擇檔案");
+        try {
+          const optimizedFile = t === "avatar"
+            ? await compressImage(file, {
+                maxWidth: 256,
+                maxHeight: 256,
+                quality: 0.82,
+                square: true,
+              })
+            : await compressImage(file, {
+                maxWidth: 1600,
+                maxHeight: 600,
+                quality: 0.84,
+              });
+          const path = `${t}_${Date.now()}.webp`;
+          const { data, error } = await supabaseClient.storage
+            .from("blog-assets")
+            .upload(path, optimizedFile, {
+              cacheControl: "31536000",
+              contentType: "image/webp",
+              upsert: false,
+            });
+          if (error) throw error;
+          const url = supabaseClient.storage
+            .from("blog-assets")
+            .getPublicUrl(data.path).data.publicUrl;
+          await upsertSettings({ [t]: url });
+          fileInput.value = "";
+          alert("圖片已轉換為 WebP、壓縮並更新成功");
+          await loadSettings();
+        } catch (error) {
+          console.error(error);
+          alert("圖片更新失敗：" + (error?.message || String(error)));
+        }
+      }
+
+      async function loadCategoriesAdmin() {
+        await fetchCategories();
+        const p = categoriesCache.filter((c) => !c.parent_id);
+        $("new-cat-parent").innerHTML =
+          '<option value="">無（設為母分類）</option>' +
+          p
+            .map((x) => `<option value="${x.id}">${esc(x.name)}</option>`)
+            .join("");
+        $("admin-categories-tree").innerHTML = p
+          .map(
+            (x) =>
+              `<div class="p-3 border rounded space-y-2"><div class="flex flex-wrap items-center gap-2"><b>📁 ${esc(x.name)}</b><button class="order-btn" onclick="moveCategory('${x.id}',-1)">↑</button><button class="order-btn" onclick="moveCategory('${x.id}',1)">↓</button><input id="cat-slug-${x.id}" value="${esc(x.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${x.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${x.id}')" class="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded">刪除</button></div><div class="pl-6 space-y-2">${categoriesCache
+                .filter((c) => c.parent_id === x.id)
+                .map(
+                  (y) =>
+                    `<div class="flex flex-wrap items-center gap-2">└ <span>${esc(y.name)}</span><button class="order-btn" onclick="moveCategory('${y.id}',-1)">↑</button><button class="order-btn" onclick="moveCategory('${y.id}',1)">↓</button><input id="cat-slug-${y.id}" value="${esc(y.slug || "")}" class="border rounded px-2 py-1 text-sm" placeholder="網址後綴"><button onclick="updateCategorySlug('${y.id}')" class="text-xs bg-[#C9B59C] text-white px-2 py-1 rounded">儲存網址</button><button onclick="deleteCategory('${y.id}')" class="text-xs text-red-600">刪除</button></div>`,
+                )
+                .join("")}</div></div>`,
+          )
+          .join("");
+      }
+
+      function switchAdminTab(n) {
+        [
+          "account",
+          "logo",
+          "announcement",
+          "categories",
+          "articles",
+          "journey",
+        ].forEach((t) => {
+          $("admin-tab-" + t).classList.toggle("hidden", t !== n);
+          $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
+          $("tab-" + t + "-btn").classList.toggle("text-white", t === n);
+        });
+        if (n === "categories") loadCategoriesAdmin();
+        if (n === "articles") populateArticleParentDropdowns();
+        if (n === "journey") renderJourneyAdmin();
+        if (n === "account" || n === "announcement") fillSettingsForms();
+      }
+
+      function switchArticleSubTab(s) {
+        $("sub-article-new").classList.toggle("hidden", s !== "new");
+        $("sub-article-manage").classList.toggle("hidden",s!=="manage");$("sub-article-drafts").classList.toggle("hidden",s!=="drafts");
+        if(s==="manage")loadManageArticlesList();if(s==="drafts")renderDraftsList();
+      }
+
+      addEventListener("DOMContentLoaded", async () => {
+        await initSupabase();
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) { location.replace("/"); return; }
+        try {
+          buildToolbar("new");
+          buildToolbar("edit");buildToolbar("draft-edit");
+          setupArticleEditorImageUpload("new-article-editor");
+          setupArticleEditorImageUpload("edit-article-editor");
+          await Promise.all([fetchCategories(), loadSettings()]);
+          await Promise.all([loadCategoriesAdmin(), loadManageArticlesList()]);
+          fillSettingsForms();
+          renderJourneyAdmin();
+        } catch (error) {
+          console.error(error);
+          alert("後台載入失敗：" + (error?.message || String(error)));
+        }
+      });
     </script>
   </body>
 </html>
