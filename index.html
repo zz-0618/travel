@@ -494,7 +494,7 @@
         font-size: 12px;
       }
     
-button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.announcement-close-button{background:transparent!important;color:var(--ink)!important;border:0!important}.article-meta-muted{color:#778873!important}.latest-articles-box,.related-articles-box{position:static!important}.tag-filter-bar{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1.25rem;padding:.8rem 0;border-bottom:1px solid var(--sand);font-family:"Noto Serif TC",serif}.tag-filter-button{background:#fff!important;color:var(--ink)!important;border:1px solid var(--sand)!important;padding:.42rem .75rem;border-radius:999px}.tag-filter-button.active{background:#8FA28A!important;color:#fff!important}.article-tags{display:inline-flex;flex-wrap:wrap;gap:.45rem}.article-tag{color:#778873;font-weight:600}.social-platforms-box{background:var(--soft);border:1px solid var(--sand)}.social-platform-link{display:block;padding:.65rem;border:1px solid var(--sand);border-radius:9px;background:#fff;margin:.5rem 0}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}
+button:not(.admin-entry):not(.announcement-icon-close){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.announcement-icon-close{background:transparent!important;color:var(--ink)!important;border:0!important}.announcement-ack-button{background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.article-meta-muted{color:#778873!important}.latest-articles-box,.related-articles-box{position:static!important}.tag-filter-bar{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1.25rem;padding:.8rem 0;border-bottom:1px solid var(--sand);font-family:"Noto Serif TC",serif}.tag-filter-button{background:#fff!important;color:var(--ink)!important;border:1px solid var(--sand)!important;padding:.42rem .75rem;border-radius:999px}.tag-filter-button.active{background:#8FA28A!important;color:#fff!important}.article-tags{display:inline-flex;flex-wrap:wrap;gap:.45rem}.article-tag{color:#778873;font-weight:600}.social-platforms-box{background:var(--soft);border:1px solid var(--sand)}.social-platform-link{display:block;padding:.65rem;border:1px solid var(--sand);border-radius:9px;background:#fff;margin:.5rem 0}.embedded-map-block{position:relative;width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}.embedded-map-block iframe{display:block;width:100%!important;min-height:360px;border:0}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -595,7 +595,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           <button
             onclick="toggleTOC(false)"
             aria-label="關閉文章目錄"
-            class="text-2xl leading-none px-1"
+            class="text-2xl leading-none rounded-full w-9 h-9 inline-flex items-center justify-center"
           >
             ×
           </button>
@@ -620,7 +620,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           <button
             onclick="closeAnnouncement()"
             aria-label="關閉公告"
-            class="announcement-close-button text-2xl leading-none px-2"
+            class="announcement-icon-close text-2xl leading-none px-2"
           >
             ×
           </button>
@@ -632,7 +632,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         <div class="px-6 pb-6 text-right">
           <button
             onclick="closeAnnouncement()"
-            class="announcement-close-button px-6 py-2 rounded-lg"
+            class="announcement-ack-button px-6 py-2 rounded-lg"
           >
             我知道了
           </button>
@@ -676,6 +676,11 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
     </button>
     <footer class="w-full py-4 text-center text-xs border-t mt-12">
       <div>©2026 一葉知途 版權所有 轉載請註明出處</div>
+      <div class="mt-2">
+        <a href="https://www.dmca.com/compliance/travel.aleafpath.workers.dev" target="_blank" rel="noopener noreferrer" title="DMCA Compliance information for travel.aleafpath.workers.dev">
+          <img src="https://www.dmca.com/img/dmca-compliant-grayscale.png" alt="DMCA compliant image" loading="lazy" decoding="async" class="inline-block" />
+        </a>
+      </div>
       <button onclick="openAdminPanel()" class="admin-entry mt-1">
         <span id="floating-btn-text">網站管理</span>
       </button>
