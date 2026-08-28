@@ -542,42 +542,26 @@
 
       function insertMapCard(t) {
 
-        const name =
-          prompt("請輸入店名");
-
-        if (!name) return;
-
-        const address =
-          prompt("請輸入地址");
-
-        if (!address) return;
-
-        const url =
-          prompt("請輸入地圖網址");
-
-        if (!url) return;
-
-        let platform = "google";
-
-        if (url.includes("naver")) {
-          platform = "naver";
-        }
-
-        if (url.includes("amap")) {
-          platform = "amap";
-        }
-
         const html = `
-      <div
-      class="travel-map"
-      data-platform="${platform}"
-      data-name="${name}"
-      data-address="${address}"
-      data-url="${url}">
-      </div>
+      <div class="travel-map">
 
-      <p><br></p>
-      `;
+        <div class="map-name">
+          店名
+        </div>
+
+        <div class="map-hours">
+          營業時間
+        </div>
+
+        <div class="map-address">
+          地址
+        </div>
+
+        <a
+          class="map-url"
+          href="https://maps.app.goo.gl/"
+          target="_blank"
+          rel="noopener noreferrer">
 
         document.execCommand(
           "insertHTML",
