@@ -378,7 +378,7 @@
         opacity: .75;
       }
 
-      /* 手機版 Logo 採 16:9 橫式，文章卡片改為上下排列。 */
+      /* 手機版 Logo 採 1206:368，文章卡片改為上下排列。 */
       @media (max-width: 767px) {
         #site-header-bg {
           width: 100%;
@@ -493,24 +493,17 @@
         padding: 2px 8px;
         font-size: 12px;
       }
-
-      /* 全站按鍵統一為鼠尾草綠。 */
-      button:not(.admin-entry) { background:#8FA28A !important; color:#fff !important; border-color:#8FA28A !important; }
-      button:not(.admin-entry):hover { filter:brightness(.94); }
-      .article-meta-muted { color:#C7D3C0 !important; }
-      .latest-articles-box,.related-articles-box { position:static !important; }
-      .related-articles-box { clear:both; }
-      .map-preview-card { display:flex !important; align-items:stretch; gap:16px; padding:14px !important; overflow:hidden; }
-      .map-preview-image { flex:0 0 38%; width:38%; aspect-ratio:4/3; object-fit:cover; border-radius:10px; background:var(--card); }
-      .map-preview-content { flex:1; min-width:0; align-self:center; }
-      .embedded-map-block { margin:1.5rem 0; width:100%; overflow:hidden; border-radius:12px; }
-      .embedded-map-block iframe { display:block; width:100% !important; max-width:100%; border:0; }
-      .social-platforms-box { background:var(--soft); border:1px solid var(--sand); color:var(--ink); }
-      .social-platforms-list { display:flex; flex-direction:column; gap:.65rem; }
-      .social-platform-link { display:flex; align-items:center; gap:.55rem; padding:.65rem .8rem; border:1px solid var(--sand); border-radius:9px; background:#fff; color:var(--ink); text-decoration:none; }
-      .social-platform-link:hover { color:var(--accent); border-color:var(--accent); }
+    
+      button:not(.admin-entry){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}
+      button:not(.admin-entry):hover{filter:brightness(.94)}
+      .article-meta-muted{color:#C7D3C0!important}
+      .latest-articles-box,.related-articles-box{position:static!important}.related-articles-box{clear:both}
+      .map-preview-card{display:flex!important;align-items:stretch;gap:16px;padding:14px!important;overflow:hidden}
+      .map-preview-image{flex:0 0 38%;width:38%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}.map-preview-content{flex:1;min-width:0;align-self:center}
+      .embedded-map-block{margin:1.5rem 0;width:100%;overflow:hidden;border-radius:12px}.embedded-map-block iframe{display:block;width:100%!important;max-width:100%;border:0}
+      .social-platforms-box{background:var(--soft);border:1px solid var(--sand)}.social-platforms-list{display:flex;flex-direction:column;gap:.65rem}.social-platform-link{display:flex;gap:.55rem;padding:.65rem .8rem;border:1px solid var(--sand);border-radius:9px;background:#fff}
       @media(max-width:560px){.map-preview-card{flex-direction:column}.map-preview-image{width:100%;flex:none;aspect-ratio:16/9}}
-    </style>
+</style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
     <div id="frontend-view">
@@ -561,7 +554,7 @@
             </p>
           </div>
           <section
-            class="latest-articles-box p-5 rounded-xl shadow-sm"
+            class="latest-articles-box p-5 rounded-xl shadow-sm "
             aria-labelledby="latest-articles-title"
           >
             <h3
@@ -585,10 +578,7 @@
             </h3>
             <ol id="related-articles-list" class="space-y-3 text-sm"></ol>
           </section>
-          <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="social-platforms-title">
-            <h3 id="social-platforms-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">其他社群平台</h3>
-            <div id="social-platforms-list" class="social-platforms-list text-sm"></div>
-          </section>
+          <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">其他社群平台</h3><div id="social-platforms-list" class="social-platforms-list text-sm"></div></section>
         </aside>
       </main>
     </div>
@@ -693,16 +683,7 @@
     >
       ↑
     </button>
-    <footer class="w-full py-4 text-center text-xs border-t mt-12">
-      <div>©一葉知途 版權所有 轉仔請註明出處</div>
-      <div class="mt-2 flex justify-center">
-        <a href="//www.dmca.com/Protection/Status.aspx?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" title="DMCA.com Protection Status" class="dmca-badge">
-          <img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" alt="DMCA.com Protection Status" loading="lazy" decoding="async">
-        </a>
-      </div>
-      <button onclick="openAdminPanel()" class="admin-entry mt-1"><span id="floating-btn-text">網站管理</span></button>
-    </footer>
-    <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
+    <footer class="w-full py-4 text-center text-xs border-t mt-12"><div>©一葉知途 版權所有 轉仔請註明出處</div><div class="mt-2 flex justify-center"><a href="//www.dmca.com/Protection/Status.aspx?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" title="DMCA.com Protection Status" class="dmca-badge"><img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=bc29a447-f962-4040-8c0f-60813a5f88e8" alt="DMCA.com Protection Status"></a></div><button onclick="openAdminPanel()" class="admin-entry mt-1"><span id="floating-btn-text">網站管理</span></button></footer><script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
     
     <script>
       const SUPABASE_URL = "https://rpzqioezweftrjtrneos.supabase.co",
@@ -1075,24 +1056,7 @@
         ).join("");
         section.classList.remove("hidden");
       }
-      function renderSocialPlatforms() {
-        const section = $("social-platforms-box"), list = $("social-platforms-list");
-        if (!section || !list) return;
-        let items = [];
-        try {
-          const parsed = JSON.parse(settingsCache.social_links || "[]");
-          items = Array.isArray(parsed) ? parsed : [];
-        } catch { items = []; }
-        items = items.filter((item) => item && String(item.name || "").trim() && /^https?:\/\//i.test(String(item.url || "").trim()));
-        if (!items.length) { list.innerHTML = ""; section.classList.add("hidden"); return; }
-        list.innerHTML = items.map((item) => {
-          const name = String(item.name).trim();
-          const lower = name.toLowerCase();
-          const icon = lower.includes("instagram") || lower === "ig" ? "◎" : lower.includes("facebook") || lower === "fb" ? "f" : "↗";
-          return `<a class="social-platform-link" href="${esc(String(item.url).trim())}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">${icon}</span><span>${esc(name)}</span></a>`;
-        }).join("");
-        section.classList.remove("hidden");
-      }
+      function renderSocialPlatforms(){const section=$("social-platforms-box"),list=$("social-platforms-list");if(!section||!list)return;let items=[];try{const p=JSON.parse(settingsCache.social_links||"[]");items=Array.isArray(p)?p:[]}catch{}items=items.filter(x=>x&&String(x.name||"").trim()&&/^https?:\/\//i.test(String(x.url||"").trim()));if(!items.length){list.innerHTML="";section.classList.add("hidden");return}list.innerHTML=items.map(x=>`<a class="social-platform-link" href="${esc(String(x.url).trim())}" target="_blank" rel="noopener noreferrer"><span>${esc(String(x.name).trim())}</span></a>`).join("");section.classList.remove("hidden")}
       function renderLatestArticles() {
         const box = $("latest-articles-list");
         if (!box) return;
@@ -1279,23 +1243,9 @@
         b.classList.toggle("hidden", open);
         b.setAttribute("aria-expanded", String(open));
       }
-      function renderMapCards() {
-        document.querySelectorAll(".travel-map").forEach((card) => {
-          const url = card.querySelector(".map-link")?.textContent?.trim(); if (!url) return;
-          let icon="📍", platform="地圖";
-          if(url.includes("google")){icon="🗺️";platform="Google Maps"} if(url.includes("naver")){platform="Naver Map"} if(url.includes("amap")){icon="📌";platform="高德地圖"}
-          const imageUrl=card.querySelector(".map-image img")?.getAttribute("src")?.trim()||"";
-          const name=card.querySelector(".map-name")?.textContent?.trim()||"店家", hours=card.querySelector(".map-hours")?.textContent?.trim()||"", address=card.querySelector(".map-address")?.textContent?.trim()||"";
-          card.outerHTML=`<a class="map-preview-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${imageUrl?`<img class="map-preview-image" src="${esc(imageUrl)}" alt="${esc(name)}照片" loading="lazy" decoding="async">`:""}<div class="map-preview-content"><div class="map-preview-platform">${icon} ${platform}</div><div class="map-preview-title">${esc(name)}</div>${hours?`<div class="map-preview-hours">${esc(hours)}</div>`:""}${address?`<div class="map-preview-desc">${esc(address)}</div>`:""}</div></a>`;
-        });
-      }
-      function generateArticleTOC() {
-        const hs = document.querySelectorAll("#article-body-content h1,#article-body-content h2,#article-body-content h3,#article-body-content h4");
-        $("table-of-contents").innerHTML = hs.length ? [...hs].map((h,i) => {
-          h.id = h.id || "heading-" + i;
-          return `<li style="padding-left:${(Number(h.tagName[1])-1)*12}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')" class="block">• ${esc(h.innerText)}</a></li>`;
-        }).join("") : "<li>此文章無段落標題</li>";
-      }
+      function renderMapCards(){document.querySelectorAll(".travel-map").forEach(card=>{const url=card.querySelector(".map-link")?.textContent?.trim();if(!url)return;let icon="📍",platform="地圖";if(url.includes("google")){icon="🗺️";platform="Google Maps"}else if(url.includes("naver")){platform="Naver Map"}else if(url.includes("amap")){icon="📌";platform="高德地圖"}const imageUrl=card.querySelector(".map-image img")?.src||"",name=card.querySelector(".map-name")?.textContent?.trim()||"店家",hours=card.querySelector(".map-hours")?.textContent?.trim()||"",address=card.querySelector(".map-address")?.textContent?.trim()||"";card.outerHTML=`<a class="map-preview-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${imageUrl?`<img class="map-preview-image" src="${esc(imageUrl)}" alt="${esc(name)}照片">`:""}<div class="map-preview-content"><div class="map-preview-platform">${icon} ${platform}</div><div class="map-preview-title">${esc(name)}</div>${hours?`<div class="map-preview-hours">${esc(hours)}</div>`:""}${address?`<div class="map-preview-desc">${esc(address)}</div>`:""}</div></a>`})}
+      function scrollToArticleHeading(event,headingId){event.preventDefault();event.stopPropagation();const target=document.getElementById(headingId);if(!target)return;toggleTOC(false);requestAnimationFrame(()=>target.scrollIntoView({behavior:"smooth",block:"start"}));history.replaceState(history.state,"",location.pathname+location.search+"#"+encodeURIComponent(headingId))}
+      function generateArticleTOC(){const hs=document.querySelectorAll("#article-body-content h1,#article-body-content h2,#article-body-content h3,#article-body-content h4");$("table-of-contents").innerHTML=hs.length?[...hs].map((h,i)=>{h.id=h.id||"heading-"+i;return `<li style="padding-left:${(Number(h.tagName[1])-1)*12}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')" class="block">• ${esc(h.innerText)}</a></li>`}).join(""):"<li>此文章無段落標題</li>"}
       function localDateString() {
         const p = new Intl.DateTimeFormat("en-CA", {
           timeZone: "Asia/Taipei",
