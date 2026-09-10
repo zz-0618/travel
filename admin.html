@@ -34,7 +34,7 @@
       .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
       .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
       @media(max-width:767px){#new-article-editor,#edit-article-editor{padding:20px!important;}}
-    button:not(.admin-entry){background:#A56C5D!important;color:#fff!important;border-color:#A56C5D!important}.draft-card{background:#fff8e8;border:1px solid var(--sand)}.embedded-map-block{position:relative;width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}.embedded-map-block iframe{display:block;width:100%!important;min-height:360px;border:0}</style>
+    button:not(.admin-entry){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.draft-card{background:#fff8e8;border:1px solid var(--sand)}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}</style>
   </head>
   <body class="min-h-screen">
     <div id="admin-view" class="min-h-screen bg-white flex flex-col">
@@ -361,7 +361,7 @@
                 提交發布
               </button></div>
             </div>
-            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list"></div><div id="draft-edit-form" class="hidden space-y-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-article-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-article-child-select" class="border p-2 rounded"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded"><input id="draft-edit-slug" class="w-full border p-2 rounded"><div id="draft-edit-toolbar"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded article-content-style"></div><div class="flex flex-wrap gap-3"><button onclick="saveDraftEdits()" class="px-6 py-2 rounded-lg">儲存草稿修改</button><button onclick="publishDraft()" class="px-6 py-2 rounded-lg">發布已儲存版本</button></div><p class="text-xs opacity-70">「儲存草稿修改」可重複使用且不會發布；「發布已儲存版本」只會發布上次儲存的內容。</p></div></div><div id="sub-article-manage" class="space-y-4 hidden">
+            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list"></div><div id="draft-edit-form" class="hidden space-y-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-article-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-article-child-select" class="border p-2 rounded"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded"><input id="draft-edit-slug" class="w-full border p-2 rounded"><div id="draft-edit-toolbar"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded article-content-style"></div><button onclick="saveDraftEdits()">儲存草稿</button><button onclick="publishDraft()">發布</button></div></div><div id="sub-article-manage" class="space-y-4 hidden">
               <div id="admin-articles-list" class="space-y-2"></div>
               <div
                 id="edit-article-form"
@@ -512,8 +512,7 @@
             <button class="editor-btn" onclick="cmd('${t}','italic')"><i>I</i></button>
             <button class="editor-btn" onclick="cmd('${t}','underline')"><u>U</u></button>
             <button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button>
-            <button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖資訊卡</button>
-            <button class="editor-btn" onclick="insertEmbeddedMap('${t}')">🗺️ 嵌入地圖 HTML</button>
+            <button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖</button>
             <button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button>
             <button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button>
             <button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button>
@@ -597,31 +596,6 @@
         );
       }
 
-      function insertEmbeddedMap(t) {
-        const rawHtml = prompt("請貼上地圖商提供的 iframe HTML 嵌入碼：");
-        if (!rawHtml) return;
-        const template = document.createElement("template");
-        template.innerHTML = rawHtml.trim();
-        const iframe = template.content.querySelector("iframe");
-        if (!iframe) return alert("找不到 iframe，請貼上地圖商提供的完整 HTML 嵌入碼");
-        const source = iframe.getAttribute("src") || "";
-        if (!/^https:\/\//i.test(source)) return alert("地圖 iframe 必須使用 HTTPS 網址");
-        const safeIframe = document.createElement("iframe");
-        ["src", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy"].forEach((name) => {
-          if (iframe.hasAttribute(name)) safeIframe.setAttribute(name, iframe.getAttribute(name));
-        });
-        safeIframe.setAttribute("loading", iframe.getAttribute("loading") || "lazy");
-        safeIframe.setAttribute("referrerpolicy", iframe.getAttribute("referrerpolicy") || "no-referrer-when-downgrade");
-        safeIframe.style.width = "100%";
-        safeIframe.style.minHeight = "360px";
-        safeIframe.style.border = "0";
-        const wrapper = document.createElement("div");
-        wrapper.className = "embedded-map-block";
-        wrapper.appendChild(safeIframe);
-        const editor = $(t + "-article-editor");
-        editor.focus();
-        document.execCommand("insertHTML", false, wrapper.outerHTML + "<p><br></p>");
-      }
       function insertBox(t) {
         $(t + "-article-editor").focus();
         document.execCommand(
@@ -1022,31 +996,21 @@
       async function saveDrafts(v){await upsertSettings({article_drafts:JSON.stringify(v)})}
       async function saveNewArticleDraft(){const d={id:crypto.randomUUID?.()||String(Date.now()),title:$("new-article-title").value.trim(),category:$("new-article-parent-select").value,subcategory:$("new-article-child-select").value,slug:normalizeSlug($("new-article-slug").value)||fallbackSlug(),tags:parseTags($("new-article-tags").value),content:$("new-article-editor").innerHTML.trim()};if(!d.title)return alert("請輸入標題");const v=getDrafts();v.unshift(d);await saveDrafts(v);alert("已存為草稿")}
       function renderDraftsList(){const b=$("admin-drafts-list"),v=getDrafts();if(!b)return;b.innerHTML=v.length?v.map(d=>`<div class="draft-card p-3 rounded"><b>${esc(d.title)}</b> <button onclick="loadDraftToEdit('${d.id}')">修改</button> <button onclick="deleteDraft('${d.id}')">刪除</button></div>`).join(""):"目前沒有草稿"}
-      function loadDraftToEdit(id){const d=getDrafts().find(x=>String(x.id)===String(id));if(!d)return;$("draft-edit-id").value=d.id;$("draft-edit-title").value=d.title;$("draft-edit-slug").value=d.slug;$("draft-edit-tags").value=(d.tags||[]).join(", ");$("draft-edit-article-editor").innerHTML=d.content;$("draft-edit-article-parent-select").value=d.category;updateChildDropdown("draft-edit",d.subcategory);$("draft-edit-form").classList.remove("hidden")}
+      function loadDraftToEdit(id){const d=getDrafts().find(x=>String(x.id)===String(id));if(!d)return;$("draft-edit-id").value=d.id;$("draft-edit-title").value=d.title;$("draft-edit-slug").value=d.slug;$("draft-edit-tags").value=(d.tags||[]).join(", ");let content = d.content || "";content = content.replace(
+        /<img([^>]*)src="([^"]+)"([^>]*)>/gi,
+        `
+      <figure style="margin:1.5rem 0;">
+        <img$1src="$2"$3
+             style="display:block;width:100%;height:auto;border-radius:12px;">
+     </figure>
+     `
+     );
+
+$("draft-edit-article-editor").innerHTML =
+  content;$("draft-edit-article-parent-select").value=d.category;updateChildDropdown("draft-edit",d.subcategory);$("draft-edit-form").classList.remove("hidden")}
       async function saveDraftEdits(){const v=getDrafts(),i=v.findIndex(x=>String(x.id)===$("draft-edit-id").value);if(i<0)return;v[i]={...v[i],title:$("draft-edit-title").value,category:$("draft-edit-article-parent-select").value,subcategory:$("draft-edit-article-child-select").value,slug:normalizeSlug($("draft-edit-slug").value),tags:parseTags($("draft-edit-tags").value),content:$("draft-edit-article-editor").innerHTML};await saveDrafts(v);renderDraftsList();alert("草稿已更新")}
       async function deleteDraft(id){await saveDrafts(getDrafts().filter(x=>String(x.id)!==String(id)));renderDraftsList()}
-      async function publishDraft(){
-        const id=$("draft-edit-id").value;
-        const d=getDrafts().find(x=>String(x.id)===String(id));
-        if(!d)return alert("找不到已儲存的草稿，請先儲存草稿修改");
-        if(!d.title||!d.category)return alert("已儲存的草稿缺少標題或母標籤，請先完成內容並儲存");
-        if(!confirm("確定要發布目前已儲存的草稿版本嗎？"))return;
-        try{
-          if(await slugExists(d.slug))return alert("文章網址後綴已被使用");
-          const now=new Date().toISOString();
-          const{data,error}=await supabaseClient.from("articles").insert([{title:d.title,category:d.category,subcategory:d.subcategory,slug:d.slug,content:validateArticleContent(d.content||""),cover_image_url:"",created_at:now,updated_at:now}]).select().single();
-          if(error)throw error;
-          await upsertSettings({["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(d.tags||[])});
-          await saveDrafts(getDrafts().filter(x=>String(x.id)!==String(id)));
-          renderDraftsList();
-          $("draft-edit-form").classList.add("hidden");
-          await loadManageArticlesList();
-          alert("已發布");
-        }catch(error){
-          console.error(error);
-          alert("發布失敗："+(error?.message||String(error)));
-        }
-      }
+      async function publishDraft(){await saveDraftEdits();const id=$("draft-edit-id").value,d=getDrafts().find(x=>String(x.id)===id),now=new Date().toISOString();if(!d)return;const{data,error}=await supabaseClient.from("articles").insert([{title:d.title,category:d.category,subcategory:d.subcategory,slug:d.slug,content:d.content,cover_image_url:"",created_at:now,updated_at:now}]).select().single();if(error)return alert(error.message);await upsertSettings({["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(d.tags||[])});await deleteDraft(id);alert("已發布")}
       async function publishNewArticle() {
         const title = $("new-article-title").value.trim(),
           category = $("new-article-parent-select").value,
