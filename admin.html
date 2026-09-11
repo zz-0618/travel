@@ -34,6 +34,12 @@
       .faq-answer{border-top:1px solid var(--sand);padding:1rem 1.2rem;background:var(--soft);}
       .order-btn{border:1px solid var(--sand);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;}
       @media(max-width:767px){#new-article-editor,#edit-article-editor,#draft-edit-article-editor{padding:20px!important;}}
+
+      .article-content-style a:hover { text-decoration: underline !important; text-underline-offset: 3px; }
+      .article-content-style table { border-collapse: collapse; width: auto; max-width: 100%; margin: 1.5rem 0; table-layout: fixed; }
+      .article-content-style th, .article-content-style td { border: 1px solid var(--sand); padding: .65rem .75rem; min-width: 80px; min-height: 42px; vertical-align: top; overflow: auto; resize: both; }
+      .article-content-style th { background: var(--card); font-weight: 700; }
+      .article-content-style td:focus, .article-content-style th:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
     button:not(.admin-entry){background:#a56c5d!important;color:#fff!important;border-color:#a56c5d!important}.draft-card{background:#fff8e8;border:1px solid var(--sand)}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}</style>
   </head>
   <body class="min-h-screen">
@@ -516,6 +522,11 @@
             <button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button>
             <button class="editor-btn" onclick="insertFAQ('${t}')">❓ 插入 FAQ</button>
             <button class="editor-btn" onclick="addFAQItem('${t}')">＋ FAQ 加一題</button>
+            <button class="editor-btn" onclick="insertTable('${t}')">▦ 插入表格</button>
+            <button class="editor-btn" onclick="addTableRow('${t}','above')">↑ 上方加一行</button>
+            <button class="editor-btn" onclick="addTableRow('${t}','below')">↓ 下方加一行</button>
+            <button class="editor-btn" onclick="addTableColumn('${t}','left')">← 左側加一列</button>
+            <button class="editor-btn" onclick="addTableColumn('${t}','right')">→ 右側加一列</button>
             <button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button>
             <button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button>
             <select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select>
@@ -630,6 +641,75 @@
         item.querySelector("summary")?.focus();
       }
 
+      const activeTableCell = {};
+      function editorForType(t) { return $(t + "-article-editor"); }
+      function rememberTableCell(t, event) {
+        const cell = event.target.closest("td,th");
+        if (cell && editorForType(t)?.contains(cell)) activeTableCell[t] = cell;
+      }
+      function getActiveTableCell(t) {
+        const selection = window.getSelection();
+        const node = selection?.anchorNode?.nodeType === Node.TEXT_NODE ? selection.anchorNode.parentElement : selection?.anchorNode;
+        const selectedCell = node?.closest?.("td,th");
+        if (selectedCell && editorForType(t)?.contains(selectedCell)) return selectedCell;
+        const remembered = activeTableCell[t];
+        return remembered && remembered.isConnected ? remembered : null;
+      }
+      function insertTable(t) {
+        const rows = Math.max(1, Math.min(20, Number(prompt("表格行數", "3")) || 0));
+        const columns = Math.max(1, Math.min(12, Number(prompt("表格列數", "3")) || 0));
+        if (!rows || !columns) return;
+        const body = Array.from({ length: rows }, (_, rowIndex) =>
+          `<tr>${Array.from({ length: columns }, (_, columnIndex) =>
+            `<${rowIndex === 0 ? "th" : "td"}>${rowIndex === 0 ? `標題 ${columnIndex + 1}` : "內容"}</${rowIndex === 0 ? "th" : "td"}>`
+          ).join("")}</tr>`
+        ).join("");
+        editorForType(t).focus();
+        document.execCommand("insertHTML", false, `<table><tbody>${body}</tbody></table><p><br></p>`);
+      }
+      function requireTableCell(t) {
+        const cell = getActiveTableCell(t);
+        if (!cell) alert("請先點選表格內的一個儲存格，再執行新增行或列。");
+        return cell;
+      }
+      function addTableRow(t, direction) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const row = cell.parentElement;
+        const newRow = row.cloneNode(false);
+        [...row.cells].forEach((source) => {
+          const created = document.createElement(source.tagName.toLowerCase());
+          created.innerHTML = "<br>";
+          const width = source.style.width || getComputedStyle(source).width;
+          const height = source.style.height || getComputedStyle(source).height;
+          if (width) created.style.width = width;
+          if (height) created.style.height = height;
+          newRow.appendChild(created);
+        });
+        row.parentNode.insertBefore(newRow, direction === "above" ? row : row.nextSibling);
+        activeTableCell[t] = newRow.cells[Math.min(cell.cellIndex, newRow.cells.length - 1)];
+        activeTableCell[t].focus();
+      }
+      function addTableColumn(t, direction) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const table = cell.closest("table");
+        const insertAt = cell.cellIndex + (direction === "right" ? 1 : 0);
+        [...table.rows].forEach((row) => {
+          const reference = row.cells[Math.min(cell.cellIndex, row.cells.length - 1)];
+          const created = document.createElement(reference?.tagName?.toLowerCase() || "td");
+          created.innerHTML = "<br>";
+          created.style.width = reference?.style.width || "120px";
+          row.insertBefore(created, row.cells[insertAt] || null);
+        });
+        activeTableCell[t] = table.rows[cell.parentElement.rowIndex]?.cells[insertAt] || cell;
+        activeTableCell[t].focus();
+      }
+      function setupEditableTables(t) {
+        const editor = editorForType(t);
+        if (!editor || editor.dataset.tableReady === "true") return;
+        editor.dataset.tableReady = "true";
+        editor.addEventListener("mousedown", (event) => rememberTableCell(t, event));
+        editor.addEventListener("focusin", (event) => rememberTableCell(t, event));
+      }
       function applyCategoryOrder() {
         if (!categoryOrder.length) return;
         const rank = new Map(categoryOrder.map((id, i) => [String(id), i]));
@@ -1561,6 +1641,7 @@
           setupArticleEditorImageUpload("new-article-editor");
           setupArticleEditorImageUpload("edit-article-editor");
           setupArticleEditorImageUpload("draft-edit-article-editor");
+          ["new", "edit", "draft-edit"].forEach(setupEditableTables);
           await Promise.all([fetchCategories(), loadSettings()]);
           await Promise.all([loadCategoriesAdmin(), loadManageArticlesList()]);
           fillSettingsForms();
