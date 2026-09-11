@@ -527,6 +527,12 @@
             <button class="editor-btn" onclick="addTableRow('${t}','below')">↓ 下方加一行</button>
             <button class="editor-btn" onclick="addTableColumn('${t}','left')">← 左側加一列</button>
             <button class="editor-btn" onclick="addTableColumn('${t}','right')">→ 右側加一列</button>
+            <button class="editor-btn" onclick="deleteTableRow('${t}')">✕ 刪除此行</button>
+            <button class="editor-btn" onclick="deleteTableColumn('${t}')">✕ 刪除此列</button>
+            <button class="editor-btn" onclick="mergeTableCells('${t}')">☰ 合併儲存格</button>
+            <button class="editor-btn" onclick="splitTableCell('${t}')">☷ 拆分儲存格</button>
+            <button class="editor-btn" onclick="distributeTableColumns('${t}')">↔ 平均欄寬</button>
+            <button class="editor-btn" onclick="distributeTableRows('${t}')">↕ 平均列高</button>
             <button class="editor-btn" onclick="cmd('${t}','insertOrderedList')">1. 編號清單</button>
             <button class="editor-btn" onclick="cmd('${t}','insertUnorderedList')">● 項目清單</button>
             <select class="editor-btn" onchange="fontSize('${t}',this.value);this.value=''"><option value="">字體大小</option>${[16, 24, 36, 44, 56].map((n) => `<option value="${n}px">${n}px</option>`).join("")}</select>
@@ -702,6 +708,91 @@
         });
         activeTableCell[t] = table.rows[cell.parentElement.rowIndex]?.cells[insertAt] || cell;
         activeTableCell[t].focus();
+      }
+      function deleteTableRow(t) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const row = cell.parentElement, table = cell.closest("table");
+        if (table.rows.length <= 1) {
+          if (confirm("表格只剩最後一行，是否刪除整個表格？")) table.remove();
+          return;
+        }
+        const next = row.nextElementSibling || row.previousElementSibling;
+        row.remove();
+        activeTableCell[t] = next?.cells[Math.min(cell.cellIndex, next.cells.length - 1)] || null;
+        activeTableCell[t]?.focus();
+      }
+      function deleteTableColumn(t) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const table = cell.closest("table"), columnIndex = cell.cellIndex;
+        const columnCount = Math.max(...[...table.rows].map((row) => row.cells.length));
+        if (columnCount <= 1) {
+          if (confirm("表格只剩最後一列，是否刪除整個表格？")) table.remove();
+          return;
+        }
+        [...table.rows].forEach((row) => row.cells[columnIndex]?.remove());
+        const targetRow = table.rows[Math.min(cell.parentElement.rowIndex, table.rows.length - 1)];
+        activeTableCell[t] = targetRow?.cells[Math.min(columnIndex, targetRow.cells.length - 1)] || null;
+        activeTableCell[t]?.focus();
+      }
+      function mergeTableCells(t) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const table = cell.closest("table"), row = cell.parentElement;
+        const horizontal = Math.max(1, Math.min(row.cells.length - cell.cellIndex, Number(prompt("向右合併幾個儲存格？包含目前儲存格", "2")) || 1));
+        const vertical = Math.max(1, Math.min(table.rows.length - row.rowIndex, Number(prompt("向下合併幾個儲存格？包含目前儲存格", "1")) || 1));
+        if (horizontal === 1 && vertical === 1) return;
+        const mergedContents = [];
+        for (let r = 0; r < vertical; r++) {
+          const targetRow = table.rows[row.rowIndex + r];
+          for (let c = horizontal - 1; c >= 0; c--) {
+            const target = targetRow?.cells[cell.cellIndex + c];
+            if (!target) continue;
+            if (target !== cell) {
+              const text = target.innerHTML.trim();
+              if (text && text !== "<br>") mergedContents.unshift(text);
+              target.remove();
+            }
+          }
+        }
+        if (mergedContents.length) cell.innerHTML += "<br>" + mergedContents.join("<br>");
+        cell.colSpan = horizontal;
+        cell.rowSpan = vertical;
+        activeTableCell[t] = cell;
+        cell.focus();
+      }
+      function splitTableCell(t) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const colspan = Number(cell.colSpan || 1), rowspan = Number(cell.rowSpan || 1);
+        if (colspan === 1 && rowspan === 1) return alert("目前儲存格沒有合併，不需要拆分。");
+        const table = cell.closest("table"), startRow = cell.parentElement.rowIndex, startColumn = cell.cellIndex;
+        cell.colSpan = 1; cell.rowSpan = 1;
+        for (let r = 0; r < rowspan; r++) {
+          const row = table.rows[startRow + r];
+          if (!row) continue;
+          for (let c = 0; c < colspan; c++) {
+            if (r === 0 && c === 0) continue;
+            const created = document.createElement(cell.tagName.toLowerCase());
+            created.innerHTML = "<br>";
+            row.insertBefore(created, row.cells[startColumn + (r === 0 ? c : c)] || null);
+          }
+        }
+        activeTableCell[t] = cell;
+        cell.focus();
+      }
+      function distributeTableColumns(t) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const table = cell.closest("table");
+        const count = Math.max(...[...table.rows].map((row) => row.cells.length));
+        const width = Math.max(80, Math.floor((editorForType(t).clientWidth - 8) / Math.max(1, count)));
+        [...table.rows].forEach((row) => [...row.cells].forEach((item) => {
+          item.style.width = `${width * Number(item.colSpan || 1)}px`;
+        }));
+        table.style.width = `${width * count}px`;
+      }
+      function distributeTableRows(t) {
+        const cell = requireTableCell(t); if (!cell) return;
+        const table = cell.closest("table");
+        const maxHeight = Math.max(42, ...[...table.rows].map((row) => Math.max(row.getBoundingClientRect().height, ...[...row.cells].map((item) => item.getBoundingClientRect().height))));
+        [...table.rows].forEach((row) => [...row.cells].forEach((item) => item.style.height = `${maxHeight}px`));
       }
       function setupEditableTables(t) {
         const editor = editorForType(t);
