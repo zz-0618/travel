@@ -1513,9 +1513,19 @@
         const box=$("admin-social-platforms-list");
         if(!box)return;
         if(!socialPlatformsDraft.length){box.innerHTML='<div class="opacity-60">目前尚未設定社群平台。</div>';return;}
-        box.innerHTML=socialPlatformsDraft.map((x,index)=>`<div class="custom-card p-3 rounded flex items-center justify-between gap-3"><div><b>${esc(x.name)}</b><div class="text-xs opacity-70 break-all">${esc(x.url)}</div></div><button type="button" onclick="removeSocialPlatform(${index})">刪除</button></div>`).join("");
+        box.innerHTML=socialPlatformsDraft.map((x,index)=>`<div class="custom-card p-3 rounded grid md:grid-cols-[1fr_2fr_auto_auto] gap-3 items-center"><input id="social-edit-name-${index}" class="border p-2 rounded bg-white" value="${esc(x.name)}" placeholder="平台名稱"><input id="social-edit-url-${index}" type="url" class="border p-2 rounded bg-white" value="${esc(x.url)}" placeholder="完整網址"><button type="button" onclick="updateSocialPlatform(${index})">更新</button><button type="button" onclick="removeSocialPlatform(${index})">刪除</button></div>`).join("");
       }
       function addSocialPlatform(){const name=$("social-platform-name").value.trim(),url=$("social-platform-url").value.trim();if(!name||!url)return alert("請輸入平台名稱及連結");try{const parsed=new URL(url);if(!/^https?:$/.test(parsed.protocol))throw new Error()}catch{return alert("請輸入完整的 http 或 https 連結")}socialPlatformsDraft.push({name,url});$("social-platform-name").value="";$("social-platform-url").value="";renderSocialPlatformsEditor()}
+
+      function updateSocialPlatform(index){
+        const name=$("social-edit-name-"+index)?.value.trim();
+        const url=$("social-edit-url-"+index)?.value.trim();
+        if(!name||!url)return alert("請輸入平台名稱及連結");
+        try{const parsed=new URL(url);if(!/^https?:$/.test(parsed.protocol))throw new Error()}catch{return alert("請輸入完整的 http 或 https 連結")}
+        socialPlatformsDraft[index]={name,url};
+        renderSocialPlatformsEditor();
+        alert("平台資料已更新，請再按下「儲存社群平台」完成儲存");
+      }
       function removeSocialPlatform(index){socialPlatformsDraft.splice(index,1);renderSocialPlatformsEditor()}
       async function saveSocialPlatforms(){try{await upsertSettings({social_links:JSON.stringify(socialPlatformsDraft)});alert("社群平台已儲存")}catch(e){alert("儲存失敗："+e.message)}}
       function fillSettingsForms() {
