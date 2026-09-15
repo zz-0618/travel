@@ -503,21 +503,13 @@
       .dmca-badge img { display: block; margin: 0 auto; }
 button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.announcement-close-button{background:transparent!important;color:var(--ink)!important;border:0!important}.article-meta-muted{color:#778873!important}.latest-articles-box,.related-articles-box{position:static!important}.tag-filter-bar{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1.25rem;padding:.8rem 0;border-bottom:1px solid var(--sand);font-family:"Noto Serif TC",serif}.tag-filter-button{background:#fff!important;color:#8FA28A!important;border:1px solid #8FA28A!important;padding:.42rem .75rem;border-radius:999px}.tag-filter-button.active{background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}.article-tags{display:inline-flex;flex-wrap:wrap;gap:.45rem}.article-tag{color:#778873;font-weight:600}.social-platforms-box{background:var(--soft);border:1px solid var(--sand)}.social-platform-link{display:block;padding:.65rem;border:1px solid var(--sand);border-radius:9px;background:#fff;margin:.5rem 0}.embedded-map-block iframe{width:100%!important;min-height:360px;border:0}
 
-      #article-body-content table[data-frontend-filter="true"] thead th,
-      #article-body-content table[data-frontend-filter="true"] tbody tr:first-child th,
-      #article-body-content table[data-frontend-filter="true"] tbody tr:first-child td { position:relative; padding-right:2.4rem; }
-      .table-filter-trigger { position:absolute; right:.35rem; top:50%; transform:translateY(-50%); width:1.7rem; height:1.7rem; border:1px solid var(--sand)!important; border-radius:50%; background:#fff!important; color:#8FA28A!important; padding:0!important; line-height:1; }
-      .table-filter-trigger.active { background:#8FA28A!important; color:#fff!important; }
-      .table-filter-menu { position:fixed; z-index:80; min-width:210px; max-width:min(82vw,320px); max-height:300px; overflow:auto; background:#fff; border:1px solid var(--sand); border-radius:10px; box-shadow:0 10px 30px rgba(69,40,41,.18); padding:.7rem; color:var(--ink); }
-      .table-filter-menu label { display:flex; align-items:flex-start; gap:.5rem; padding:.35rem .2rem; cursor:pointer; overflow-wrap:anywhere; }
-      .table-filter-menu input { margin-top:.2rem; accent-color:#8FA28A; }
-      .table-filter-menu-actions { display:flex; gap:.5rem; position:sticky; top:-.7rem; background:#fff; padding:.2rem 0 .55rem; border-bottom:1px solid var(--sand); margin-bottom:.35rem; }
-      .table-filter-menu-actions button { flex:1; font-size:.78rem; padding:.35rem!important; }
-      #article-body-content .table-cell-center { text-align:center!important; vertical-align:middle!important; }
-      #article-body-content .table-cell-left-middle { text-align:left!important; vertical-align:middle!important; }
-
-      .article-title-link:hover{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
-      @media(max-width:767px){nav > #frontend-nav-tabs{flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto;overflow-y:visible;white-space:nowrap;gap:1.25rem;padding-left:1rem;padding-right:1rem;scrollbar-width:thin;-webkit-overflow-scrolling:touch}nav > #frontend-nav-tabs > li{flex:0 0 auto}}
+      .tag-filter-bar .tag-filter-button:not(.active){background:#fff!important;color:#8FA28A!important;border-color:#8FA28A!important}.tag-filter-bar .tag-filter-button.active{background:#8FA28A!important;color:#fff!important;border-color:#8FA28A!important}
+      #article-body-content [data-text-color]{color:var(--text-color)!important}#article-body-content [style*="--inline-text-color"]{color:var(--inline-text-color)!important}
+      .embedded-video-block{position:relative;width:100%;aspect-ratio:16/9;margin:1.5rem 0;overflow:hidden;border-radius:12px}.embedded-video-block iframe{position:absolute;inset:0;width:100%!important;height:100%!important;border:0}
+      #article-body-content table[data-frontend-filter="true"] tr:first-child>th,#article-body-content table[data-frontend-filter="true"] tr:first-child>td,#article-body-content table[data-frontend-sort="true"] tr:first-child>th,#article-body-content table[data-frontend-sort="true"] tr:first-child>td{position:relative;padding-right:4.4rem}
+      .table-head-controls{position:absolute;right:.3rem;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:.2rem}.table-filter-trigger,.table-sort-trigger{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:1.7rem;height:1.7rem;line-height:1!important;padding:0!important;border-radius:50%;background:#fff!important;color:#8FA28A!important;border:1px solid #8FA28A!important;font-family:Arial,sans-serif!important}.table-filter-trigger span{display:block;line-height:1;transform:translateY(-1px)}.table-filter-trigger.active,.table-sort-trigger.active{background:#8FA28A!important;color:#fff!important}
+      .table-filter-menu{position:fixed;z-index:80;min-width:210px;max-width:min(82vw,320px);max-height:300px;overflow:auto;background:#fff;border:1px solid var(--sand);border-radius:10px;box-shadow:0 10px 30px rgba(69,40,41,.18);padding:.7rem}.table-filter-menu label{display:flex;gap:.5rem;padding:.35rem .2rem}.table-filter-menu-actions{display:flex;gap:.5rem;position:sticky;top:-.7rem;background:#fff;padding:.2rem 0 .55rem}
+      #article-body-content .table-cell-center{text-align:center!important;vertical-align:middle!important}#article-body-content .table-cell-left-middle{text-align:left!important;vertical-align:middle!important}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -999,7 +991,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       let activeCategoryName="all",activeTagFilters=[];
       function toggleCategoryTag(tag){activeTagFilters=activeTagFilters.includes(tag)?activeTagFilters.filter(x=>x!==tag):[...activeTagFilters,tag];fetchArticles(activeCategoryName,{preserveTags:true})}
       function tagBar(cat,list){const c=categoryByName(cat);if(!c?.parent_id)return"";const tags=[...new Set(list.flatMap(getArticleTags))];return tags.length?`<div class="tag-filter-bar">${tags.map(t=>`<button class="tag-filter-button ${activeTagFilters.includes(t)?"active":""}" onclick="toggleCategoryTag('${jsq(t)}')">#${esc(t)}</button>`).join("")}</div>`:""}
-      async function fetchArticles(cat="all",opt={}){const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.every(t=>getArticleTags(a).includes(t)));$("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();c.innerHTML=tagBar(cat,base)+(list.length?list.map(a=>`<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" class="article-list-cover">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>");renderLatestArticles()}
+      async function fetchArticles(cat="all",opt={}){const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.every(t=>getArticleTags(a).includes(t)));$("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();c.innerHTML=tagBar(cat,base)+(list.length?list.map(a=>`<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" class="article-list-cover">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>");renderLatestArticles()}
       function relatedSettingsKey(articleId) {
         return "article_related_" + String(articleId);
       }
@@ -1123,7 +1115,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
         renderMapCards();
-        setupFrontendTableFilters();
+        setupFrontendInteractiveTables();
         await renderRelatedArticles(a);
         updateStructuredData(a);
         scrollTo({ top: 0 });
@@ -1236,86 +1228,14 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         b.classList.toggle("hidden", open);
         b.setAttribute("aria-expanded", String(open));
       }
-      let openTableFilterMenu = null;
-      function closeTableFilterMenu() {
-        openTableFilterMenu?.remove();
-        openTableFilterMenu = null;
-      }
-      function tableFilterRows(table) {
-        const rows = [...table.rows];
-        return rows.slice(1);
-      }
-      function applyFrontendTableFilters(table) {
-        const states = table._filterStates || {};
-        tableFilterRows(table).forEach((row) => {
-          const visible = Object.entries(states).every(([columnIndex, allowed]) => {
-            if (!(allowed instanceof Set)) return true;
-            const text = (row.cells[Number(columnIndex)]?.textContent || "").trim() || "（空白）";
-            return allowed.has(text);
-          });
-          row.hidden = !visible;
-        });
-        [...table.rows[0]?.cells || []].forEach((header, index) => {
-          const trigger = header.querySelector(".table-filter-trigger");
-          if (!trigger) return;
-          const allValues = new Set(tableFilterRows(table).map((row) => (row.cells[index]?.textContent || "").trim() || "（空白）"));
-          const allowed = states[index];
-          trigger.classList.toggle("active", allowed instanceof Set && allowed.size < allValues.size);
-        });
-      }
-      function openFrontendTableFilter(event, table, columnIndex) {
-        event.preventDefault(); event.stopPropagation();
-        closeTableFilterMenu();
-        const values = [...new Set(tableFilterRows(table).map((row) => (row.cells[columnIndex]?.textContent || "").trim() || "（空白）"))].sort((a,b)=>a.localeCompare(b,"zh-Hant"));
-        table._filterStates ||= {};
-        if (!(table._filterStates[columnIndex] instanceof Set)) table._filterStates[columnIndex] = new Set(values);
-        const allowed = table._filterStates[columnIndex];
-        const menu = document.createElement("div");
-        menu.className = "table-filter-menu";
-        menu.innerHTML = `<div class="table-filter-menu-actions"><button type="button" data-action="all">全部勾選</button><button type="button" data-action="none">全部取消</button></div>` + values.map((value, idx) => `<label><input type="checkbox" data-index="${idx}" ${allowed.has(value)?"checked":""}><span>${esc(value)}</span></label>`).join("");
-        document.body.appendChild(menu);
-        const rect = event.currentTarget.getBoundingClientRect();
-        menu.style.left = Math.min(rect.left, innerWidth - menu.offsetWidth - 12) + "px";
-        menu.style.top = Math.min(rect.bottom + 6, innerHeight - menu.offsetHeight - 12) + "px";
-        menu.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => checkbox.addEventListener("change", () => {
-          const value = values[Number(checkbox.dataset.index)];
-          checkbox.checked ? allowed.add(value) : allowed.delete(value);
-          applyFrontendTableFilters(table);
-        }));
-        menu.querySelector('[data-action="all"]').onclick = () => {
-          values.forEach((value) => allowed.add(value));
-          menu.querySelectorAll('input[type="checkbox"]').forEach((box) => box.checked = true);
-          applyFrontendTableFilters(table);
-        };
-        menu.querySelector('[data-action="none"]').onclick = () => {
-          allowed.clear();
-          menu.querySelectorAll('input[type="checkbox"]').forEach((box) => box.checked = false);
-          applyFrontendTableFilters(table);
-        };
-        openTableFilterMenu = menu;
-      }
-      function setupFrontendTableFilters() {
-        closeTableFilterMenu();
-        document.querySelectorAll('#article-body-content table[data-frontend-filter="true"]').forEach((table) => {
-          const headerRow = table.rows[0];
-          if (!headerRow || table.rows.length < 2) return;
-          table._filterStates = {};
-          [...headerRow.cells].forEach((header, columnIndex) => {
-            if (header.querySelector(".table-filter-trigger")) return;
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "table-filter-trigger";
-            button.setAttribute("aria-label", `篩選第 ${columnIndex + 1} 欄`);
-            button.title = "篩選此欄";
-            button.textContent = "⌄";
-            button.addEventListener("click", (event) => openFrontendTableFilter(event, table, columnIndex));
-            header.appendChild(button);
-          });
-        });
-      }
-      document.addEventListener("click", (event) => {
-        if (openTableFilterMenu && !openTableFilterMenu.contains(event.target) && !event.target.closest?.(".table-filter-trigger")) closeTableFilterMenu();
-      });
+      let openTableMenu=null;
+      function closeTableMenu(){openTableMenu?.remove();openTableMenu=null}
+      function setupFrontendInteractiveTables(){closeTableMenu();document.querySelectorAll("#article-body-content table").forEach(table=>{const head=table.rows[0];if(!head||table.rows.length<2)return;table._filterStates={};[...head.cells].forEach((cell,col)=>{if(table.dataset.frontendFilter!=="true"&&table.dataset.frontendSort!=="true")return;const controls=document.createElement("span");controls.className="table-head-controls";if(table.dataset.frontendFilter==="true"){const b=document.createElement("button");b.type="button";b.className="table-filter-trigger";b.innerHTML="<span>∨</span>";b.title="篩選此欄";b.onclick=e=>openColumnFilter(e,table,col);controls.appendChild(b)}if(table.dataset.frontendSort==="true"){const b=document.createElement("button");b.type="button";b.className="table-sort-trigger";b.textContent="↕";b.title="排序此欄";b.dataset.direction="none";b.onclick=e=>sortTableColumn(e,table,col,b);controls.appendChild(b)}cell.appendChild(controls)})})}
+      function dataRows(table){return[...table.rows].slice(1)}
+      function applyTableFilters(table){const states=table._filterStates||{};dataRows(table).forEach(row=>{row.hidden=!Object.entries(states).every(([col,set])=>!(set instanceof Set)||set.has((row.cells[+col]?.textContent||"").trim()||"（空白）"))})}
+      function openColumnFilter(event,table,col){event.preventDefault();event.stopPropagation();closeTableMenu();const values=[...new Set(dataRows(table).map(r=>(r.cells[col]?.textContent||"").trim()||"（空白）"))].sort((a,b)=>a.localeCompare(b,"zh-Hant"));table._filterStates||={};table._filterStates[col]||=new Set(values);const allowed=table._filterStates[col],menu=document.createElement("div");menu.className="table-filter-menu";menu.innerHTML=`<div class="table-filter-menu-actions"><button data-a="all">全部勾選</button><button data-a="none">全部取消</button></div>`+values.map((v,n)=>`<label><input type="checkbox" data-n="${n}" ${allowed.has(v)?"checked":""}><span>${esc(v)}</span></label>`).join("");document.body.appendChild(menu);const r=event.currentTarget.getBoundingClientRect();menu.style.left=Math.min(r.left,innerWidth-menu.offsetWidth-12)+"px";menu.style.top=Math.min(r.bottom+6,innerHeight-menu.offsetHeight-12)+"px";menu.querySelectorAll("input").forEach(x=>x.onchange=()=>{const v=values[+x.dataset.n];x.checked?allowed.add(v):allowed.delete(v);applyTableFilters(table);event.currentTarget.classList.toggle("active",allowed.size<values.length)});menu.querySelector('[data-a="all"]').onclick=()=>{values.forEach(v=>allowed.add(v));menu.querySelectorAll("input").forEach(x=>x.checked=true);applyTableFilters(table);event.currentTarget.classList.remove("active")};menu.querySelector('[data-a="none"]').onclick=()=>{allowed.clear();menu.querySelectorAll("input").forEach(x=>x.checked=false);applyTableFilters(table);event.currentTarget.classList.add("active")};openTableMenu=menu}
+      function sortTableColumn(event,table,col,button){event.preventDefault();event.stopPropagation();const direction=button.dataset.direction==="asc"?"desc":"asc";button.dataset.direction=direction;button.textContent=direction==="asc"?"↑":"↓";table.querySelectorAll(".table-sort-trigger").forEach(x=>{if(x!==button){x.dataset.direction="none";x.textContent="↕";x.classList.remove("active")}});button.classList.add("active");const rows=dataRows(table);rows.sort((a,b)=>{const av=(a.cells[col]?.textContent||"").trim(),bv=(b.cells[col]?.textContent||"").trim(),an=Number(av.replace(/,/g,"")),bn=Number(bv.replace(/,/g,""));const result=Number.isFinite(an)&&Number.isFinite(bn)?an-bn:av.localeCompare(bv,"zh-Hant",{numeric:true});return direction==="asc"?result:-result});const body=table.tBodies[0]||table;rows.forEach(row=>body.appendChild(row));applyTableFilters(table)}
+      document.addEventListener("click",e=>{if(openTableMenu&&!openTableMenu.contains(e.target)&&!e.target.closest?.(".table-filter-trigger"))closeTableMenu()});
       function renderMapCards() {
 
         document
