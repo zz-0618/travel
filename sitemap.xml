@@ -65,4 +65,11 @@
     <priority>0.9</priority>
   </url>
 
+  <url>
+    <loc>https://travel.aleafpath.workers.dev/Korea/Busan/Diaegg</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
 </urlset>
