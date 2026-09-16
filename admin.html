@@ -57,6 +57,9 @@
       .editor-workspace .article-content-style{width:100%;max-width:760px}
       @media(max-width:900px){.editor-workspace{grid-template-columns:170px minmax(0,1fr);gap:.75rem}.editor-workspace .article-content-style{max-width:none}}
       @media(max-width:640px){.editor-workspace{grid-template-columns:140px minmax(0,1fr)}.editor-sidebar{padding:.45rem}.editor-sidebar .editor-btn{font-size:12px;padding:5px 6px}}
+
+      /* 草稿列表的修改與刪除按鈕使用一致圓角 */
+      .draft-action-button{border-radius:8px!important;padding:.35rem .7rem!important}
 </style>
   </head>
   <body class="min-h-screen">
@@ -1243,7 +1246,7 @@
               ${draft.cover_image_url ? `<img src="${esc(draft.cover_image_url)}" alt="" class="w-24 aspect-video object-cover rounded border">` : ""}
               <div><b>${esc(draft.title)}</b><div class="text-xs opacity-60">${esc(draft.category || "未分類")}</div></div>
             </div>
-            <div><button onclick="loadDraftToEdit('${draft.id}')">修改</button> <button onclick="deleteDraft('${draft.id}')">刪除</button></div>
+            <div class="flex gap-2"><button class="draft-action-button" onclick="loadDraftToEdit('${draft.id}')">修改</button><button class="draft-action-button" onclick="deleteDraft('${draft.id}')">刪除</button></div>
           </div>`).join("") : "目前沒有草稿";
       }
       function loadDraftToEdit(id) {
