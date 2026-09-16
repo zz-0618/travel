@@ -60,6 +60,9 @@
 
       /* 草稿列表的修改與刪除按鈕使用一致圓角 */
       .draft-action-button{border-radius:8px!important;padding:.35rem .7rem!important}
+
+      .embedded-html-block{width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}
+      .embedded-html-block iframe,.embedded-html-block video,.embedded-html-block embed,.embedded-html-block object{display:block;width:100%!important;max-width:100%!important;min-height:360px;border:0}
 </style>
   </head>
   <body class="min-h-screen">
@@ -564,7 +567,7 @@
             <select class="editor-btn" onchange="runTableDistributeAction('${t}',this.value);this.value=''"><option value="">平均寬高</option><option value="columns">平均欄寬</option><option value="rows">平均列高</option></select>
             <select class="editor-btn" onchange="applyTableCellAlignment('${t}',this.value);this.value=''"><option value="">對齊</option><option value="center-middle">水平置中／垂直置中</option><option value="left-middle">水平置左／垂直置中</option></select>
           </section>
-          <section class="editor-tool-group"><h3 class="editor-tool-title">功能</h3><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖</button><button class="editor-btn" onclick="insertEmbeddedVideo('${t}')">▶ 影片</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><select class="editor-btn" onchange="runFAQAction('${t}',this.value);this.value=''"><option value="">❓ FAQ</option><option value="insert">插入 FAQ</option><option value="add">FAQ 加一題</option></select></section>`;
+          <section class="editor-tool-group"><h3 class="editor-tool-title">功能</h3><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖</button><button class="editor-btn" onclick="insertEmbeddedHtml('${t}')">&lt;/&gt; 嵌入 HTML</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><select class="editor-btn" onchange="runFAQAction('${t}',this.value);this.value=''"><option value="">❓ FAQ</option><option value="insert">插入 FAQ</option><option value="add">FAQ 加一題</option></select></section>`;
         const editor=$(t+"-article-editor");
         if(editor&&!toolbar.parentElement.classList.contains("editor-workspace")){const workspace=document.createElement("div");workspace.className="editor-workspace";toolbar.parentNode.insertBefore(workspace,toolbar);workspace.append(toolbar,editor)}
       }
@@ -576,7 +579,41 @@
       function runTableDeleteAction(t,v){if(v==="row")deleteTableRow(t);if(v==="column")deleteTableColumn(t);if(v==="table")deleteWholeTable(t)}
       function runTableMergeAction(t,v){if(v==="merge")mergeTableCells(t);if(v==="split")splitTableCell(t)}
       function runTableDistributeAction(t,v){if(v==="columns")distributeTableColumns(t);if(v==="rows")distributeTableRows(t)}
-      function insertEmbeddedVideo(t){const raw=prompt("請貼上影片平台提供的 iframe HTML 嵌入碼：");if(!raw)return;const template=document.createElement("template");template.innerHTML=raw.trim();const iframe=template.content.querySelector("iframe");if(!iframe)return alert("找不到 iframe，請貼上完整的影片嵌入 HTML");const src=iframe.getAttribute("src")||"";if(!/^https:\/\//i.test(src))return alert("影片 iframe 必須使用 HTTPS 網址");const safe=document.createElement("iframe");["src","title","allow","allowfullscreen","loading","referrerpolicy"].forEach(name=>{if(iframe.hasAttribute(name))safe.setAttribute(name,iframe.getAttribute(name))});safe.setAttribute("loading",iframe.getAttribute("loading")||"lazy");safe.setAttribute("allowfullscreen","");const wrap=document.createElement("div");wrap.className="embedded-video-block";wrap.appendChild(safe);editorForType(t).focus();document.execCommand("insertHTML",false,wrap.outerHTML+"<p><br></p>")}
+      function sanitizeEmbeddedHtml(raw){
+        const template=document.createElement("template");
+        template.innerHTML=String(raw||"").trim();
+        template.content.querySelectorAll("script,style,link,meta,base,form,input,button,textarea,select").forEach(node=>node.remove());
+        template.content.querySelectorAll("*").forEach(node=>{
+          [...node.attributes].forEach(attr=>{
+            const name=attr.name.toLowerCase();
+            const value=String(attr.value||"").trim();
+            if(name.startsWith("on")||name==="srcdoc")node.removeAttribute(attr.name);
+            if(["src","href","data"].includes(name)&&value&&!/^https:\/\//i.test(value)&&!/^#/.test(value))node.removeAttribute(attr.name);
+            if(name==="style"&&/expression\s*\(|javascript:|url\s*\(/i.test(value))node.removeAttribute(attr.name);
+          });
+        });
+        const allowed=new Set(["IFRAME","VIDEO","AUDIO","SOURCE","TRACK","EMBED","OBJECT","DIV","P","FIGURE","FIGCAPTION"]);
+        [...template.content.querySelectorAll("*")].forEach(node=>{if(!allowed.has(node.tagName))node.replaceWith(...node.childNodes)});
+        template.content.querySelectorAll("iframe").forEach(iframe=>{
+          if(!iframe.getAttribute("src")){iframe.remove();return;}
+          iframe.setAttribute("loading","lazy");
+          iframe.setAttribute("referrerpolicy",iframe.getAttribute("referrerpolicy")||"strict-origin-when-cross-origin");
+          iframe.setAttribute("allowfullscreen","");
+        });
+        return template.innerHTML.trim();
+      }
+      function insertEmbeddedHtml(t){
+        const raw=prompt("請貼上要嵌入的 HTML，可使用地圖或影片平台提供的 iframe／embed HTML：");
+        if(!raw)return;
+        const safeHtml=sanitizeEmbeddedHtml(raw);
+        if(!safeHtml)return alert("沒有可嵌入的有效 HTML。請貼上使用 HTTPS 的 iframe、embed、object、video 或 audio HTML。");
+        const wrap=document.createElement("div");
+        wrap.className="embedded-html-block";
+        wrap.innerHTML=safeHtml;
+        const editor=editorForType(t);
+        editor.focus();
+        document.execCommand("insertHTML",false,wrap.outerHTML+"<p><br></p>");
+      }
       function cmd(t, c) {
         $(t + "-article-editor").focus();
         document.execCommand(c, false, null);
