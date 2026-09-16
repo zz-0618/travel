@@ -539,8 +539,11 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       /* 分頁導覽：左右切頁鍵貼齊文章卡片兩側，非目前頁使用咖啡色文字 */
       .article-pagination{display:grid!important;grid-template-columns:minmax(5.5rem,1fr) auto minmax(5.5rem,1fr);width:100%;gap:1rem!important}
       .article-pagination-pages{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.65rem;grid-column:2}
-      .article-page-button:not(.active){background:transparent!important;border-color:transparent!important;color:var(--ink)!important}
-      .article-page-button:not(.active):hover{background:var(--soft)!important;border-color:var(--sand)!important;color:var(--accent)!important}
+      /* 非目前頁碼：使用與目前頁底色相同的綠色文字，且不顯示底色與邊框。
+         此規則位於全域 button 規則之後，並提高選擇器權重，避免被全域樣式覆蓋。 */
+      .article-pagination .article-page-button:not(.active){background:transparent!important;border-color:transparent!important;color:#8FA28A!important}
+      .article-pagination .article-page-button:not(.active):hover,
+      .article-pagination .article-page-button:not(.active):focus-visible{background:transparent!important;border-color:transparent!important;color:#8FA28A!important}
       .article-pagination-nav{display:inline-flex!important;align-items:center;justify-content:center;min-width:5.5rem;padding:.55rem .9rem!important;border-radius:9px!important;background:transparent!important;color:var(--ink)!important;border:1px solid var(--sand)!important;font-family:"Noto Serif TC",serif!important;font-weight:700}
       .article-pagination-prev{grid-column:1;justify-self:start}
       .article-pagination-next{grid-column:3;justify-self:end}
