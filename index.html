@@ -535,6 +535,20 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
 
       /* 表格篩選選單的快捷按鈕使用一致圓角 */
       .table-filter-menu-actions button{border-radius:8px!important;padding:.4rem .7rem!important}
+
+      /* 分頁導覽：左右切頁鍵貼齊文章卡片兩側，非目前頁使用咖啡色文字 */
+      .article-pagination{display:grid!important;grid-template-columns:minmax(5.5rem,1fr) auto minmax(5.5rem,1fr);width:100%;gap:1rem!important}
+      .article-pagination-pages{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.65rem;grid-column:2}
+      .article-page-button:not(.active){background:transparent!important;border-color:transparent!important;color:var(--ink)!important}
+      .article-page-button:not(.active):hover{background:var(--soft)!important;border-color:var(--sand)!important;color:var(--accent)!important}
+      .article-pagination-nav{display:inline-flex!important;align-items:center;justify-content:center;min-width:5.5rem;padding:.55rem .9rem!important;border-radius:9px!important;background:transparent!important;color:var(--ink)!important;border:1px solid var(--sand)!important;font-family:"Noto Serif TC",serif!important;font-weight:700}
+      .article-pagination-prev{grid-column:1;justify-self:start}
+      .article-pagination-next{grid-column:3;justify-self:end}
+      .article-pagination-placeholder{visibility:hidden;min-width:5.5rem}
+      @media(max-width:520px){.article-pagination{grid-template-columns:auto 1fr auto;gap:.45rem!important}.article-pagination-nav{min-width:0;padding:.5rem .65rem!important}.article-pagination-placeholder{min-width:0}.article-pagination-pages{gap:.3rem}.article-page-button{width:2rem;height:2rem}}
+      /* 後台嵌入 HTML 產生的響應式內容 */
+      .embedded-html-block{width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}
+      .embedded-html-block iframe,.embedded-html-block video,.embedded-html-block embed,.embedded-html-block object{display:block;width:100%!important;max-width:100%!important;min-height:360px;border:0}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1017,7 +1031,18 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       let activeCategoryName="all",activeTagFilters=[],currentArticlePage=1;
       function toggleCategoryTag(tag){activeTagFilters=activeTagFilters.includes(tag)?activeTagFilters.filter(x=>x!==tag):[...activeTagFilters,tag];fetchArticles(activeCategoryName,{preserveTags:true,page:1})}
       function tagBar(cat,list){const c=categoryByName(cat);if(!c?.parent_id)return"";const tags=[...new Set(list.flatMap(getArticleTags))];return tags.length?`<div class="tag-filter-bar">${tags.map(t=>`<button class="tag-filter-button ${activeTagFilters.includes(t)?"active":""}" onclick="toggleCategoryTag('${jsq(t)}')">#${esc(t)}</button>`).join("")}</div>`:""}
-      function renderArticlePagination(total,currentPage,cat){const pages=Math.ceil(total/ARTICLES_PER_PAGE);if(pages<=1)return"";return `<nav class="article-pagination" aria-label="文章分頁">${Array.from({length:pages},(_,i)=>{const page=i+1;return `<button type="button" class="article-page-button ${page===currentPage?"active":""}" aria-label="前往第 ${page} 頁" ${page===currentPage?'aria-current="page"':""} onclick="fetchArticles('${jsq(cat)}',{preserveTags:true,page:${page},scrollToList:true})">${page}</button>`}).join("")}</nav>`}
+      function renderArticlePagination(total,currentPage,cat){
+        const pages=Math.ceil(total/ARTICLES_PER_PAGE);
+        if(pages<=1)return"";
+        const go=page=>`fetchArticles('${jsq(cat)}',{preserveTags:true,page:${page},scrollToList:true})`;
+        const previous=currentPage>1?`<button type="button" class="article-pagination-nav article-pagination-prev" onclick="${go(currentPage-1)}">← 上一頁</button>`:`<span class="article-pagination-placeholder" aria-hidden="true"></span>`;
+        const next=currentPage<pages?`<button type="button" class="article-pagination-nav article-pagination-next" onclick="${go(currentPage+1)}">下一頁 →</button>`:`<span class="article-pagination-placeholder" aria-hidden="true"></span>`;
+        const numbers=Array.from({length:pages},(_,i)=>{
+          const page=i+1;
+          return `<button type="button" class="article-page-button ${page===currentPage?"active":""}" aria-label="前往第 ${page} 頁" ${page===currentPage?'aria-current="page"':""} onclick="${go(page)}">${page}</button>`;
+        }).join("");
+        return `<nav class="article-pagination" aria-label="文章分頁">${previous}<div class="article-pagination-pages">${numbers}</div>${next}</nav>`;
+      }
       async function fetchArticles(cat="all",opt={}){const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.some(t=>getArticleTags(a).includes(t)));list=[...list].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);$("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();c.innerHTML=tagBar(cat,base)+(pageItems.length?pageItems.map(a=>`<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" class="article-list-cover">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,cat);renderLatestArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})}
       function relatedSettingsKey(articleId) {
         return "article_related_" + String(articleId);
