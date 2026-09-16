@@ -516,46 +516,22 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .article-list-content h2 > a:hover,
       .article-title-link:hover { color: var(--accent); text-decoration: underline !important; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
-      /* 前台文章表格：第一列在表格捲動期間固定於視窗頂端。 */
-      #article-body-content table tr:first-child > th,
-      #article-body-content table tr:first-child > td {
-        position: sticky;
-        top: 0;
-        z-index: 12;
-        background: var(--card);
-        box-shadow: 0 1px 0 var(--sand);
-      }
-      /* 首頁與分類頁分頁。 */
-      .article-pagination {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: .65rem;
-        margin: 2rem 0 .5rem;
-        font-family: "Noto Serif TC", serif;
-        color: var(--ink);
-      }
-      .article-page-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.35rem;
-        height: 2.35rem;
-        padding: 0;
-        border: 1px solid var(--sand) !important;
-        border-radius: 999px;
-        background: #fff !important;
-        color: var(--ink) !important;
-        font: inherit;
-        font-weight: 700;
-      }
-      .article-page-button:hover { border-color: #8FA28A !important; color: #8FA28A !important; }
-      .article-page-button.active {
-        background: #8FA28A !important;
-        border-color: #8FA28A !important;
-        color: #fff !important;
-      }
+      /* 首頁與分類頁文章分頁 */
+      .article-pagination{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.65rem;margin:2rem 0 .5rem;font-family:"Noto Serif TC",serif;color:var(--ink)}
+      .article-page-button{display:inline-flex;align-items:center;justify-content:center;width:2.35rem;height:2.35rem;padding:0;border:1px solid var(--sand)!important;border-radius:999px;background:#fff!important;color:var(--ink)!important;font:inherit;font-weight:700}
+      .article-page-button:hover{border-color:#8FA28A!important;color:#8FA28A!important}
+      .article-page-button.active{background:#8FA28A!important;border-color:#8FA28A!important;color:#fff!important}
+
+      /* 所有前台表格維持桌機排版，窄螢幕可左右滑動 */
+      .article-table-scroll{width:100%;max-width:100%;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;margin:1.5rem 0}
+      #article-body-content .article-table-scroll table{margin:0;min-width:max-content;max-width:none}
+      @media(min-width:768px){#article-body-content .article-table-scroll table{min-width:0;max-width:100%}}
+
+      /* 由 JavaScript 建立的固定表頭，所有表格皆適用，包含篩選／排序表格 */
+      .floating-table-header{position:fixed;top:0;z-index:70;display:none;overflow:hidden;pointer-events:none;background:#fff;box-shadow:0 3px 10px rgba(69,40,41,.16)}
+      .floating-table-header table{border-collapse:collapse!important;table-layout:fixed!important;margin:0!important;max-width:none!important}
+      .floating-table-header th,.floating-table-header td{border:1px solid var(--sand);padding:.65rem .75rem;background:var(--card);font-weight:700;box-sizing:border-box;overflow:hidden}
+      .floating-table-header .table-head-controls{visibility:hidden}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1035,70 +1011,11 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function isPublishedArticle(a){return settingsCache[articleStatusKey(a.id)]!=="draft"}
       function getArticleTags(a){try{const v=JSON.parse(settingsCache[articleTagsKey(a.id)]||"[]");return Array.isArray(v)?v:[]}catch{return[]}}
       const ARTICLES_PER_PAGE = 10;
-      let activeCategoryName = "all", activeTagFilters = [], currentArticlePage = 1;
-      function toggleCategoryTag(tag) {
-        activeTagFilters = activeTagFilters.includes(tag)
-          ? activeTagFilters.filter((x) => x !== tag)
-          : [...activeTagFilters, tag];
-        fetchArticles(activeCategoryName, { preserveTags: true, page: 1 });
-      }
-      function tagBar(cat, list) {
-        const c = categoryByName(cat);
-        if (!c?.parent_id) return "";
-        const tags = [...new Set(list.flatMap(getArticleTags))];
-        return tags.length
-          ? `<div class="tag-filter-bar">${tags.map((t) => `<button class="tag-filter-button ${activeTagFilters.includes(t) ? "active" : ""}" onclick="toggleCategoryTag('${jsq(t)}')">#${esc(t)}</button>`).join("")}</div>`
-          : "";
-      }
-      function renderArticlePagination(totalItems, currentPage, categoryName) {
-        const totalPages = Math.ceil(totalItems / ARTICLES_PER_PAGE);
-        if (totalPages <= 1) return "";
-        return `<nav class="article-pagination" aria-label="文章分頁">${Array.from({ length: totalPages }, (_, index) => {
-          const page = index + 1;
-          return `<button type="button" class="article-page-button ${page === currentPage ? "active" : ""}" aria-label="前往第 ${page} 頁" aria-current="${page === currentPage ? "page" : "false"}" onclick="fetchArticles('${jsq(categoryName)}',{preserveTags:true,page:${page},scrollToList:true})">${page}</button>`;
-        }).join("")}</nav>`;
-      }
-      async function fetchArticles(cat = "all", opt = {}) {
-        const container = $("main-content-area");
-        const { data, error } = await supabaseClient
-          .from("articles")
-          .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url")
-          .order("created_at", { ascending: false });
-        if (error) {
-          container.innerHTML = `<div>讀取失敗：${esc(error.message)}</div>`;
-          return;
-        }
-        allArticlesCache = (data || []).filter(isPublishedArticle);
-        activeCategoryName = cat;
-        if (!opt.preserveTags) activeTagFilters = [];
-        let list = allArticlesCache;
-        if (cat !== "all") {
-          const target = categoryByName(cat);
-          if (target && !target.parent_id) {
-            const names = [target.name, ...categoriesCache.filter((x) => x.parent_id === target.id).map((x) => x.name)];
-            list = list.filter((a) => names.includes(a.category) || names.includes(a.subcategory));
-          } else {
-            list = list.filter((a) => a.category === cat || a.subcategory === cat);
-          }
-        }
-        const base = [...list];
-        if (activeTagFilters.length) {
-          list = list.filter((a) => activeTagFilters.some((t) => getArticleTags(a).includes(t)));
-        }
-        list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-        const totalPages = Math.max(1, Math.ceil(list.length / ARTICLES_PER_PAGE));
-        currentArticlePage = Math.min(Math.max(Number(opt.page) || 1, 1), totalPages);
-        const pageItems = list.slice((currentArticlePage - 1) * ARTICLES_PER_PAGE, currentArticlePage * ARTICLES_PER_PAGE);
-        $("floating-toc").classList.add("hidden");
-        toggleTOC(false);
-        hideRelatedArticles();
-        const cards = pageItems.length
-          ? pageItems.map((a) => `<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url ? `<img src="${esc(a.cover_image_url)}" class="article-list-cover">` : `<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory ? " › " + esc(a.subcategory) : ""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt || "")}</p></div></article>`).join("")
-          : "<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>";
-        container.innerHTML = tagBar(cat, base) + cards + renderArticlePagination(list.length, currentArticlePage, cat);
-        renderLatestArticles();
-        if (opt.scrollToList) container.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      let activeCategoryName="all",activeTagFilters=[],currentArticlePage=1;
+      function toggleCategoryTag(tag){activeTagFilters=activeTagFilters.includes(tag)?activeTagFilters.filter(x=>x!==tag):[...activeTagFilters,tag];fetchArticles(activeCategoryName,{preserveTags:true,page:1})}
+      function tagBar(cat,list){const c=categoryByName(cat);if(!c?.parent_id)return"";const tags=[...new Set(list.flatMap(getArticleTags))];return tags.length?`<div class="tag-filter-bar">${tags.map(t=>`<button class="tag-filter-button ${activeTagFilters.includes(t)?"active":""}" onclick="toggleCategoryTag('${jsq(t)}')">#${esc(t)}</button>`).join("")}</div>`:""}
+      function renderArticlePagination(total,currentPage,cat){const pages=Math.ceil(total/ARTICLES_PER_PAGE);if(pages<=1)return"";return `<nav class="article-pagination" aria-label="文章分頁">${Array.from({length:pages},(_,i)=>{const page=i+1;return `<button type="button" class="article-page-button ${page===currentPage?"active":""}" aria-label="前往第 ${page} 頁" ${page===currentPage?'aria-current="page"':""} onclick="fetchArticles('${jsq(cat)}',{preserveTags:true,page:${page},scrollToList:true})">${page}</button>`}).join("")}</nav>`}
+      async function fetchArticles(cat="all",opt={}){const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.some(t=>getArticleTags(a).includes(t)));list=[...list].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);$("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();c.innerHTML=tagBar(cat,base)+(pageItems.length?pageItems.map(a=>`<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" class="article-list-cover">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,cat);renderLatestArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})}
       function relatedSettingsKey(articleId) {
         return "article_related_" + String(articleId);
       }
@@ -1337,7 +1254,13 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       let openTableMenu=null;
       function closeTableMenu(){openTableMenu?.remove();openTableMenu=null}
-      function setupFrontendInteractiveTables(){closeTableMenu();document.querySelectorAll("#article-body-content table").forEach(table=>{const head=table.rows[0];if(!head||table.rows.length<2)return;table._filterStates=table._filterStates||{};table.classList.toggle("has-filter-controls",table.dataset.frontendFilter==="true");table.classList.toggle("has-sort-controls",table.dataset.frontendSort==="true");[...head.cells].forEach((cell,col)=>{if(table.dataset.frontendFilter!=="true"&&table.dataset.frontendSort!=="true")return;const controls=document.createElement("span");controls.className="table-head-controls";if(table.dataset.frontendFilter==="true"){const b=document.createElement("button");b.type="button";b.className="table-filter-trigger";b.innerHTML="<span>∨</span>";b.title="篩選此欄";b.onclick=e=>openColumnFilter(e,table,col);controls.appendChild(b)}if(table.dataset.frontendSort==="true"){const b=document.createElement("button");b.type="button";b.className="table-sort-trigger";b.textContent="↕";b.title="排序此欄";b.dataset.direction="none";b.onclick=e=>sortTableColumn(e,table,col,b);controls.appendChild(b)}cell.appendChild(controls)})})}
+      let floatingTableHeader=null;
+      function removeFloatingTableHeader(){floatingTableHeader?.remove();floatingTableHeader=null}
+      function wrapFrontendTables(){document.querySelectorAll("#article-body-content table").forEach(table=>{if(table.parentElement?.classList.contains("article-table-scroll"))return;const wrap=document.createElement("div");wrap.className="article-table-scroll";table.parentNode.insertBefore(wrap,table);wrap.appendChild(table);wrap.addEventListener("scroll",updateFloatingTableHeader,{passive:true})})}
+      function buildFloatingTableHeader(table,wrap){removeFloatingTableHeader();const firstRow=table.rows[0];if(!firstRow)return;const box=document.createElement("div");box.className="floating-table-header";const cloneTable=document.createElement("table");const body=document.createElement("tbody");const row=firstRow.cloneNode(true);body.appendChild(row);cloneTable.appendChild(body);box.appendChild(cloneTable);document.body.appendChild(box);const tableRect=table.getBoundingClientRect(),wrapRect=wrap.getBoundingClientRect();box.style.left=wrapRect.left+"px";box.style.width=wrapRect.width+"px";cloneTable.style.width=tableRect.width+"px";cloneTable.style.transform=`translateX(${-wrap.scrollLeft}px)`;[...firstRow.cells].forEach((cell,i)=>{const width=cell.getBoundingClientRect().width;const cloned=row.cells[i];if(cloned){cloned.style.width=width+"px";cloned.style.minWidth=width+"px";cloned.style.maxWidth=width+"px"}});box.style.display="block";floatingTableHeader={box,table,wrap,cloneTable}}
+      function updateFloatingTableHeader(){const tables=[...document.querySelectorAll("#article-body-content .article-table-scroll table")];const active=tables.find(table=>{const r=table.getBoundingClientRect();const rowHeight=table.rows[0]?.getBoundingClientRect().height||0;return r.top<0&&r.bottom>rowHeight});if(!active){removeFloatingTableHeader();return}const wrap=active.parentElement;if(!floatingTableHeader||floatingTableHeader.table!==active){buildFloatingTableHeader(active,wrap);return}const wrapRect=wrap.getBoundingClientRect(),tableRect=active.getBoundingClientRect();floatingTableHeader.box.style.left=wrapRect.left+"px";floatingTableHeader.box.style.width=wrapRect.width+"px";floatingTableHeader.cloneTable.style.width=tableRect.width+"px";floatingTableHeader.cloneTable.style.transform=`translateX(${-wrap.scrollLeft}px)`}
+      addEventListener("scroll",updateFloatingTableHeader,{passive:true});addEventListener("resize",()=>{removeFloatingTableHeader();updateFloatingTableHeader()},{passive:true});
+      function setupFrontendInteractiveTables(){closeTableMenu();removeFloatingTableHeader();wrapFrontendTables();document.querySelectorAll("#article-body-content table").forEach(table=>{const head=table.rows[0];if(!head||table.rows.length<2)return;table._filterStates=table._filterStates||{};table.classList.toggle("has-filter-controls",table.dataset.frontendFilter==="true");table.classList.toggle("has-sort-controls",table.dataset.frontendSort==="true");[...head.cells].forEach((cell,col)=>{if(table.dataset.frontendFilter!=="true"&&table.dataset.frontendSort!=="true")return;const controls=document.createElement("span");controls.className="table-head-controls";if(table.dataset.frontendFilter==="true"){const b=document.createElement("button");b.type="button";b.className="table-filter-trigger";b.innerHTML="<span>∨</span>";b.title="篩選此欄";b.onclick=e=>openColumnFilter(e,table,col);controls.appendChild(b)}if(table.dataset.frontendSort==="true"){const b=document.createElement("button");b.type="button";b.className="table-sort-trigger";b.textContent="↕";b.title="排序此欄";b.dataset.direction="none";b.onclick=e=>sortTableColumn(e,table,col,b);controls.appendChild(b)}cell.appendChild(controls)})});requestAnimationFrame(updateFloatingTableHeader)}
       function dataRows(table){return[...table.rows].slice(1)}
       function applyTableFilters(table){const states=table._filterStates||{};dataRows(table).forEach(row=>{row.hidden=!Object.entries(states).every(([col,set])=>!(set instanceof Set)||set.has((row.cells[+col]?.textContent||"").trim()||"（空白）"))})}
       function openColumnFilter(event,table,col){event.preventDefault();event.stopPropagation();closeTableMenu();const values=[...new Set(dataRows(table).map(r=>(r.cells[col]?.textContent||"").trim()||"（空白）"))].sort((a,b)=>a.localeCompare(b,"zh-Hant"));table._filterStates||={};table._filterStates[col]||=new Set(values);const allowed=table._filterStates[col],menu=document.createElement("div");menu.className="table-filter-menu";menu.innerHTML=`<div class="table-filter-menu-actions"><button data-a="all">全部勾選</button><button data-a="none">全部取消</button></div>`+values.map((v,n)=>`<label><input type="checkbox" data-n="${n}" ${allowed.has(v)?"checked":""}><span>${esc(v)}</span></label>`).join("");document.body.appendChild(menu);const r=event.currentTarget.getBoundingClientRect();menu.style.left=Math.min(r.left,innerWidth-menu.offsetWidth-12)+"px";menu.style.top=Math.min(r.bottom+6,innerHeight-menu.offsetHeight-12)+"px";menu.querySelectorAll("input").forEach(x=>x.onchange=()=>{const v=values[+x.dataset.n];x.checked?allowed.add(v):allowed.delete(v);applyTableFilters(table);event.currentTarget.classList.toggle("active",allowed.size<values.length)});menu.querySelector('[data-a="all"]').onclick=()=>{values.forEach(v=>allowed.add(v));menu.querySelectorAll("input").forEach(x=>x.checked=true);applyTableFilters(table);event.currentTarget.classList.remove("active")};menu.querySelector('[data-a="none"]').onclick=()=>{allowed.clear();menu.querySelectorAll("input").forEach(x=>x.checked=false);applyTableFilters(table);event.currentTarget.classList.add("active")};openTableMenu=menu}
