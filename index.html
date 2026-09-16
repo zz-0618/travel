@@ -532,6 +532,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .floating-table-header table{border-collapse:collapse!important;table-layout:fixed!important;margin:0!important;max-width:none!important}
       .floating-table-header th,.floating-table-header td{border:1px solid var(--sand);padding:.65rem .75rem;background:var(--card);font-weight:700;box-sizing:border-box;overflow:hidden}
       .floating-table-header .table-head-controls{visibility:hidden}
+
+      /* 表格篩選選單的快捷按鈕使用一致圓角 */
+      .table-filter-menu-actions button{border-radius:8px!important;padding:.4rem .7rem!important}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1255,11 +1258,81 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       let openTableMenu=null;
       function closeTableMenu(){openTableMenu?.remove();openTableMenu=null}
       let floatingTableHeader=null;
-      function removeFloatingTableHeader(){floatingTableHeader?.remove();floatingTableHeader=null}
-      function wrapFrontendTables(){document.querySelectorAll("#article-body-content table").forEach(table=>{if(table.parentElement?.classList.contains("article-table-scroll"))return;const wrap=document.createElement("div");wrap.className="article-table-scroll";table.parentNode.insertBefore(wrap,table);wrap.appendChild(table);wrap.addEventListener("scroll",updateFloatingTableHeader,{passive:true})})}
-      function buildFloatingTableHeader(table,wrap){removeFloatingTableHeader();const firstRow=table.rows[0];if(!firstRow)return;const box=document.createElement("div");box.className="floating-table-header";const cloneTable=document.createElement("table");const body=document.createElement("tbody");const row=firstRow.cloneNode(true);body.appendChild(row);cloneTable.appendChild(body);box.appendChild(cloneTable);document.body.appendChild(box);const tableRect=table.getBoundingClientRect(),wrapRect=wrap.getBoundingClientRect();box.style.left=wrapRect.left+"px";box.style.width=wrapRect.width+"px";cloneTable.style.width=tableRect.width+"px";cloneTable.style.transform=`translateX(${-wrap.scrollLeft}px)`;[...firstRow.cells].forEach((cell,i)=>{const width=cell.getBoundingClientRect().width;const cloned=row.cells[i];if(cloned){cloned.style.width=width+"px";cloned.style.minWidth=width+"px";cloned.style.maxWidth=width+"px"}});box.style.display="block";floatingTableHeader={box,table,wrap,cloneTable}}
-      function updateFloatingTableHeader(){const tables=[...document.querySelectorAll("#article-body-content .article-table-scroll table")];const active=tables.find(table=>{const r=table.getBoundingClientRect();const rowHeight=table.rows[0]?.getBoundingClientRect().height||0;return r.top<0&&r.bottom>rowHeight});if(!active){removeFloatingTableHeader();return}const wrap=active.parentElement;if(!floatingTableHeader||floatingTableHeader.table!==active){buildFloatingTableHeader(active,wrap);return}const wrapRect=wrap.getBoundingClientRect(),tableRect=active.getBoundingClientRect();floatingTableHeader.box.style.left=wrapRect.left+"px";floatingTableHeader.box.style.width=wrapRect.width+"px";floatingTableHeader.cloneTable.style.width=tableRect.width+"px";floatingTableHeader.cloneTable.style.transform=`translateX(${-wrap.scrollLeft}px)`}
-      addEventListener("scroll",updateFloatingTableHeader,{passive:true});addEventListener("resize",()=>{removeFloatingTableHeader();updateFloatingTableHeader()},{passive:true});
+      function removeFloatingTableHeader(){
+        if(floatingTableHeader?.box) floatingTableHeader.box.remove();
+        floatingTableHeader=null;
+      }
+      function wrapFrontendTables(){
+        document.querySelectorAll("#article-body-content table").forEach(table=>{
+          if(table.parentElement?.classList.contains("article-table-scroll")) return;
+          const wrap=document.createElement("div");
+          wrap.className="article-table-scroll";
+          table.parentNode.insertBefore(wrap,table);
+          wrap.appendChild(table);
+          wrap.addEventListener("scroll",updateFloatingTableHeader,{passive:true});
+        });
+      }
+      function getActiveStickyTable(){
+        const tables=[...document.querySelectorAll("#article-body-content .article-table-scroll table")];
+        const topLine=0;
+        return tables.find(table=>{
+          if(!table.isConnected||!table.rows.length) return false;
+          const rect=table.getBoundingClientRect();
+          const headerHeight=table.rows[0].getBoundingClientRect().height||0;
+          return rect.top<=topLine && rect.bottom>topLine+headerHeight;
+        })||null;
+      }
+      function buildFloatingTableHeader(table){
+        removeFloatingTableHeader();
+        const wrap=table.closest(".article-table-scroll");
+        const firstRow=table.rows[0];
+        if(!wrap||!firstRow) return;
+        const box=document.createElement("div");
+        box.className="floating-table-header";
+        box.dataset.sourceTable=String([...document.querySelectorAll("#article-body-content table")].indexOf(table));
+        const cloneTable=document.createElement("table");
+        const body=document.createElement("tbody");
+        const row=firstRow.cloneNode(true);
+        row.querySelectorAll(".table-head-controls").forEach(node=>node.remove());
+        body.appendChild(row);
+        cloneTable.appendChild(body);
+        box.appendChild(cloneTable);
+        document.body.appendChild(box);
+        floatingTableHeader={box,table,wrap,cloneTable,row};
+        syncFloatingTableHeader();
+        box.style.display="block";
+      }
+      function syncFloatingTableHeader(){
+        if(!floatingTableHeader) return;
+        const {box,table,wrap,cloneTable,row}=floatingTableHeader;
+        if(!table.isConnected||!wrap.isConnected){removeFloatingTableHeader();return;}
+        const wrapRect=wrap.getBoundingClientRect();
+        const tableRect=table.getBoundingClientRect();
+        box.style.left=wrapRect.left+"px";
+        box.style.width=wrapRect.width+"px";
+        cloneTable.style.width=tableRect.width+"px";
+        cloneTable.style.transform=`translateX(${-wrap.scrollLeft}px)`;
+        [...table.rows[0].cells].forEach((cell,index)=>{
+          const width=cell.getBoundingClientRect().width;
+          const cloned=row.cells[index];
+          if(!cloned) return;
+          cloned.style.width=width+"px";
+          cloned.style.minWidth=width+"px";
+          cloned.style.maxWidth=width+"px";
+          cloned.style.height=cell.getBoundingClientRect().height+"px";
+        });
+      }
+      function updateFloatingTableHeader(){
+        const active=getActiveStickyTable();
+        if(!active){removeFloatingTableHeader();return;}
+        if(!floatingTableHeader||floatingTableHeader.table!==active){
+          buildFloatingTableHeader(active);
+          return;
+        }
+        syncFloatingTableHeader();
+      }
+      addEventListener("scroll",updateFloatingTableHeader,{passive:true});
+      addEventListener("resize",()=>{removeFloatingTableHeader();updateFloatingTableHeader()},{passive:true});
       function setupFrontendInteractiveTables(){closeTableMenu();removeFloatingTableHeader();wrapFrontendTables();document.querySelectorAll("#article-body-content table").forEach(table=>{const head=table.rows[0];if(!head||table.rows.length<2)return;table._filterStates=table._filterStates||{};table.classList.toggle("has-filter-controls",table.dataset.frontendFilter==="true");table.classList.toggle("has-sort-controls",table.dataset.frontendSort==="true");[...head.cells].forEach((cell,col)=>{if(table.dataset.frontendFilter!=="true"&&table.dataset.frontendSort!=="true")return;const controls=document.createElement("span");controls.className="table-head-controls";if(table.dataset.frontendFilter==="true"){const b=document.createElement("button");b.type="button";b.className="table-filter-trigger";b.innerHTML="<span>∨</span>";b.title="篩選此欄";b.onclick=e=>openColumnFilter(e,table,col);controls.appendChild(b)}if(table.dataset.frontendSort==="true"){const b=document.createElement("button");b.type="button";b.className="table-sort-trigger";b.textContent="↕";b.title="排序此欄";b.dataset.direction="none";b.onclick=e=>sortTableColumn(e,table,col,b);controls.appendChild(b)}cell.appendChild(controls)})});requestAnimationFrame(updateFloatingTableHeader)}
       function dataRows(table){return[...table.rows].slice(1)}
       function applyTableFilters(table){const states=table._filterStates||{};dataRows(table).forEach(row=>{row.hidden=!Object.entries(states).every(([col,set])=>!(set instanceof Set)||set.has((row.cells[+col]?.textContent||"").trim()||"（空白）"))})}
