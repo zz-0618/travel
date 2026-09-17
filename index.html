@@ -573,24 +573,49 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .embedded-html-block{width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}
       .embedded-html-block iframe,.embedded-html-block video,.embedded-html-block embed,.embedded-html-block object{display:block;width:100%!important;max-width:100%!important;min-height:360px;border:0}
 
-      /* Google 風格站內搜尋 */
-      .site-search-shell{position:relative;z-index:25;margin-bottom:1.5rem;font-family:"Noto Serif TC",serif}
-      .site-search-box{position:relative;display:flex;align-items:center;width:100%;min-height:3.35rem;background:#fff;border:1px solid #C9B59C;border-radius:999px;box-shadow:0 2px 10px rgba(78,34,15,.10);transition:border-color .2s ease,box-shadow .2s ease}
-      .site-search-box:focus-within{border-color:#4E220F;box-shadow:0 3px 14px rgba(78,34,15,.18)}
-      .site-search-icon{flex:0 0 auto;margin-left:1.15rem;color:#4E220F;font-size:1.05rem;line-height:1}
-      .site-search-input{width:100%;min-width:0;border:0!important;outline:0!important;background:transparent!important;color:#4E220F;padding:.9rem .7rem;font:600 1rem/1.5 "Noto Serif TC",serif;box-shadow:none!important}
-      .site-search-input::placeholder{color:rgba(78,34,15,.55);font-weight:400}
-      .site-search-clear{display:none!important;flex:0 0 auto;margin-right:.65rem;padding:.35rem .65rem!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#4E220F!important;font:700 1.1rem/1 Arial,sans-serif!important}
+      /* 分類列搜尋、精選推薦與熱門文章 */
+      #frontend-nav-tabs{width:100%;align-items:center;padding-left:1rem;padding-right:1rem}
+      .nav-search-item{position:relative;margin-left:auto;display:flex;align-items:center;justify-content:flex-end}
+      .nav-search-toggle{display:inline-flex!important;align-items:center;justify-content:center;width:2.45rem;height:2.45rem;padding:0!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#fff!important;font-size:1.2rem;cursor:pointer}
+      .nav-search-toggle:hover,.nav-search-toggle:focus-visible{background:rgba(255,255,255,.13)!important}
+      .nav-search-shell{position:relative;display:flex;align-items:center;width:2.45rem;transition:width .24s ease;font-family:"Noto Serif TC",serif}
+      .nav-search-shell.open{width:min(25rem,42vw)}
+      .nav-search-box{display:none;align-items:center;width:100%;min-height:2.55rem;background:#fff;border:1px solid #C9B59C;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+      .nav-search-shell.open .nav-search-box{display:flex}
+      .nav-search-input{width:100%;min-width:0;border:0!important;outline:0!important;background:transparent!important;color:#4E220F;padding:.62rem .45rem .62rem 1rem;font:600 .95rem/1.4 "Noto Serif TC",serif;box-shadow:none!important}
+      .nav-search-input::placeholder{color:rgba(78,34,15,.55);font-weight:400}
+      .site-search-clear{display:none!important;flex:0 0 auto;margin-right:.4rem;padding:.25rem .55rem!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#4E220F!important;font:700 1.05rem/1 Arial,sans-serif!important}
       .site-search-clear.show{display:inline-flex!important}
-      .site-search-suggestions{position:absolute;top:calc(100% + .45rem);left:0;right:0;display:none;overflow:hidden;background:#fff;border:1px solid #C9B59C;border-radius:1rem;box-shadow:0 12px 30px rgba(78,34,15,.16)}
+      .site-search-suggestions{position:absolute;top:calc(100% + .5rem);right:0;width:min(25rem,88vw);display:none;overflow:hidden;background:#fff;border:1px solid #C9B59C;border-radius:1rem;box-shadow:0 12px 30px rgba(78,34,15,.2);color:#4E220F}
       .site-search-suggestions.show{display:block}
       .site-search-suggestion{display:flex;align-items:center;gap:.75rem;width:100%;padding:.78rem 1rem;border:0;border-bottom:1px solid rgba(201,181,156,.45);background:#fff!important;color:#4E220F!important;text-align:left;font:600 .95rem/1.45 "Noto Serif TC",serif;cursor:pointer}
       .site-search-suggestion:last-child{border-bottom:0}
       .site-search-suggestion:hover,.site-search-suggestion.active{background:#F4EFE8!important;color:#4E220F!important}
-      .site-search-suggestion-icon{opacity:.62}
-      .site-search-status{min-height:1.5rem;margin:.65rem .35rem 0;color:#4E220F;font-size:.86rem}
-      .site-search-highlight{background:rgba(201,181,156,.52);color:#4E220F;border-radius:.18rem;padding:0 .08rem}
-      @media(max-width:767px){.site-search-shell{margin-bottom:1rem}.site-search-box{min-height:3rem}.site-search-input{font-size:16px;padding:.78rem .55rem}.site-search-icon{margin-left:.9rem}.site-search-suggestions{border-radius:.85rem}.site-search-suggestion{padding:.8rem .9rem}}
+      .site-search-status{position:absolute;top:calc(100% + .5rem);right:0;width:min(25rem,88vw);display:none;padding:.7rem 1rem;background:#fff;border:1px solid #C9B59C;border-radius:.8rem;color:#4E220F;font-size:.84rem;box-shadow:0 8px 22px rgba(78,34,15,.16)}
+      .site-search-status.show{display:block}
+      .featured-articles-section{margin-bottom:2rem}
+      .featured-articles-title{font-size:1.65rem;font-weight:700;margin-bottom:1rem;padding-bottom:.55rem;border-bottom:2px solid #C9B59C}
+      .featured-articles-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+      .featured-article-card{display:flex;flex-direction:column;overflow:hidden;background:#F9F6F0;border:1px solid #C9B59C;border-radius:14px;box-shadow:0 3px 12px rgba(78,34,15,.08)}
+      .featured-article-card:first-child{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+      .featured-article-image{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#C9B59C}
+      .featured-article-card:first-child .featured-article-image{height:100%;min-height:230px}
+      .featured-article-body{padding:1rem;display:flex;flex-direction:column;justify-content:center;min-width:0}
+      .featured-article-label{font-size:.75rem;font-weight:700;color:#8FA28A;margin-bottom:.35rem}
+      .featured-article-title-text{font-size:1.15rem;font-weight:700;line-height:1.5}
+      .featured-article-card:first-child .featured-article-title-text{font-size:1.45rem}
+      .popular-articles-box{background:var(--soft);border:1px solid var(--sand);color:var(--ink)}
+      .popular-rank{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;margin-right:.45rem;border-radius:50%;background:#4E220F;color:#fff;font:700 .75rem/1 Arial,sans-serif}
+      @media(max-width:767px){
+        #frontend-nav-tabs{justify-content:flex-start;gap:.8rem;font-size:1rem;padding-left:.75rem;padding-right:.75rem}
+        .nav-search-item{margin-left:auto}
+        .nav-search-shell.open{position:absolute;right:.5rem;left:.5rem;top:.35rem;width:auto;z-index:50}
+        .nav-search-shell.open .nav-search-box{min-height:2.8rem}
+        .featured-articles-grid{grid-template-columns:1fr}
+        .featured-article-card:first-child{grid-column:auto;display:flex}
+        .featured-article-card:first-child .featured-article-image{height:auto;min-height:0}
+        .featured-article-card:first-child .featured-article-title-text{font-size:1.2rem}
+      }
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -641,8 +666,11 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
               韓國自由行攻略與旅遊心得分享
             </p>
           </div>
-          <section
-            class="latest-articles-box p-5 rounded-xl shadow-sm "
+          <section id="popular-articles-box" class="popular-articles-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="popular-articles-title">
+            <h3 id="popular-articles-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">熱門文章</h3>
+            <ol id="popular-articles-list" class="space-y-3 text-sm"></ol>
+          </section>
+          <section class="latest-articles-box p-5 rounded-xl shadow-sm "
             aria-labelledby="latest-articles-title"
           >
             <h3
@@ -1084,8 +1112,13 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function articleCardHtml(a){
         return `<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
       }
-      function searchPanelHtml(){
-        return `<section class="site-search-shell" aria-label="站內搜尋"><div class="site-search-box"><span class="site-search-icon" aria-hidden="true">⌕</span><input id="site-search-input" class="site-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox" aria-label="搜尋建議"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></section><div id="site-search-results"></div>`;
+      function navSearchHtml(){
+        return `<li class="nav-search-item"><div id="nav-search-shell" class="nav-search-shell"><button id="nav-search-toggle" type="button" class="nav-search-toggle" onclick="toggleNavSearch(true)" aria-label="開啟站內搜尋" aria-expanded="false">⌕</button><div class="nav-search-box"><input id="site-search-input" class="nav-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox" aria-label="搜尋建議"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></div></li>`;
+      }
+      function toggleNavSearch(open){
+        const shell=$("nav-search-shell"),toggle=$("nav-search-toggle"),input=$("site-search-input");if(!shell)return;
+        shell.classList.toggle("open",open);toggle?.setAttribute("aria-expanded",String(open));
+        if(open)requestAnimationFrame(()=>input?.focus());else{renderSearchSuggestions([]);$("site-search-status")?.classList.remove("show")}
       }
       function normalizeSearchText(value){return String(value||"").normalize("NFKC").toLocaleLowerCase("zh-Hant").replace(/\s+/g," ").trim()}
       function plainArticleContent(value){const box=document.createElement("div");box.innerHTML=value||"";return box.textContent||""}
@@ -1122,15 +1155,18 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         box.querySelectorAll("[data-search-suggestion]").forEach(button=>button.addEventListener("mousedown",event=>{event.preventDefault();input.value=button.dataset.searchSuggestion||"";runSiteSearch(input.value,{hideSuggestions:true});input.focus()}));
       }
       async function runSiteSearch(rawQuery,opt={}){
-        const input=$("site-search-input"),clear=$("site-search-clear"),status=$("site-search-status"),resultsBox=$("site-search-results");if(!input||!status||!resultsBox)return;
-        const query=String(rawQuery??input.value).trim();clear?.classList.toggle("show",Boolean(query));
-        if(!query){searchResults=[];searchSuggestionIndex=-1;renderSearchSuggestions([]);status.textContent="";resultsBox.innerHTML=renderDefaultArticleList();return;}
+        const input=$("site-search-input"),clear=$("site-search-clear"),status=$("site-search-status");if(!input||!status)return;
+        let resultsBox=$("site-search-results");
+        if(!resultsBox){await fetchArticles("all",{page:1});resultsBox=$("site-search-results");if(!resultsBox)return;}
+        const query=String(rawQuery??input.value).trim();clear?.classList.toggle("show",Boolean(query));status.classList.toggle("show",Boolean(query));
+        if(!query){searchResults=[];searchSuggestionIndex=-1;renderSearchSuggestions([]);status.textContent="";status.classList.remove("show");resultsBox.innerHTML=renderDefaultArticleList();renderFeaturedArticles();return;}
         const requestId=++searchRequestId;status.textContent="搜尋中…";
         try{
           const articles=await ensureSearchArticles();if(requestId!==searchRequestId)return;
           searchResults=articles.map(article=>({article,score:searchScore(article,query)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||new Date(b.article.updated_at||b.article.created_at||0)-new Date(a.article.updated_at||a.article.created_at||0)).map(x=>x.article);
           const suggestions=opt.hideSuggestions?[]:buildSearchSuggestions(query,articles);renderSearchSuggestions(suggestions);
           status.textContent=searchResults.length?`找到 ${searchResults.length} 篇相關文章，已依相關度排序`:`找不到與「${query}」相關的文章`;
+          $("featured-articles-section")?.classList.add("hidden");
           resultsBox.innerHTML=searchResults.length?searchResults.map(articleCardHtml).join(""):`<div class="custom-card p-6 rounded">目前尚無符合「${esc(query)}」的文章。</div>`;
         }catch(error){console.error("站內搜尋失敗：",error);renderSearchSuggestions([]);status.textContent="搜尋暫時無法使用，請稍後再試。";}
       }
@@ -1152,7 +1188,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           if(event.key==="Enter"){event.preventDefault();const selected=buttons[searchSuggestionIndex]?.dataset.searchSuggestion;if(selected){input.value=selected;}runSiteSearch(input.value,{hideSuggestions:true}).then(()=>{if(searchResults[0])viewSingleArticle(searchResults[0].id)});}
         });
         input.addEventListener("focus",()=>{if(input.value)runSiteSearch(input.value)});
-        document.addEventListener("click",event=>{if(!event.target.closest?.(".site-search-shell"))renderSearchSuggestions([])});
+        document.addEventListener("click",event=>{if(!event.target.closest?.(".nav-search-shell")){renderSearchSuggestions([]);$("site-search-status")?.classList.remove("show")}});
       }
       async function fetchArticles(cat="all",opt={}){
         const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});
@@ -1163,9 +1199,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
         $("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();
         const cards=(pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,cat);
-        c.innerHTML=cat==="all"?searchPanelHtml():tagBar(cat,base)+cards;
-        if(cat==="all"){$("site-search-results").innerHTML=cards;setupSiteSearch()}
-        renderLatestArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})
+        c.innerHTML=cat==="all"?`<section id="featured-articles-section" class="featured-articles-section hidden"></section><div id="site-search-results">${cards}</div>`:tagBar(cat,base)+cards;
+        if(cat==="all")renderFeaturedArticles();
+        renderLatestArticles();renderPopularArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})
       }
       function relatedSettingsKey(articleId) {
         return "article_related_" + String(articleId);
@@ -1215,6 +1251,22 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         section.classList.remove("hidden");
       }
       function renderSocialPlatforms(){const s=$("social-platforms-box"),b=$("social-platforms-list");if(!s||!b)return;let v=[];try{v=JSON.parse(settingsCache.social_links||"[]")}catch{}if(!v.length){s.classList.add("hidden");return}b.innerHTML=v.map(x=>`<a class="social-platform-link" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.name)}</a>`).join("");s.classList.remove("hidden")}
+      function parseRecommendationIds(key,limit){try{const value=JSON.parse(settingsCache[key]||"[]");return Array.isArray(value)?value.map(String).slice(0,limit):[]}catch{return[]}}
+      function articlesBySavedOrder(key,limit){const map=new Map(allArticlesCache.filter(isPublishedArticle).map(a=>[String(a.id),a]));return parseRecommendationIds(key,limit).map(id=>map.get(id)).filter(Boolean)}
+      function renderFeaturedArticles(){
+        const box=$("featured-articles-section");if(!box)return;
+        const items=articlesBySavedOrder("featured_articles",5);
+        if(!items.length){box.innerHTML="";box.classList.add("hidden");return}
+        box.innerHTML=`<h2 class="featured-articles-title">精選推薦</h2><div class="featured-articles-grid">${items.map(a=>`<article class="featured-article-card"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="featured-article-image" loading="lazy" decoding="async">`:`<div class="featured-article-image article-list-cover-placeholder">Travel</div>`}</a><div class="featured-article-body"><div class="featured-article-label">EDITOR'S PICK</div><h3 class="featured-article-title-text"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h3><p class="line-clamp-2 mt-2 text-sm opacity-75">${esc(a.excerpt||"")}</p></div></article>`).join("")}</div>`;
+        box.classList.remove("hidden");
+      }
+      function renderPopularArticles(){
+        const section=$("popular-articles-box"),box=$("popular-articles-list");if(!section||!box)return;
+        const items=articlesBySavedOrder("popular_articles",10);
+        if(!items.length){box.innerHTML="";section.classList.add("hidden");return}
+        box.innerHTML=items.map((a,index)=>`<li><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="flex items-start"><span class="popular-rank">${index+1}</span><span class="font-semibold flex-1">${esc(a.title)}</span></a></li>`).join("");
+        section.classList.remove("hidden");
+      }
       function renderLatestArticles() {
         const box = $("latest-articles-list");
         if (!box) return;
@@ -1252,7 +1304,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
                 ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
                 : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)}</a></li>`;
             })
-            .join("");
+            .join("") + navSearchHtml();
+        setupSiteSearch();
       }
       function openCategory(name) {
         name === "我的旅途" ? viewJourney() : filterCategory(name);
