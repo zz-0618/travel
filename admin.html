@@ -1867,19 +1867,24 @@
           "announcement",
           "categories",
           "articles",
+          "featured",
+          "popular",
           "journey",
         ].forEach((t) => {
-          $("admin-tab-" + t).classList.toggle("hidden", t !== n);
-          $("tab-" + t + "-btn").classList.toggle("bg-[#C9B59C]", t === n);
-          $("tab-" + t + "-btn").classList.toggle("text-white", t === n);
+          const panel = $("admin-tab-" + t);
+          const button = $("tab-" + t + "-btn");
+          panel?.classList.toggle("hidden", t !== n);
+          button?.classList.toggle("bg-[#C9B59C]", t === n);
+          button?.classList.toggle("text-white", t === n);
         });
         if (n === "social") loadSocialPlatformsEditor();
         if (n === "categories") loadCategoriesAdmin();
         if (n === "articles") populateArticleParentDropdowns();
+        if (n === "featured") renderRecommendationManager("featured");
+        if (n === "popular") renderRecommendationManager("popular");
         if (n === "journey") renderJourneyAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
       }
-
       function switchArticleSubTab(s) {
         $("sub-article-new").classList.toggle("hidden", s !== "new");
         $("sub-article-manage").classList.toggle("hidden",s!=="manage");$("sub-article-drafts").classList.toggle("hidden",s!=="drafts");
