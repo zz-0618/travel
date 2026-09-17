@@ -1478,6 +1478,19 @@
         $("edit-article-id").value = a.id;
         $("edit-article-title").value = a.title;
         $("edit-article-slug").value = a.slug || "";
+
+        let articleTags = [];
+
+        try {
+          articleTags = JSON.parse(
+            settingsCache["article_tags_" + a.id] || "[]"
+          );
+        } catch {
+          articleTags = [];
+        }
+
+        $("edit-article-tags").value = articleTags.join(", ");
+
         $("edit-article-editor").innerHTML = a.content || "";
         $("edit-article-cover-file").value = "";
         const preview = $("edit-article-cover-preview");
@@ -1509,7 +1522,11 @@
           subcategory = $("edit-article-child-select").value,
           slug = normalizeSlug($("edit-article-slug").value) || fallbackSlug(),
           coverFile = $("edit-article-cover-file").files[0],
-          relatedArticleIds = selectedRelatedArticleIds("edit");
+          relatedArticleIds = selectedRelatedArticleIds("edit"),
+          articleTags = parseTags(
+            $("edit-article-tags").value
+          );
+        ``
         let content;
         try {
           content = validateArticleContent(
@@ -1545,6 +1562,7 @@
           if (error) throw error;
           await upsertSettings({
             [relatedSettingsKey(id)]: JSON.stringify(relatedArticleIds),
+            ["article_tags_" + id]: JSON.stringify(articleTags)
           });
           alert("文章更新成功");
           closeEditForm();
