@@ -572,6 +572,25 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       /* 後台嵌入 HTML 產生的響應式內容 */
       .embedded-html-block{width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}
       .embedded-html-block iframe,.embedded-html-block video,.embedded-html-block embed,.embedded-html-block object{display:block;width:100%!important;max-width:100%!important;min-height:360px;border:0}
+
+      /* Google 風格站內搜尋 */
+      .site-search-shell{position:relative;z-index:25;margin-bottom:1.5rem;font-family:"Noto Serif TC",serif}
+      .site-search-box{position:relative;display:flex;align-items:center;width:100%;min-height:3.35rem;background:#fff;border:1px solid #C9B59C;border-radius:999px;box-shadow:0 2px 10px rgba(78,34,15,.10);transition:border-color .2s ease,box-shadow .2s ease}
+      .site-search-box:focus-within{border-color:#4E220F;box-shadow:0 3px 14px rgba(78,34,15,.18)}
+      .site-search-icon{flex:0 0 auto;margin-left:1.15rem;color:#4E220F;font-size:1.05rem;line-height:1}
+      .site-search-input{width:100%;min-width:0;border:0!important;outline:0!important;background:transparent!important;color:#4E220F;padding:.9rem .7rem;font:600 1rem/1.5 "Noto Serif TC",serif;box-shadow:none!important}
+      .site-search-input::placeholder{color:rgba(78,34,15,.55);font-weight:400}
+      .site-search-clear{display:none!important;flex:0 0 auto;margin-right:.65rem;padding:.35rem .65rem!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#4E220F!important;font:700 1.1rem/1 Arial,sans-serif!important}
+      .site-search-clear.show{display:inline-flex!important}
+      .site-search-suggestions{position:absolute;top:calc(100% + .45rem);left:0;right:0;display:none;overflow:hidden;background:#fff;border:1px solid #C9B59C;border-radius:1rem;box-shadow:0 12px 30px rgba(78,34,15,.16)}
+      .site-search-suggestions.show{display:block}
+      .site-search-suggestion{display:flex;align-items:center;gap:.75rem;width:100%;padding:.78rem 1rem;border:0;border-bottom:1px solid rgba(201,181,156,.45);background:#fff!important;color:#4E220F!important;text-align:left;font:600 .95rem/1.45 "Noto Serif TC",serif;cursor:pointer}
+      .site-search-suggestion:last-child{border-bottom:0}
+      .site-search-suggestion:hover,.site-search-suggestion.active{background:#F4EFE8!important;color:#4E220F!important}
+      .site-search-suggestion-icon{opacity:.62}
+      .site-search-status{min-height:1.5rem;margin:.65rem .35rem 0;color:#4E220F;font-size:.86rem}
+      .site-search-highlight{background:rgba(201,181,156,.52);color:#4E220F;border-radius:.18rem;padding:0 .08rem}
+      @media(max-width:767px){.site-search-shell{margin-bottom:1rem}.site-search-box{min-height:3rem}.site-search-input{font-size:16px;padding:.78rem .55rem}.site-search-icon{margin-left:.9rem}.site-search-suggestions{border-radius:.85rem}.site-search-suggestion{padding:.8rem .9rem}}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1060,7 +1079,94 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         }).join("");
         return `<nav class="article-pagination" aria-label="文章分頁">${previous}<div class="article-pagination-pages">${numbers}</div>${next}</nav>`;
       }
-      async function fetchArticles(cat="all",opt={}){const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.some(t=>getArticleTags(a).includes(t)));list=[...list].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);$("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();c.innerHTML=tagBar(cat,base)+(pageItems.length?pageItems.map(a=>`<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" class="article-list-cover">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,cat);renderLatestArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})}
+      let searchArticlesCache=[],searchResults=[],searchSuggestionIndex=-1,searchRequestId=0;
+      const SEARCH_SUGGESTION_LIMIT=6;
+      function articleCardHtml(a){
+        return `<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
+      }
+      function searchPanelHtml(){
+        return `<section class="site-search-shell" aria-label="站內搜尋"><div class="site-search-box"><span class="site-search-icon" aria-hidden="true">⌕</span><input id="site-search-input" class="site-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox" aria-label="搜尋建議"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></section><div id="site-search-results"></div>`;
+      }
+      function normalizeSearchText(value){return String(value||"").normalize("NFKC").toLocaleLowerCase("zh-Hant").replace(/\s+/g," ").trim()}
+      function plainArticleContent(value){const box=document.createElement("div");box.innerHTML=value||"";return box.textContent||""}
+      function searchScore(article,query){
+        const q=normalizeSearchText(query);if(!q)return 0;
+        const title=normalizeSearchText(article.title),tags=getArticleTags(article).map(normalizeSearchText),category=normalizeSearchText([article.category,article.subcategory].filter(Boolean).join(" ")),excerpt=normalizeSearchText(article.excerpt),content=normalizeSearchText(article._plainContent??(article._plainContent=plainArticleContent(article.content)));
+        let score=0;
+        if(title.includes(q))score+=100+(title===q?35:title.startsWith(q)?20:0);
+        tags.forEach(tag=>{if(tag.includes(q))score+=60+(tag===q?18:tag.startsWith(q)?10:0)});
+        if(category.includes(q))score+=40+(category===q?12:category.startsWith(q)?7:0);
+        if(excerpt.includes(q))score+=16;
+        if(content.includes(q))score+=10;
+        return score;
+      }
+      async function ensureSearchArticles(){
+        if(searchArticlesCache.length)return searchArticlesCache;
+        const {data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url,content").order("created_at",{ascending:false});
+        if(error)throw error;
+        searchArticlesCache=(data||[]).filter(isPublishedArticle);
+        return searchArticlesCache;
+      }
+      function buildSearchSuggestions(query,articles){
+        const q=normalizeSearchText(query);if(!q)return[];
+        const popular=["濟州島","濟州美食","濟州景點","濟州 Pass"];
+        const pool=[...popular,...categoriesCache.flatMap(c=>[c.name]),...articles.flatMap(a=>[a.category,a.subcategory,...getArticleTags(a)]),...articles.map(a=>a.title)].filter(Boolean);
+        const seen=new Set();
+        return pool.filter(term=>{const key=normalizeSearchText(term);if(!key.includes(q)||seen.has(key))return false;seen.add(key);return true}).sort((a,b)=>{const an=normalizeSearchText(a),bn=normalizeSearchText(b);return Number(!an.startsWith(q))-Number(!bn.startsWith(q))||a.length-b.length||a.localeCompare(b,"zh-Hant")}).slice(0,SEARCH_SUGGESTION_LIMIT);
+      }
+      function renderSearchSuggestions(items){
+        const box=$("site-search-suggestions"),input=$("site-search-input");if(!box||!input)return;
+        searchSuggestionIndex=Math.min(searchSuggestionIndex,items.length-1);
+        box.innerHTML=items.map((item,index)=>`<button type="button" class="site-search-suggestion ${index===searchSuggestionIndex?"active":""}" role="option" aria-selected="${index===searchSuggestionIndex}" data-search-suggestion="${esc(item)}"><span class="site-search-suggestion-icon" aria-hidden="true">⌕</span><span>${esc(item)}</span></button>`).join("");
+        box.classList.toggle("show",items.length>0);input.setAttribute("aria-expanded",String(items.length>0));
+        box.querySelectorAll("[data-search-suggestion]").forEach(button=>button.addEventListener("mousedown",event=>{event.preventDefault();input.value=button.dataset.searchSuggestion||"";runSiteSearch(input.value,{hideSuggestions:true});input.focus()}));
+      }
+      async function runSiteSearch(rawQuery,opt={}){
+        const input=$("site-search-input"),clear=$("site-search-clear"),status=$("site-search-status"),resultsBox=$("site-search-results");if(!input||!status||!resultsBox)return;
+        const query=String(rawQuery??input.value).trim();clear?.classList.toggle("show",Boolean(query));
+        if(!query){searchResults=[];searchSuggestionIndex=-1;renderSearchSuggestions([]);status.textContent="";resultsBox.innerHTML=renderDefaultArticleList();return;}
+        const requestId=++searchRequestId;status.textContent="搜尋中…";
+        try{
+          const articles=await ensureSearchArticles();if(requestId!==searchRequestId)return;
+          searchResults=articles.map(article=>({article,score:searchScore(article,query)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||new Date(b.article.updated_at||b.article.created_at||0)-new Date(a.article.updated_at||a.article.created_at||0)).map(x=>x.article);
+          const suggestions=opt.hideSuggestions?[]:buildSearchSuggestions(query,articles);renderSearchSuggestions(suggestions);
+          status.textContent=searchResults.length?`找到 ${searchResults.length} 篇相關文章，已依相關度排序`:`找不到與「${query}」相關的文章`;
+          resultsBox.innerHTML=searchResults.length?searchResults.map(articleCardHtml).join(""):`<div class="custom-card p-6 rounded">目前尚無符合「${esc(query)}」的文章。</div>`;
+        }catch(error){console.error("站內搜尋失敗：",error);renderSearchSuggestions([]);status.textContent="搜尋暫時無法使用，請稍後再試。";}
+      }
+      function clearSiteSearch(){const input=$("site-search-input");if(!input)return;input.value="";runSiteSearch("");input.focus()}
+      function renderDefaultArticleList(){
+        let list=[...allArticlesCache].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+        const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
+        return (pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,"all");
+      }
+      function setupSiteSearch(){
+        const input=$("site-search-input");if(!input)return;
+        let debounceTimer;
+        input.addEventListener("input",()=>{searchSuggestionIndex=-1;clearTimeout(debounceTimer);debounceTimer=setTimeout(()=>runSiteSearch(input.value),90)});
+        input.addEventListener("keydown",event=>{
+          const buttons=[...document.querySelectorAll("#site-search-suggestions .site-search-suggestion")];
+          if(event.key==="ArrowDown"&&buttons.length){event.preventDefault();searchSuggestionIndex=(searchSuggestionIndex+1)%buttons.length;renderSearchSuggestions(buttons.map(x=>x.dataset.searchSuggestion));return;}
+          if(event.key==="ArrowUp"&&buttons.length){event.preventDefault();searchSuggestionIndex=(searchSuggestionIndex-1+buttons.length)%buttons.length;renderSearchSuggestions(buttons.map(x=>x.dataset.searchSuggestion));return;}
+          if(event.key==="Escape"){renderSearchSuggestions([]);return;}
+          if(event.key==="Enter"){event.preventDefault();const selected=buttons[searchSuggestionIndex]?.dataset.searchSuggestion;if(selected){input.value=selected;}runSiteSearch(input.value,{hideSuggestions:true}).then(()=>{if(searchResults[0])viewSingleArticle(searchResults[0].id)});}
+        });
+        input.addEventListener("focus",()=>{if(input.value)runSiteSearch(input.value)});
+        document.addEventListener("click",event=>{if(!event.target.closest?.(".site-search-shell"))renderSearchSuggestions([])});
+      }
+      async function fetchArticles(cat="all",opt={}){
+        const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});
+        if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}
+        allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];
+        let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}
+        const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.some(t=>getArticleTags(a).includes(t)));list=[...list].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+        const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
+        $("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();
+        const cards=(pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,cat);
+        c.innerHTML=cat==="all"?searchPanelHtml():tagBar(cat,base)+cards;
+        if(cat==="all"){$("site-search-results").innerHTML=cards;setupSiteSearch()}
+        renderLatestArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})
+      }
       function relatedSettingsKey(articleId) {
         return "article_related_" + String(articleId);
       }
