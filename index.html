@@ -2,20 +2,35 @@
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
+    <meta name="application-name" content="一葉知途">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>一葉知途 的旅遊部落格</title>
-    
-    <meta name="description" content="一葉知途 的旅遊部落格">
+    <title>一葉知途｜韓國自由行攻略</title>
 
+    <meta
+      name="description"
+      content="一葉知途分享韓國自由行攻略，包含濟州島及釜山的美食、交通、住宿與旅遊心得。">
+    
+    https://travel.aleafpath.workers.dev/
+    
     <meta property="og:type" content="website">
-    <meta property="og:title" content="一葉知途 的旅遊部落格">
-    <meta property="og:description" content="一葉知途 的旅遊部落格">
-    <meta property="og:site_name" content="一葉知途 的旅遊部落格">
+    <meta property="og:title" content="一葉知途｜韓國自由行攻略">
+    <meta property="og:description"
+          content="一葉知途分享韓國自由行攻略，包含濟州島及釜山的美食、交通、住宿與旅遊心得。">
+
+    <meta property="og:site_name" content="一葉知途">
+
     <meta property="og:image" content="">
 
     <script
       id="structured-data"
       type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "一葉知途",
+      "alternateName": "A Leaf Path",
+      "url": "https://travel.aleafpath.workers.dev/"
+    }
     </script>
     
     <script
@@ -562,7 +577,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       >
         <img
           id="site-logo-image"
-          alt="網站橫幅"
+          alt="一葉知途旅遊部落格"
           class="absolute inset-0 w-full h-full object-cover object-center"
           width="1600"
           height="440"
@@ -597,9 +612,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
               decoding="async"
               class="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[#C9B59C]"
             />
-            <h3 id="site-nickname" class="text-xl font-bold">zz</h3>
+            <h3 id="site-nickname" class="text-xl font-bold">一葉知途</h3>
             <p id="site-bio" class="text-sm mt-1 opacity-90">
-              一個隨筆紀錄的人
+              韓國自由行攻略與旅遊心得分享
             </p>
           </div>
           <section
@@ -847,7 +862,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         if (!script) return;
 
         const siteName =
-          settingsCache.nickname || "zz";
+          settingsCache.nickname || "一葉知途";
 
         const logo =
           settingsCache.logo ||
@@ -858,17 +873,11 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
 
           script.textContent =
             JSON.stringify({
-              "@context":
-                "https://schema.org",
-
-              "@type":
-                "WebSite",
-
-              name:
-                "一葉知途 的旅遊部落格",
-
-              url:
-                location.origin
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "一葉知途",
+              alternateName: "A Leaf Path",
+              url: location.origin
             });
 
           return;
@@ -1160,7 +1169,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         if (cacheIndex >= 0) allArticlesCache[cacheIndex] = { ...allArticlesCache[cacheIndex], ...a };
         else allArticlesCache.push(a);
         if (opt.updateHistory !== false) safePushState({ id: a.id }, articlePath(a));
-        document.title = `${a.title}｜一葉知途 的旅遊部落格`;
+        document.title = `${a.title}｜一葉知途`;
         $("floating-toc").classList.remove("hidden");
         toggleTOC(false);
         const f = (v) => v ? new Intl.DateTimeFormat("zh-TW", {
@@ -1251,7 +1260,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       async function goHome() {
         safePushState({}, "/");
-        document.title = "一葉知途 的旅遊部落格";
+        document.title = "一葉知途｜韓國自由行攻略";
         await fetchArticles();
         updateStructuredData();
         scrollTo({ top: 0 });
