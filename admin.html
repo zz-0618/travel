@@ -63,6 +63,14 @@
 
       .embedded-html-block{width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;border-radius:12px}
       .embedded-html-block iframe,.embedded-html-block video,.embedded-html-block embed,.embedded-html-block object{display:block;width:100%!important;max-width:100%!important;min-height:360px;border:0}
+
+      .recommendation-manager{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.25rem}
+      .recommendation-panel{background:var(--soft);border:1px solid var(--sand);border-radius:12px;padding:1rem;min-width:0}
+      .recommendation-list{max-height:65vh;overflow:auto;display:flex;flex-direction:column;gap:.55rem}
+      .recommendation-row{display:grid;grid-template-columns:auto 64px minmax(0,1fr) auto;align-items:center;gap:.7rem;padding:.65rem;background:#fff;border:1px solid var(--sand);border-radius:9px}
+      .recommendation-row img{width:64px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:var(--sand)}
+      .recommendation-order{display:flex;gap:.25rem}.recommendation-order button{padding:.25rem .5rem!important;border-radius:6px!important}
+      @media(max-width:767px){.recommendation-manager{grid-template-columns:1fr}.recommendation-row{grid-template-columns:auto 52px minmax(0,1fr)}.recommendation-order{grid-column:2/-1;justify-content:flex-end}}
 </style>
   </head>
   <body class="min-h-screen">
@@ -117,7 +125,7 @@
             class="w-full text-left px-4 py-3 rounded-lg"
           >
             📝 文章管理</button
-          ><button
+          ><button onclick="switchAdminTab('featured')" id="tab-featured-btn" class="w-full text-left px-4 py-3 rounded-lg">⭐ 精選文章管理</button><button onclick="switchAdminTab('popular')" id="tab-popular-btn" class="w-full text-left px-4 py-3 rounded-lg">🔥 熱門文章管理</button><button
             onclick="switchAdminTab('journey')"
             id="tab-journey-btn"
             class="w-full text-left px-4 py-3 rounded-lg"
@@ -280,6 +288,18 @@
               母分類與子分類可分別設定網址後綴，例如 Korea / Busan。
             </p>
             <div id="admin-categories-tree" class="space-y-2"></div>
+          </div>
+                    <div id="admin-tab-featured" class="admin-tab-content space-y-5 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">精選文章管理</h2>
+            <p class="text-sm opacity-70">最多選擇 5 篇，依下方已選清單順序顯示於首頁最上方。</p>
+            <div id="featured-recommendation-manager" class="recommendation-manager"></div>
+            <button type="button" onclick="saveRecommendationSettings('featured')" class="px-6 py-2 rounded-lg">儲存精選文章</button>
+          </div>
+          <div id="admin-tab-popular" class="admin-tab-content space-y-5 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">熱門文章管理</h2>
+            <p class="text-sm opacity-70">最多選擇 10 篇，使用上下按鈕調整側邊欄顯示順序。</p>
+            <div id="popular-recommendation-manager" class="recommendation-manager"></div>
+            <button type="button" onclick="saveRecommendationSettings('popular')" class="px-6 py-2 rounded-lg">儲存熱門文章</button>
           </div>
           <div
             id="admin-tab-journey"
@@ -475,7 +495,7 @@
         supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return supabaseClient;
       }
-      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [];
+      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [];
       const $ = (id) => document.getElementById(id),
         esc = (s) => String(s ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -491,6 +511,8 @@
         settingsCache = Object.fromEntries((data || []).map((x) => [x.key, x.value]));
         try { categoryOrder = JSON.parse(settingsCache.category_order || "[]"); } catch { categoryOrder = []; }
         try { journeyEntries = JSON.parse(settingsCache.travel_entries || "[]"); } catch { journeyEntries = []; }
+        try { featuredArticleIds = JSON.parse(settingsCache.featured_articles || "[]").map(String).slice(0,5); } catch { featuredArticleIds = []; }
+        try { popularArticleIds = JSON.parse(settingsCache.popular_articles || "[]").map(String).slice(0,10); } catch { popularArticleIds = []; }
         applyCategoryOrder();
         fillSettingsForms();
       }
@@ -1449,6 +1471,8 @@
         allArticlesCache = data || [];
         populateArticleParentDropdowns();
         populateRelatedArticleSelect("new");
+        renderRecommendationManager("featured");
+        renderRecommendationManager("popular");
         $("admin-articles-list").innerHTML = allArticlesCache
           .map(
             (a) =>
@@ -1614,6 +1638,26 @@
       }
       function removeSocialPlatform(index){socialPlatformsDraft.splice(index,1);renderSocialPlatformsEditor()}
       async function saveSocialPlatforms(){try{await upsertSettings({social_links:JSON.stringify(socialPlatformsDraft)});alert("社群平台已儲存")}catch(e){alert("儲存失敗："+e.message)}}
+      function recommendationConfig(type){return type==="featured"?{ids:featuredArticleIds,limit:5,key:"featured_articles",title:"精選"}:{ids:popularArticleIds,limit:10,key:"popular_articles",title:"熱門"}}
+      function setRecommendationIds(type,ids){if(type==="featured")featuredArticleIds=ids;else popularArticleIds=ids}
+      function publishedAdminArticles(){return allArticlesCache.filter(a=>settingsCache["article_status_"+a.id]!=="draft")}
+      function renderRecommendationManager(type){
+        const config=recommendationConfig(type),box=$(type+"-recommendation-manager");if(!box)return;
+        const articleMap=new Map(publishedAdminArticles().map(a=>[String(a.id),a]));
+        const selected=config.ids.map(String).filter(id=>articleMap.has(id)).slice(0,config.limit);setRecommendationIds(type,selected);
+        const selectedSet=new Set(selected);
+        const available=publishedAdminArticles().filter(a=>!selectedSet.has(String(a.id)));
+        const row=(a,selectedIndex=-1)=>`<div class="recommendation-row"><input type="checkbox" ${selectedIndex>=0?"checked":""} onchange="toggleRecommendationArticle('${type}','${a.id}',this.checked)"><img src="${esc(a.cover_image_url||"")}" alt=""><div><b>${esc(a.title)}</b><div class="text-xs opacity-60">${esc(a.category||"未分類")}</div></div>${selectedIndex>=0?`<div class="recommendation-order"><button type="button" onclick="moveRecommendationArticle('${type}',${selectedIndex},-1)" aria-label="上移">↑</button><button type="button" onclick="moveRecommendationArticle('${type}',${selectedIndex},1)" aria-label="下移">↓</button></div>`:"<span></span>"}</div>`;
+        box.innerHTML=`<section class="recommendation-panel"><h3 class="font-bold mb-3">已選 ${selected.length} / ${config.limit}</h3><div class="recommendation-list">${selected.length?selected.map((id,index)=>row(articleMap.get(id),index)).join(""):'<div class="opacity-60">尚未選擇文章</div>'}</div></section><section class="recommendation-panel"><h3 class="font-bold mb-3">可選文章</h3><div class="recommendation-list">${available.length?available.map(a=>row(a)).join(""):'<div class="opacity-60">沒有其他可選文章</div>'}</div></section>`;
+      }
+      function toggleRecommendationArticle(type,id,checked){
+        const config=recommendationConfig(type),ids=[...config.ids].map(String),key=String(id),exists=ids.includes(key);
+        if(checked&&!exists){if(ids.length>=config.limit){alert(`${config.title}文章最多只能選擇 ${config.limit} 篇`);renderRecommendationManager(type);return}ids.push(key)}
+        if(!checked&&exists)ids.splice(ids.indexOf(key),1);
+        setRecommendationIds(type,ids);renderRecommendationManager(type);
+      }
+      function moveRecommendationArticle(type,index,direction){const ids=[...recommendationConfig(type).ids],target=index+direction;if(target<0||target>=ids.length)return;[ids[index],ids[target]]=[ids[target],ids[index]];setRecommendationIds(type,ids);renderRecommendationManager(type)}
+      async function saveRecommendationSettings(type){const config=recommendationConfig(type);try{await upsertSettings({[config.key]:JSON.stringify(config.ids)});alert(`${config.title}文章設定已儲存`)}catch(error){alert("儲存失敗："+(error?.message||String(error)))}}
       function fillSettingsForms() {
         if ($("admin-nickname"))
           $("admin-nickname").value = settingsCache.nickname || "zz";
