@@ -607,14 +607,27 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .popular-articles-box{background:var(--soft);border:1px solid var(--sand);color:var(--ink)}
       .popular-rank{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;margin-right:.45rem;border-radius:50%;background:#4E220F;color:#fff;font:700 .75rem/1 Arial,sans-serif}
       @media(max-width:767px){
-        #frontend-nav-tabs{justify-content:flex-start;gap:.8rem;font-size:1rem;padding-left:.75rem;padding-right:.75rem}
-        .nav-search-item{margin-left:auto}
+        #frontend-nav-tabs{justify-content:center;gap:.8rem;font-size:1rem;padding-left:3.75rem;padding-right:3.75rem}
+        .nav-search-item{margin-left:0}
         .nav-search-shell.open{position:absolute;right:.5rem;left:.5rem;top:.35rem;width:auto;z-index:50}
         .nav-search-shell.open .nav-search-box{min-height:2.8rem}
         .featured-articles-grid{grid-template-columns:1fr}
         .featured-article-card:first-child{grid-column:auto;display:flex}
         .featured-article-card:first-child .featured-article-image{height:auto;min-height:0}
         .featured-article-card:first-child .featured-article-title-text{font-size:1.2rem}
+      }
+
+      /* 主頁文章卡片間距 */
+      #site-search-results{display:flex;flex-direction:column;gap:1.5rem;min-width:0}
+      #site-search-results .article-pagination{margin-top:.5rem}
+
+      /* 分類維持置中，搜尋固定在分類列最右側 */
+      #frontend-nav-tabs{position:relative;justify-content:center!important;width:100%;padding-left:4.5rem!important;padding-right:4.5rem!important}
+      #frontend-nav-tabs .nav-search-item{position:absolute;right:1rem;top:50%;transform:translateY(-50%);margin-left:0!important}
+      @media(max-width:767px){
+        #frontend-nav-tabs{justify-content:center!important;padding-left:3.75rem!important;padding-right:3.75rem!important}
+        #frontend-nav-tabs .nav-search-item{right:.65rem}
+        #frontend-nav-tabs .nav-search-shell.open{position:fixed;left:.65rem;right:.65rem;top:auto;width:auto;transform:none;z-index:60}
       }
 </style>
   </head>
