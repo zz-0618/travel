@@ -120,6 +120,17 @@
       .travel-duration-control{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:.55rem}
       .travel-duration-control input,.travel-duration-control select{width:100%}
 
+
+      /* 後台全按鍵圓角，以及標籤／多選項目加大留白 */
+      #admin-view button{border-radius:10px!important}
+      #admin-view .order-btn,#admin-view .editor-btn,#admin-view .draft-action-button,#admin-view .recommendation-order button,#admin-view .internal-link-actions button{border-radius:10px!important}
+      .internal-link-actions{gap:.85rem!important}
+      .internal-link-actions button{padding:.5rem .9rem!important}
+      .travel-info-audience{column-gap:2rem!important;row-gap:1.25rem!important;padding:1rem 1.1rem!important}
+      .travel-info-audience label{gap:.55rem!important;padding:.35rem .25rem!important}
+      .article-tags{column-gap:1rem!important;row-gap:.75rem!important}
+      #new-article-tags,#edit-article-tags,#draft-edit-tags{margin-top:.5rem}
+
 </style>
   </head>
   <body class="min-h-screen">

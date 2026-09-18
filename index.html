@@ -832,6 +832,16 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .article-related-category{margin-top:.25rem;font-size:.72rem;color:#7b6a5b}
       @media(max-width:767px){.travel-info-audience-row{grid-template-columns:5.7rem minmax(0,1fr)!important}.article-related-grid{grid-template-columns:1fr}.inline-article-toc{padding:1rem}.article-related-card-title{font-size:.9rem}}
 
+
+      /* 延伸閱讀單欄、目錄關閉鍵、H3/H4 階層編號 */
+      .article-related-title{font-size:36px!important;line-height:1.45!important}
+      .article-related-grid{display:flex!important;flex-direction:column!important;gap:1rem!important;width:100%}
+      .article-related-card{width:100%!important;max-width:100%!important}
+      #toc-close-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:2.25rem!important;height:2.25rem!important;min-width:2.25rem!important;padding:0!important;border-radius:50%!important;background:#8FA28A!important;color:#fff!important;border:1px solid #8FA28A!important;font-size:1.4rem!important;line-height:1!important}
+      #toc-close-btn:hover{opacity:.88}
+      .inline-article-toc-list{list-style:none!important;padding-left:0!important}
+      .inline-article-toc-list li{list-style:none!important}
+
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -938,6 +948,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         >
           <h4 class="font-bold">📂 文章目錄</h4>
           <button
+            id="toc-close-btn"
             onclick="toggleTOC(false)"
             aria-label="關閉文章目錄"
             class="text-2xl leading-none px-1"
@@ -2092,12 +2103,24 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function generateArticleTOC() {
         const body=$("article-body-content");if(!body)return;
         body.querySelector(".inline-article-toc")?.remove();
-        const headings=[...body.querySelectorAll("h1,h2,h3,h4")];
-        headings.forEach((h,i)=>h.id=h.id||"heading-"+i);
-        const listHtml=headings.length?headings.map(h=>`<li style="margin-left:${Math.max(0,(Number(h.tagName[1])-3)*12)}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')">${esc(h.innerText)}</a></li>`).join(""):"<li>此文章無段落標題</li>";
+        const headings=[...body.querySelectorAll("h3,h4")];
+        let h3Number=0,h4Number=0;
+        const entries=[];
+        headings.forEach((heading,index)=>{
+          heading.id=heading.id||"heading-"+index;
+          if(heading.tagName==="H3"){
+            h3Number+=1;h4Number=0;
+            entries.push({heading,label:`${h3Number}.`,level:3});
+          }else{
+            if(h3Number===0)return;
+            h4Number+=1;
+            entries.push({heading,label:`${h3Number}.${h4Number}`,level:4});
+          }
+        });
+        const listHtml=entries.length?entries.map(item=>`<li style="margin-left:${item.level===4?18:0}px"><a href="#${item.heading.id}" onclick="scrollToArticleHeading(event,'${item.heading.id}')"><span class="toc-number">${item.label}</span> ${esc(item.heading.innerText)}</a></li>`).join(""):"<li>此文章無 H3／H4 段落標題</li>";
         $("table-of-contents").innerHTML=listHtml;
         const firstH3=body.querySelector("h3");
-        if(!firstH3||!headings.length)return;
+        if(!firstH3||!entries.length)return;
         const nav=document.createElement("nav");nav.className="inline-article-toc";nav.setAttribute("aria-label","本篇文章目錄");
         nav.innerHTML=`<div class="inline-article-toc-head"><span class="inline-article-toc-title">📂 本篇目錄</span><span class="inline-article-toc-note">右上角 ≡ 打開也可以看到</span></div><ol class="inline-article-toc-list">${listHtml}</ol>`;
         firstH3.parentNode.insertBefore(nav,firstH3);
