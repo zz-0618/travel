@@ -1131,125 +1131,156 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           document.getElementById(
             "structured-data"
           );
-
+      
         if (!script) return;
-
+      
         const siteName =
-          settingsCache.nickname || "一葉知途";
-
+          settingsCache.nickname ||
+          "一葉知途";
+      
         const logo =
           settingsCache.logo ||
           settingsCache.avatar ||
           "";
-
+      
         if (!article) {
-
+      
           script.textContent =
             JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "一葉知途",
-              alternateName: "A Leaf Path",
-              url: location.origin
+              "@context":"https://schema.org",
+      
+              "@type":"WebSite",
+      
+              "name":"一葉知途",
+      
+              "alternateName":
+                "A Leaf Path",
+      
+              "url":
+                "https://travel.aleafpath.workers.dev",
+      
+              "publisher":{
+                "@type":"Organization",
+      
+                "name":"一葉知途"
+              }
             });
-
+      
           return;
         }
-
-        const tmp =
+      
+        const box =
           document.createElement("div");
-
-        tmp.innerHTML =
+      
+        box.innerHTML =
           article.content || "";
-
+      
         const plainText =
-          tmp.textContent
-            ?.replace(/\s+/g, " ")
-            .trim()
-            .substring(0, 200) || "";
-
-        document
-          .querySelector(
-            'meta[name="description"]'
-          )
-          ?.setAttribute(
-            "content",
-            plainText.substring(0, 160)
+          (box.textContent || "")
+            .replace(/\s+/g," ")
+            .trim();
+      
+        const description =
+          plainText.substring(
+            0,
+            160
           );
-
-        document
-          .querySelector(
-            'meta[property="og:title"]'
-          )
-          ?.setAttribute(
-            "content",
-            article.title
-          );
-
-        document
-          .querySelector(
-            'meta[property="og:description"]'
-          )
-          ?.setAttribute(
-            "content",
-            plainText.substring(0, 160)
-          );
-
-        const socialImage = article.cover_image_url || logo;
-        if (socialImage) {
-          document
-            .querySelector(
-              'meta[property="og:image"]'
-            )
-            ?.setAttribute(
-              "content",
-              socialImage
+      
+        const socialImage =
+          article.cover_image_url ||
+          logo ||
+          "";
+      
+        let tags = [];
+      
+        try {
+      
+          tags =
+            JSON.parse(
+              settingsCache[
+                "article_tags_" +
+                article.id
+              ] || "[]"
             );
-        }
-
-        script.textContent =
-          JSON.stringify({
-            "@context":
-              "https://schema.org",
-
+      
+        } catch {}
+      
+        const schema = {
+      
+          "@context":
+            "https://schema.org",
+      
+          "@type":
+            "BlogPosting",
+      
+          "headline":
+            article.title,
+      
+          "description":
+            description,
+      
+          "image":
+            socialImage
+              ? [socialImage]
+              : [],
+      
+          "datePublished":
+            article.created_at,
+      
+          "dateModified":
+            article.updated_at ||
+            article.created_at,
+      
+          "mainEntityOfPage": {
             "@type":
-              "BlogPosting",
-
-            headline:
-              article.title,
-
-            description:
-              plainText,
-
-            url:
-              location.href,
-
-            datePublished:
-              article.created_at,
-
-            dateModified:
-              article.updated_at ||
-              article.created_at,
-
-            author: {
+              "WebPage",
+      
+            "@id":
+              location.href
+          },
+      
+          "author": {
+            "@type":
+              "Person",
+      
+            "name":
+              "一葉知途",
+      
+            "url":
+              "https://travel.aleafpath.workers.dev/about"
+          },
+      
+          "publisher": {
+      
+            "@type":
+              "Organization",
+      
+            "name":
+              siteName,
+      
+            "logo": {
+      
               "@type":
-                "Person",
-
-              name:
-                siteName
-            },
-
-            publisher: {
-              "@type":
-                "Organization",
-
-              name:
-                siteName
-            },
-
-            image:
-              socialImage || undefined
-          });
+                "ImageObject",
+      
+              "url":
+                logo
+            }
+          },
+      
+          "articleSection":
+            article.category,
+      
+          "keywords":
+            tags,
+      
+          "inLanguage":
+            "zh-TW"
+      
+        };
+      
+        script.textContent =
+          JSON.stringify(schema);
       }
       
       function safePushState(state, path) {
@@ -1258,15 +1289,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           throw new Error("網址路徑設定錯誤：" + safe);
         history.pushState(state, "", safe);
       }
-      
-      
-      
-      
-      
-      
-      
-      
-      
+
       addEventListener("DOMContentLoaded", async () => {
         await initSupabase();
         try {
