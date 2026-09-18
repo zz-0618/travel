@@ -131,6 +131,74 @@
       .article-tags{column-gap:1rem!important;row-gap:.75rem!important}
       #new-article-tags,#edit-article-tags,#draft-edit-tags{margin-top:.5rem}
 
+      /* =========================
+         左側後台選單（加大留白版）
+         ========================= */
+      
+      /* 關於我、側邊欄、文章、其他 區塊 */
+      
+      .admin-nav-group{
+          padding: 1rem 0 1.85rem !important;
+      
+          border-bottom: 1px solid var(--sand);
+      }
+      
+      /* 區塊標題 */
+      
+      .admin-nav-heading{
+          margin-bottom: 1rem !important;
+      
+          padding: .55rem 1rem .35rem;
+      
+          font-size: .9rem;
+      
+          font-weight: 700;
+      
+          letter-spacing: .08em;
+      }
+      
+      /* 每顆按鈕 */
+      
+      .admin-nav-group button{
+      
+          margin-top: .9rem !important;
+      
+          min-height: 72px;
+      
+          padding-top: 18px !important;
+          padding-bottom: 18px !important;
+      
+          padding-left: 22px !important;
+          padding-right: 22px !important;
+      
+          border-radius: 18px !important;
+      
+          font-size: 1rem;
+      
+          line-height: 1.5;
+      }
+      
+      /* 第一顆不要再往下推 */
+      
+      .admin-nav-heading + button{
+          margin-top: 0 !important;
+      }
+      
+      /* 圖示與文字距離 */
+      
+      .admin-nav-group button{
+          display: flex !important;
+          align-items: center;
+      
+          gap: .75rem;
+      }
+      
+      /* 各區塊之間再拉開 */
+      
+      .admin-nav-group + .admin-nav-group{
+          margin-top: .5rem;
+      }
+  
 </style>
   </head>
   <body class="min-h-screen">
