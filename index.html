@@ -1125,6 +1125,59 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         return safePath(parts);
       }
 
+      function buildBreadcrumbSchema(article) {
+
+        const items = [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "首頁",
+            "item": "https://travel.aleafpath.workers.dev/"
+          }
+        ];
+      
+        let position = 2;
+      
+        if (article.category) {
+      
+          items.push({
+            "@type": "ListItem",
+            "position": position++,
+            "name": article.category,
+            "item":
+              "https://travel.aleafpath.workers.dev" +
+              categoryPath(article.category)
+          });
+      
+        }
+      
+        if (article.subcategory) {
+      
+          items.push({
+            "@type": "ListItem",
+            "position": position++,
+            "name": article.subcategory,
+            "item":
+              "https://travel.aleafpath.workers.dev" +
+              categoryPath(article.subcategory)
+          });
+      
+        }
+      
+        items.push({
+          "@type": "ListItem",
+          "position": position,
+          "name": article.title,
+          "item": location.href
+        });
+      
+        return {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": items
+        };
+      }
+      
       function updateStructuredData(article = null) {
 
         const script =
@@ -1205,7 +1258,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       
         } catch {}
       
-        const schema = {
+        const blogPostingSchema = {
       
           "@context":
             "https://schema.org",
@@ -1279,8 +1332,14 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       
         };
       
+        const breadcrumbSchema =
+          buildBreadcrumbSchema(article);
+        
         script.textContent =
-          JSON.stringify(schema);
+          JSON.stringify([
+            blogPostingSchema,
+            breadcrumbSchema
+          ]);
       }
       
       function safePushState(state, path) {
