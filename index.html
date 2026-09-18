@@ -786,6 +786,22 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .travel-experience-content{margin-top:1rem;line-height:1.85;white-space:pre-line;overflow-wrap:anywhere}
       @media(max-width:767px){.travel-info-card,.travel-experience-card{padding:1.1rem}.travel-info-grid{grid-template-columns:1fr}.travel-info-item,.travel-info-item:nth-child(odd),.travel-info-item:nth-child(even){grid-template-columns:5.7rem minmax(0,1fr);padding:.72rem 0;border-left:0}.travel-info-wrap{margin:1.25rem auto 1.6rem}}
 
+
+      /* 2026-09-18：文章卡片、內文連結、地圖卡片、熱門文章與旅遊資訊卡調整 */
+      .article-list-card{cursor:pointer}
+      .article-list-card:focus-visible{outline:3px solid #8FA28A;outline-offset:3px}
+      .article-list-card .article-title-link,
+      .article-list-card .article-title-link:hover,
+      .article-list-card:hover .article-title-link{color:inherit!important;text-decoration:none!important}
+      #article-body-content a:not(.map-preview-card):not(.embedded-article-card):hover{color:var(--accent)!important;text-decoration:underline!important;text-underline-offset:3px}
+      #article-body-content .map-preview-card,
+      #article-body-content .map-preview-card:hover,
+      #article-body-content .map-preview-card *,
+      #article-body-content .map-preview-card:hover *{text-decoration:none!important}
+      .popular-articles-box a{color:var(--ink)}
+      .popular-articles-box a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+      .travel-info-audience-value{line-height:1.65}
+
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1284,8 +1300,17 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       let searchArticlesCache=[],searchResults=[],searchSuggestionIndex=-1,searchRequestId=0;
       const SEARCH_SUGGESTION_LIMIT=6;
+      function openArticleCard(event,id){
+        if(event.target.closest("a,button,input,select,textarea,label"))return;
+        viewSingleArticle(id);
+      }
+      function handleArticleCardKey(event,id){
+        if(event.key!=="Enter"&&event.key!==" ")return;
+        if(event.target.closest("a,button,input,select,textarea,label"))return;
+        event.preventDefault();viewSingleArticle(id);
+      }
       function articleCardHtml(a){
-        return `<article class="article-list-card"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
+        return `<article class="article-list-card" role="link" tabindex="0" aria-label="閱讀文章：${esc(a.title)}" onclick="openArticleCard(event,'${a.id}')" onkeydown="handleArticleCardKey(event,'${a.id}')"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
       }
       function navSearchHtml(){
         return `<li class="nav-search-item"><div id="nav-search-shell" class="nav-search-shell"><button id="nav-search-toggle" type="button" class="nav-search-toggle" onclick="toggleNavSearch()" aria-label="開啟或收合站內搜尋" aria-expanded="false">⌕</button><div class="nav-search-box"><input id="site-search-input" class="nav-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></div></li>`;
@@ -1530,14 +1555,19 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function getArticleTravelInfo(article){if(article?.travelInfo)return normalizeTravelInfo(article.travelInfo);return normalizeTravelInfo(settingsCache[travelInfoSettingsKey(article?.id)]||"")}
       function travelRatingText(value){const rating=Number(value);if(!Number.isFinite(rating))return"";const full=Math.floor(rating),half=rating-full>=.5;return"★".repeat(full)+(half?"☆":"")+"☆".repeat(Math.max(0,5-full-(half?1:0)))}
       function formatVisitMonth(value){const match=String(value||"").match(/^(\d{4})-(\d{2})$/);return match?`${match[1]}年${Number(match[2])}月`:String(value||"")}
+      function formatStayDuration(value){
+        const text=String(value||"").trim();
+        if(!text)return"";
+        return /(分鐘|小時|半天|天|晚|週|星期|月)$/.test(text)?text:text+"小時";
+      }
       function travelInfoHtml(article){
         const info=getArticleTravelInfo(article);if(!info.enabled)return"";
-        const rows=[["景點名稱",info.name],["類型",info.type],["所在地",info.location],["造訪日期",formatVisitMonth(info.visitDate)],["停留時間",info.stayDuration],["交通方式",info.transportation],["價格",info.price],["推薦程度",travelRatingText(info.rating),"rating"]].filter(row=>row[1]);
+        const rows=[["景點名稱",info.name],["類型",info.type],["所在地",info.location],["造訪日期",formatVisitMonth(info.visitDate)],["停留時間",formatStayDuration(info.stayDuration)],["交通方式",info.transportation],["價格",info.price],["推薦程度",travelRatingText(info.rating),"rating"]].filter(row=>row[1]);
         const items=rows.map(([label,value,kind])=>`<div class="travel-info-item"><span class="travel-info-label">${esc(label)}</span><span class="travel-info-value ${kind==="rating"?"travel-info-rating":""}">${esc(value)}</span></div>`).join("");
-        const audience=info.audience.length?`<div class="travel-info-audience-list" aria-label="適合族群">${info.audience.map(x=>`<span class="travel-info-audience-tag">${esc(x)}</span>`).join("")}</div>`:"";
+        const audience=info.audience.length?`<div class="travel-info-item"><span class="travel-info-label">適合族群</span><span class="travel-info-value travel-info-audience-value">${info.audience.map(esc).join("、")}</span></div>`:"";
         const highlight=info.highlight?`<div class="travel-info-highlight"><span class="travel-info-highlight-title">✨ 一句特色</span>${esc(info.highlight)}</div>`:"";
         const experience=info.personalExperience?`<section class="travel-experience-card"><h2 class="travel-experience-heading">🍃 一葉知途實訪心得</h2><div class="travel-experience-content">${esc(info.personalExperience)}</div></section>`:"";
-        return `<div class="travel-info-wrap"><section class="travel-info-card" aria-labelledby="travel-info-title"><h2 id="travel-info-title" class="travel-info-heading">📍 旅遊資訊</h2><div class="travel-info-grid">${items}</div>${audience}${highlight}</section>${experience}</div>`;
+        return `<div class="travel-info-wrap"><section class="travel-info-card" aria-labelledby="travel-info-title"><h2 id="travel-info-title" class="travel-info-heading">📍 旅遊資訊</h2><div class="travel-info-grid">${items}${audience}</div>${highlight}</section>${experience}</div>`;
       }
       async function viewSingleArticle(id, opt = {}) {
         let a = opt.article || null;
