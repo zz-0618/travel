@@ -839,9 +839,13 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .article-related-card{width:100%!important;max-width:100%!important;min-height:120px}
       #toc-close-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:2.25rem!important;height:2.25rem!important;min-width:2.25rem!important;padding:0!important;border-radius:50%!important;background:#8FA28A!important;color:#fff!important;border:1px solid #8FA28A!important;font-size:1.4rem!important;line-height:1!important}
       #toc-close-btn:hover{opacity:.88}
-      .inline-article-toc-list{list-style:none!important;padding-left:0!important}
-      .inline-article-toc-list li{list-style:none!important}
-
+      .inline-article-toc-list{list-style:none!important;padding:0!important;margin:.85rem 0 0!important;}
+      .inline-article-toc-list li{list-style:none!important;margin:.45rem 0!important;}
+      .inline-article-toc-list a{text-decoration:none!important;display:flex;align-items:flex-start;}
+      .toc-number{flex-shrink:0;width:4em;text-align:right;margin-right:.8em;color:#8FA28A;font-weight:700;}
+      .toc-level-4 .toc-number{width:4em;}
+      .toc-level-4{padding-left:2em;}
+  
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -2101,29 +2105,112 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       function scrollToArticleHeading(event,id){event.preventDefault();event.stopPropagation();const t=document.getElementById(id);if(!t)return;toggleTOC(false);requestAnimationFrame(()=>t.scrollIntoView({behavior:"smooth",block:"start"}))}
       function generateArticleTOC() {
-        const body=$("article-body-content");if(!body)return;
-        body.querySelector(".inline-article-toc")?.remove();
-        const headings=[...body.querySelectorAll("h3,h4")];
-        let h3Number=0,h4Number=0;
-        const entries=[];
-        headings.forEach((heading,index)=>{
-          heading.id=heading.id||"heading-"+index;
-          if(heading.tagName==="H3"){
-            h3Number+=1;h4Number=0;
-            entries.push({heading,label:`${h3Number}.`,level:3});
-          }else{
-            if(h3Number===0)return;
-            h4Number+=1;
-            entries.push({heading,label:`${h3Number}.${h4Number}`,level:4});
-          }
-        });
-        const listHtml=entries.length?entries.map(item=>`<li style="margin-left:${item.level===4?36:0}px"><a href="#${item.heading.id}" onclick="scrollToArticleHeading(event,'${item.heading.id}')"><span class="toc-number">${item.label}</span> ${esc(item.heading.innerText)}</a></li>`).join(""):"<li>此文章無 H3／H4 段落標題</li>";
-        $("table-of-contents").innerHTML=listHtml;
-        const firstH3=body.querySelector("h3");
-        if(!firstH3||!entries.length)return;
-        const nav=document.createElement("nav");nav.className="inline-article-toc";nav.setAttribute("aria-label","本篇文章目錄");
-        nav.innerHTML=`<div class="inline-article-toc-head"><span class="inline-article-toc-title">📂 本篇目錄</span><span class="inline-article-toc-note">右上角 ≡ 打開也可以看到</span></div><ol class="inline-article-toc-list">${listHtml}</ol>`;
-        firstH3.parentNode.insertBefore(nav,firstH3);
+      
+          const body = $("article-body-content");
+          if (!body) return;
+      
+          body.querySelector(".inline-article-toc")?.remove();
+      
+          const headings = [
+              ...body.querySelectorAll("h3,h4")
+          ];
+      
+          let h3Number = 0;
+          let h4Number = 0;
+      
+          const entries = [];
+      
+          headings.forEach((heading,index)=>{
+      
+              heading.id =
+                  heading.id || "heading-" + index;
+      
+              if (heading.tagName === "H3") {
+      
+                  h3Number++;
+                  h4Number = 0;
+      
+                  entries.push({
+                      heading,
+                      number : `${h3Number}.`,
+                      level  : 3
+                  });
+      
+              } else {
+      
+                  if (!h3Number) return;
+      
+                  h4Number++;
+      
+                  entries.push({
+                      heading,
+                      number : `${h3Number}.${h4Number}`,
+                      level  : 4
+                  });
+              }
+          });
+      
+          const listHtml = entries.length
+              ? entries.map(item => `
+                  <li class="toc-level-${item.level}">
+                      <a
+                          href="#${item.heading.id}"
+                          onclick="scrollToArticleHeading(event,'${item.heading.id}')">
+      
+                          <span class="toc-number">
+                              ${item.number}
+                          </span>
+      
+                          <span class="toc-text">
+                              ${esc(item.heading.innerText)}
+                          </span>
+      
+                      </a>
+                  </li>
+              `).join("")
+              : "<li>此文章無 H3/H4 標題</li>";
+      
+          $("table-of-contents").innerHTML =
+              listHtml;
+      
+          const firstH3 =
+              body.querySelector("h3");
+      
+          if (!firstH3 || !entries.length) return;
+      
+          const nav =
+              document.createElement("nav");
+      
+          nav.className =
+              "inline-article-toc";
+      
+          nav.setAttribute(
+              "aria-label",
+              "本篇文章目錄"
+          );
+      
+          nav.innerHTML = `
+              <div class="inline-article-toc-head">
+      
+                  <span class="inline-article-toc-title">
+                      📂 本篇目錄
+                  </span>
+      
+                  <span class="inline-article-toc-note">
+                      右上角 ≡ 打開也可以看到
+                  </span>
+      
+              </div>
+      
+              <ol class="inline-article-toc-list">
+                  ${listHtml}
+              </ol>
+          `;
+      
+          firstH3.parentNode.insertBefore(
+              nav,
+              firstH3
+          );
       }
       function localDateString() {
         const p = new Intl.DateTimeFormat("en-CA", {
