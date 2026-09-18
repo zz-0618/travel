@@ -825,9 +825,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .article-related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}
       .article-related-card{display:flex;min-width:0;overflow:hidden;background:var(--soft);border:1px solid var(--sand);border-radius:12px;box-shadow:0 3px 10px rgba(69,40,41,.06);color:var(--ink);text-decoration:none;transition:transform .2s ease,box-shadow .2s ease}
       .article-related-card:hover{transform:translateY(-2px);box-shadow:0 7px 17px rgba(69,40,41,.09);color:var(--ink);text-decoration:none}
-      .article-related-image{flex:0 0 38%;width:38%;aspect-ratio:16/10;object-fit:cover;background:var(--sand)}
+      .article-related-image{flex:0 0 200px;width:200px;aspect-ratio:16/9;object-fit:cover;background:var(--sand)}
       .article-related-image-placeholder{display:grid;place-items:center;color:rgba(69,40,41,.6)}
-      .article-related-body{display:flex;flex:1;min-width:0;flex-direction:column;justify-content:center;padding:.7rem .8rem}
+      .article-related-body{display:flex;flex:1;min-width:0;flex-direction:column;justify-content:center;padding:.5rem .8rem}
       .article-related-card-title{font-size:.92rem;font-weight:700;line-height:1.5}
       .article-related-category{margin-top:.25rem;font-size:.72rem;color:#7b6a5b}
       @media(max-width:767px){.travel-info-audience-row{grid-template-columns:5.7rem minmax(0,1fr)!important}.article-related-grid{grid-template-columns:1fr}.inline-article-toc{padding:1rem}.article-related-card-title{font-size:.9rem}}
@@ -836,7 +836,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       /* 延伸閱讀單欄、目錄關閉鍵、H3/H4 階層編號 */
       .article-related-title{font-size:36px!important;line-height:1.45!important}
       .article-related-grid{display:flex!important;flex-direction:column!important;gap:1rem!important;width:100%}
-      .article-related-card{width:100%!important;max-width:100%!important}
+      .article-related-card{width:100%!important;max-width:100%!important;min-height:120px}
       #toc-close-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:2.25rem!important;height:2.25rem!important;min-width:2.25rem!important;padding:0!important;border-radius:50%!important;background:#8FA28A!important;color:#fff!important;border:1px solid #8FA28A!important;font-size:1.4rem!important;line-height:1!important}
       #toc-close-btn:hover{opacity:.88}
       .inline-article-toc-list{list-style:none!important;padding-left:0!important}
@@ -2117,7 +2117,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             entries.push({heading,label:`${h3Number}.${h4Number}`,level:4});
           }
         });
-        const listHtml=entries.length?entries.map(item=>`<li style="margin-left:${item.level===4?18:0}px"><a href="#${item.heading.id}" onclick="scrollToArticleHeading(event,'${item.heading.id}')"><span class="toc-number">${item.label}</span> ${esc(item.heading.innerText)}</a></li>`).join(""):"<li>此文章無 H3／H4 段落標題</li>";
+        const listHtml=entries.length?entries.map(item=>`<li style="margin-left:${item.level===4?36:0}px"><a href="#${item.heading.id}" onclick="scrollToArticleHeading(event,'${item.heading.id}')"><span class="toc-number">${item.label}</span> ${esc(item.heading.innerText)}</a></li>`).join(""):"<li>此文章無 H3／H4 段落標題</li>";
         $("table-of-contents").innerHTML=listHtml;
         const firstH3=body.querySelector("h3");
         if(!firstH3||!entries.length)return;
