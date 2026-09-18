@@ -763,6 +763,29 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       #article-body-content h4 * { color: var(--ink) !important; }
       .article-title-divider { border-color: var(--article-heading-line) !important; }
 
+
+      /* 旅遊資訊卡，原生 CSS，無 Bootstrap/Tailwind 依賴 */
+      .travel-info-wrap{max-width:760px;margin:1.5rem auto 2rem;font-family:"Noto Serif TC",serif;color:#452829}
+      .travel-info-card,.travel-experience-card{background:#f9f6f0;border:1px solid #c9b59c;border-radius:16px;box-shadow:0 3px 12px rgba(78,34,15,.06)}
+      .travel-info-card{padding:1.35rem 1.45rem}
+      .travel-info-heading,.travel-experience-heading{margin:0;font-size:1.15rem;font-weight:700;line-height:1.5;color:#452829}
+      .travel-info-heading{padding-bottom:.75rem;border-bottom:1px solid #ded0bf}
+      .travel-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:0}
+      .travel-info-item{display:grid;grid-template-columns:6.3rem minmax(0,1fr);gap:.65rem;padding:.8rem 0;border-bottom:1px solid #e9dfd3;min-width:0}
+      .travel-info-item:nth-child(odd){padding-right:1rem}
+      .travel-info-item:nth-child(even){padding-left:1rem;border-left:1px solid #e9dfd3}
+      .travel-info-label{font-size:.86rem;font-weight:700;color:#7b6a5b}
+      .travel-info-value{min-width:0;overflow-wrap:anywhere;white-space:pre-line}
+      .travel-info-rating{letter-spacing:.08em;color:#a56c5d;font-family:Arial,sans-serif}
+      .travel-info-audience-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+      .travel-info-audience-tag{padding:.28rem .62rem;border-radius:999px;background:#efe9e3;border:1px solid #d8c5b5;font-size:.8rem}
+      .travel-info-highlight{margin-top:1rem;padding:1rem 1.05rem;background:#fff;border-left:4px solid #8fa28a;border-radius:0 10px 10px 0;line-height:1.7;white-space:pre-line}
+      .travel-info-highlight-title{display:block;margin-bottom:.35rem;font-weight:700}
+      .travel-experience-card{margin-top:1rem;padding:1.25rem 1.45rem;background:#fff}
+      .travel-experience-heading{padding-bottom:.7rem;border-bottom:1px solid #ded0bf}
+      .travel-experience-content{margin-top:1rem;line-height:1.85;white-space:pre-line;overflow-wrap:anywhere}
+      @media(max-width:767px){.travel-info-card,.travel-experience-card{padding:1.1rem}.travel-info-grid{grid-template-columns:1fr}.travel-info-item,.travel-info-item:nth-child(odd),.travel-info-item:nth-child(even){grid-template-columns:5.7rem minmax(0,1fr);padding:.72rem 0;border-left:0}.travel-info-wrap{margin:1.25rem auto 1.6rem}}
+
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1499,6 +1522,23 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function breadcrumbLink(name) {
         return `<a href="${categoryPath(name)}" onclick="event.preventDefault();filterCategory('${jsq(name)}')" class="hover:underline">${esc(name)}</a>`;
       }
+
+      const TRAVEL_INFO_AUDIENCE=["自由行","親子","情侶","攝影","美食","自駕","雨天備案"];
+      function emptyTravelInfo(){return{enabled:false,name:"",type:"",location:"",visitDate:"",stayDuration:"",transportation:"",price:"",rating:"",audience:[],highlight:"",personalExperience:""}}
+      function normalizeTravelInfo(value){let source=value;if(typeof source==="string"){try{source=JSON.parse(source)}catch{source={}}}source=source&&typeof source==="object"?source:{};return{enabled:source.enabled===true,name:String(source.name||""),type:String(source.type||""),location:String(source.location||""),visitDate:String(source.visitDate||""),stayDuration:String(source.stayDuration||""),transportation:String(source.transportation||""),price:String(source.price||""),rating:String(source.rating||""),audience:Array.isArray(source.audience)?source.audience.filter(x=>TRAVEL_INFO_AUDIENCE.includes(x)):[],highlight:String(source.highlight||""),personalExperience:String(source.personalExperience||"")}}
+      function travelInfoSettingsKey(articleId){return "article_travel_info_"+String(articleId)}
+      function getArticleTravelInfo(article){if(article?.travelInfo)return normalizeTravelInfo(article.travelInfo);return normalizeTravelInfo(settingsCache[travelInfoSettingsKey(article?.id)]||"")}
+      function travelRatingText(value){const rating=Number(value);if(!Number.isFinite(rating))return"";const full=Math.floor(rating),half=rating-full>=.5;return"★".repeat(full)+(half?"☆":"")+"☆".repeat(Math.max(0,5-full-(half?1:0)))}
+      function formatVisitMonth(value){const match=String(value||"").match(/^(\d{4})-(\d{2})$/);return match?`${match[1]}年${Number(match[2])}月`:String(value||"")}
+      function travelInfoHtml(article){
+        const info=getArticleTravelInfo(article);if(!info.enabled)return"";
+        const rows=[["景點名稱",info.name],["類型",info.type],["所在地",info.location],["造訪日期",formatVisitMonth(info.visitDate)],["停留時間",info.stayDuration],["交通方式",info.transportation],["價格",info.price],["推薦程度",travelRatingText(info.rating),"rating"]].filter(row=>row[1]);
+        const items=rows.map(([label,value,kind])=>`<div class="travel-info-item"><span class="travel-info-label">${esc(label)}</span><span class="travel-info-value ${kind==="rating"?"travel-info-rating":""}">${esc(value)}</span></div>`).join("");
+        const audience=info.audience.length?`<div class="travel-info-audience-list" aria-label="適合族群">${info.audience.map(x=>`<span class="travel-info-audience-tag">${esc(x)}</span>`).join("")}</div>`:"";
+        const highlight=info.highlight?`<div class="travel-info-highlight"><span class="travel-info-highlight-title">✨ 一句特色</span>${esc(info.highlight)}</div>`:"";
+        const experience=info.personalExperience?`<section class="travel-experience-card"><h2 class="travel-experience-heading">🍃 一葉知途實訪心得</h2><div class="travel-experience-content">${esc(info.personalExperience)}</div></section>`:"";
+        return `<div class="travel-info-wrap"><section class="travel-info-card" aria-labelledby="travel-info-title"><h2 id="travel-info-title" class="travel-info-heading">📍 旅遊資訊</h2><div class="travel-info-grid">${items}</div>${audience}${highlight}</section>${experience}</div>`;
+      }
       async function viewSingleArticle(id, opt = {}) {
         let a = opt.article || null;
         if (!a || !Object.prototype.hasOwnProperty.call(a, "content")) {
@@ -1526,7 +1566,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
         }).format(new Date(v)) : "";
         preloadImage("article-cover-preload", "");
-        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
+        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div>${travelInfoHtml(a)}<div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
         renderMapCards();
         setupFrontendInteractiveTables();
