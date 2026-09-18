@@ -728,6 +728,41 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
     line-height:1.55;
     color:#7B6A5B;
   }
+
+      /* 統一文章卡片浮起效果，標題滑入時不加底線 */
+      .article-list-card,
+      .featured-article-card {
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      }
+      .article-list-card:hover,
+      .featured-article-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(69,40,41,.08);
+        border-color: #C9B59C;
+      }
+      .article-list-content h2 > a:hover,
+      .article-title-link:hover,
+      .featured-article-title-text a:hover {
+        color: var(--accent);
+        text-decoration: none !important;
+      }
+      /* 關於我與其他側邊欄使用一致底色 */
+      .about-me-sidebar {
+        background: var(--soft) !important;
+        border-color: var(--sand) !important;
+      }
+      /* 文章頁標題橫線、H3 底線與 H4 底色共用同一色 */
+      :root { --article-heading-line: #D8C5B5; }
+      #article-body-content h3 {
+        border-bottom-color: var(--article-heading-line) !important;
+      }
+      #article-body-content h4 {
+        background: var(--article-heading-line) !important;
+        color: var(--ink) !important;
+      }
+      #article-body-content h4 * { color: var(--ink) !important; }
+      .article-title-divider { border-color: var(--article-heading-line) !important; }
+
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -762,7 +797,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         ></section>
         <aside class="space-y-6">
           <div
-            class="custom-card p-6 rounded-xl shadow-sm border text-center flex flex-col items-center"
+            class="about-me-sidebar custom-card p-6 rounded-xl shadow-sm border text-center flex flex-col items-center"
           >
             <img
               id="site-avatar"
@@ -779,80 +814,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             </p>
           </div>
 
-          <section class="korea-trip-sidebar">
-          
-            <h3 class="korea-trip-title">
-              ✈️ 開始規劃韓國自由行
-            </h3>
-          
-            <div class="korea-trip-grid">
-          
-              <a
-                href="https://travel.aleafpath.workers.dev/Korea/Jeju"
-                class="korea-trip-link"
-                title="濟州島自由行攻略"
-              >
-                <div class="korea-trip-emoji">🇰🇷</div>
-                <div>
-                  <div class="korea-trip-name">
-                    濟州島攻略
-                  </div>
-                  <div class="korea-trip-desc">
-                    景點、美食、租車、自由行
-                  </div>
-                </div>
-              </a>
-          
-              <a
-                href="https://travel.aleafpath.workers.dev/Korea/Busan"
-                class="korea-trip-link"
-                title="釜山自由行攻略"
-              >
-                <div class="korea-trip-emoji">🌊</div>
-                <div>
-                  <div class="korea-trip-name">
-                    釜山攻略
-                  </div>
-                  <div class="korea-trip-desc">
-                    景點、住宿、交通、Pass
-                  </div>
-                </div>
-              </a>
-
-              <a
-                href="https://travel.aleafpath.workers.dev/Korea/Jeju/Jeju_Pass"
-                class="korea-trip-link"
-                title="濟州 Pass"
-              >
-                <div class="korea-trip-emoji">🎫</div>
-                <div>
-                  <div class="korea-trip-name">
-                    濟州 Pass
-                  </div>
-                  <div class="korea-trip-desc">
-                    Jeju Tour Pass、Jeju All Pass、Nowda Go
-                  </div>
-                </div>
-              </a>
-          
-              <a
-                href="https://travel.aleafpath.workers.dev/Korea/Naver_Verify"
-                class="korea-trip-link"
-                title="Naver 預約教學"
-              >
-                <div class="korea-trip-emoji">📱</div>
-                <div>
-                  <div class="korea-trip-name">
-                    韓國 APP 教學
-                  </div>
-                  <div class="korea-trip-desc">
-                    Naver 預約與驗證教學
-                  </div>
-                </div>
-              </a>
-
-            </div>
-
+          <section id="internal-links-sidebar" class="korea-trip-sidebar hidden" aria-labelledby="internal-links-title">
+            <h3 id="internal-links-title" class="korea-trip-title"></h3>
+            <div id="internal-links-grid" class="korea-trip-grid"></div>
           </section>
           <section id="popular-articles-box" class="popular-articles-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="popular-articles-title">
             <h3 id="popular-articles-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">熱門文章</h3>
@@ -1440,6 +1404,38 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         ).join("");
         section.classList.remove("hidden");
       }
+      function defaultInternalLinks(){
+        return {
+          title: "✈️ 開始規劃韓國自由行",
+          items: [
+            { icon: "🇰🇷", title: "濟州島攻略", description: "景點、美食、租車、自由行", url: "/Korea/Jeju" },
+            { icon: "🌊", title: "釜山攻略", description: "景點、住宿、交通、Pass", url: "/Korea/Busan" },
+            { icon: "🎫", title: "濟州 Pass", description: "Jeju Tour Pass、Jeju All Pass、Nowda Go", url: "/Korea/Jeju/Jeju_Pass" },
+            { icon: "📱", title: "韓國 APP 教學", description: "Naver 預約與驗證教學", url: "/Korea/Naver_Verify" }
+          ]
+        };
+      }
+      function getInternalLinksSettings(){
+        try {
+          const parsed=JSON.parse(settingsCache.internal_links||"");
+          if(parsed&&typeof parsed==="object"){
+            return {
+              title:String(parsed.title||"").trim(),
+              items:Array.isArray(parsed.items)?parsed.items.filter(item=>item&&String(item.title||"").trim()&&String(item.url||"").trim()):[]
+            };
+          }
+        } catch(error){ console.warn("內部連結設定格式錯誤：",error); }
+        return defaultInternalLinks();
+      }
+      function renderInternalLinks(){
+        const section=$("internal-links-sidebar"),title=$("internal-links-title"),grid=$("internal-links-grid");
+        if(!section||!title||!grid)return;
+        const config=getInternalLinksSettings();
+        if(!config.title||!config.items.length){section.classList.add("hidden");grid.innerHTML="";return;}
+        title.textContent=config.title;
+        grid.innerHTML=config.items.map(item=>`<a href="${esc(item.url)}" class="korea-trip-link"><div class="korea-trip-emoji">${esc(item.icon||"🔗")}</div><div><div class="korea-trip-name">${esc(item.title)}</div><div class="korea-trip-desc">${esc(item.description||"")}</div></div></a>`).join("");
+        section.classList.remove("hidden");
+      }
       function renderSocialPlatforms(){const s=$("social-platforms-box"),b=$("social-platforms-list");if(!s||!b)return;let v=[];try{v=JSON.parse(settingsCache.social_links||"[]")}catch{}if(!v.length){s.classList.add("hidden");return}b.innerHTML=v.map(x=>`<a class="social-platform-link" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.name)}</a>`).join("");s.classList.remove("hidden")}
       function parseRecommendationIds(key,limit){try{const value=JSON.parse(settingsCache[key]||"[]");return Array.isArray(value)?value.map(String).slice(0,limit):[]}catch{return[]}}
       function articlesBySavedOrder(key,limit){const map=new Map(allArticlesCache.filter(isPublishedArticle).map(a=>[String(a.id),a]));return parseRecommendationIds(key,limit).map(id=>map.get(id)).filter(Boolean)}
@@ -1530,7 +1526,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
         }).format(new Date(v)) : "";
         preloadImage("article-cover-preload", "");
-        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted border-b border-[#D8C5B5] py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
+        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div><div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
         generateArticleTOC();
         renderMapCards();
         setupFrontendInteractiveTables();
@@ -1933,6 +1929,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         renderFrontendNav();
         renderLatestArticles();
         renderSocialPlatforms();
+        renderInternalLinks();
         const heroImage = $("site-logo-image");
         if (settingsCache.logo) {
           preloadImage("hero-image-preload", settingsCache.logo, "high");
