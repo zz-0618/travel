@@ -79,6 +79,19 @@
       .embedded-article-card-image{flex:0 0 34%;width:34%;aspect-ratio:16/9;object-fit:cover;background:#C9B59C}
       .embedded-article-card-body{flex:1;min-width:0;padding:.9rem 1rem;display:flex;flex-direction:column;justify-content:center}.embedded-article-card-title{font-size:1.05rem;font-weight:700;line-height:1.5}.embedded-article-card-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:.35rem;font-size:.88rem;line-height:1.55;opacity:.76}
       .article-picker-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(69,40,41,.6)}.article-picker-dialog{width:min(94vw,720px);max-height:82vh;display:flex;flex-direction:column;background:#fff;border:1px solid var(--sand);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.28);overflow:hidden}.article-picker-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;background:var(--soft);border-bottom:1px solid var(--sand)}.article-picker-search{margin:1rem 1.2rem 0;padding:.7rem .8rem;border:1px solid var(--sand);border-radius:9px}.article-picker-list{overflow:auto;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.65rem}.article-picker-item{display:flex!important;align-items:center!important;gap:.8rem!important;width:100%;padding:.65rem!important;text-align:left!important;background:#fff!important;color:var(--ink)!important;border:1px solid var(--sand)!important;border-radius:10px!important}.article-picker-item img{width:92px;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:var(--sand)}
+
+      .admin-nav-group{padding:.25rem 0 .75rem;border-bottom:1px solid var(--sand)}
+      .admin-nav-group:last-child{border-bottom:0}
+      .admin-nav-heading{padding:.55rem 1rem .35rem;font-size:.78rem;font-weight:700;letter-spacing:.08em;color:#8b6f63}
+      .internal-link-row{display:grid;grid-template-columns:80px minmax(0,1fr) minmax(0,1.5fr);gap:.75rem;padding:1rem;background:var(--soft);border:1px solid var(--sand);border-radius:12px}
+      .internal-link-row .internal-link-url{grid-column:1/-1}
+      .internal-link-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:.5rem}
+      @media(max-width:767px){.internal-link-row{grid-template-columns:1fr}.internal-link-row .internal-link-url,.internal-link-actions{grid-column:auto}}
+      :root{--article-heading-line:#D8C5B5}
+      .article-content-style h3{border-bottom-color:var(--article-heading-line)!important}
+      .article-content-style h4{background:var(--article-heading-line)!important;color:var(--ink)!important}
+      .article-content-style h4 *{color:var(--ink)!important}
+
 </style>
   </head>
   <body class="min-h-screen">
@@ -103,43 +116,27 @@
       </header>
       <div class="flex-1 grid grid-cols-1 md:grid-cols-5">
         <aside class="bg-[#F9F6F0] p-6 border-r space-y-2">
-          <button
-            onclick="switchAdminTab('account')"
-            id="tab-account-btn"
-            class="w-full text-left px-4 py-3 rounded-lg bg-[#C9B59C] text-white"
-          >
-            👤 帳號管理</button
-          ><button
-            onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 社群平台</button><button onclick="switchAdminTab('logo')"
-            id="tab-logo-btn"
-            class="w-full text-left px-4 py-3 rounded-lg"
-          >
-            🖼️ Logo 設定</button
-          ><button
-            onclick="switchAdminTab('announcement')"
-            id="tab-announcement-btn"
-            class="w-full text-left px-4 py-3 rounded-lg"
-          >
-            📢 公告</button
-          ><button
-            onclick="switchAdminTab('categories')"
-            id="tab-categories-btn"
-            class="w-full text-left px-4 py-3 rounded-lg"
-          >
-            🏷️ 文章分類</button
-          ><button
-            onclick="switchAdminTab('articles')"
-            id="tab-articles-btn"
-            class="w-full text-left px-4 py-3 rounded-lg"
-          >
-            📝 文章管理</button
-          ><button onclick="switchAdminTab('featured')" id="tab-featured-btn" class="w-full text-left px-4 py-3 rounded-lg">⭐ 精選文章管理</button><button onclick="switchAdminTab('popular')" id="tab-popular-btn" class="w-full text-left px-4 py-3 rounded-lg">🔥 熱門文章管理</button><button
-            onclick="switchAdminTab('journey')"
-            id="tab-journey-btn"
-            class="w-full text-left px-4 py-3 rounded-lg"
-          >
-            🗺️ 我的旅途
-          </button>
+          <section class="admin-nav-group">
+            <h2 class="admin-nav-heading">關於我</h2>
+            <button onclick="switchAdminTab('account')" id="tab-account-btn" class="w-full text-left px-4 py-3 rounded-lg bg-[#C9B59C] text-white">👤 帳號管理</button>
+            <button onclick="switchAdminTab('logo')" id="tab-logo-btn" class="w-full text-left px-4 py-3 rounded-lg">🖼️ Logo 設定</button>
+            <button onclick="switchAdminTab('journey')" id="tab-journey-btn" class="w-full text-left px-4 py-3 rounded-lg">🗺️ 我的旅途</button>
+          </section>
+          <section class="admin-nav-group">
+            <h2 class="admin-nav-heading">側邊欄</h2>
+            <button onclick="switchAdminTab('internal-links')" id="tab-internal-links-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 內部連結</button>
+            <button onclick="switchAdminTab('popular')" id="tab-popular-btn" class="w-full text-left px-4 py-3 rounded-lg">🔥 熱門文章</button>
+          </section>
+          <section class="admin-nav-group">
+            <h2 class="admin-nav-heading">文章</h2>
+            <button onclick="switchAdminTab('categories')" id="tab-categories-btn" class="w-full text-left px-4 py-3 rounded-lg">🏷️ 文章分類</button>
+            <button onclick="switchAdminTab('featured')" id="tab-featured-btn" class="w-full text-left px-4 py-3 rounded-lg">⭐ 精選文章</button>
+            <button onclick="switchAdminTab('articles')" id="tab-articles-btn" class="w-full text-left px-4 py-3 rounded-lg">📝 文章管理</button>
+          </section>
+          <section class="admin-nav-group">
+            <h2 class="admin-nav-heading">其他</h2>
+            <button onclick="switchAdminTab('announcement')" id="tab-announcement-btn" class="w-full text-left px-4 py-3 rounded-lg">📢 公告</button>
+          </section>
         </aside>
         <main class="md:col-span-4 p-8 max-w-5xl w-full">
           <div id="admin-tab-account" class="admin-tab-content space-y-5">
@@ -185,17 +182,6 @@
             >
               儲存暱稱與簡介
             </button>
-          </div>
-          <div id="admin-tab-social" class="admin-tab-content space-y-5 hidden">
-            <h2 class="text-2xl font-bold border-b pb-2">社群平台管理</h2>
-            <p class="text-sm opacity-70">輸入平台名稱與完整連結，可新增多個社群平台。</p>
-            <div class="custom-card p-4 rounded-xl grid md:grid-cols-[1fr_2fr_auto] gap-3">
-              <input id="social-platform-name" class="border p-2 rounded" placeholder="平台名稱，例如 Instagram">
-              <input id="social-platform-url" type="url" class="border p-2 rounded" placeholder="https://example.com/your-profile">
-              <button type="button" onclick="addSocialPlatform()" class="px-5 py-2 rounded">新增平台</button>
-            </div>
-            <div id="admin-social-platforms-list" class="space-y-2"></div>
-            <button type="button" onclick="saveSocialPlatforms()" class="px-6 py-2 rounded-lg">儲存社群平台</button>
           </div>
           <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">更換 Logo 背景圖片</h2>
@@ -302,6 +288,19 @@
             <p class="text-sm opacity-70">最多選擇 5 篇，依下方已選清單順序顯示於首頁最上方。</p>
             <div id="featured-recommendation-manager" class="recommendation-manager"></div>
             <button type="button" onclick="saveRecommendationSettings('featured')" class="px-6 py-2 rounded-lg">儲存精選文章</button>
+          </div>
+          <div id="admin-tab-internal-links" class="admin-tab-content space-y-5 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">內部連結</h2>
+            <p class="text-sm opacity-70">可自訂前台側邊欄區塊標題，以及每一項的圖標、標題、描述與導向連結，項目數量可自由增減。</p>
+            <div>
+              <label class="block font-semibold mb-1" for="internal-links-title-input">區塊標題</label>
+              <input id="internal-links-title-input" class="w-full border p-2 rounded" maxlength="100" placeholder="✈️ 開始規劃韓國自由行">
+            </div>
+            <div id="internal-links-editor" class="space-y-3"></div>
+            <div class="flex flex-wrap gap-3">
+              <button type="button" onclick="addInternalLinkItem()" class="px-5 py-2 rounded-lg">新增連結</button>
+              <button type="button" onclick="saveInternalLinks()" class="px-6 py-2 rounded-lg">儲存內部連結</button>
+            </div>
           </div>
           <div id="admin-tab-popular" class="admin-tab-content space-y-5 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">熱門文章管理</h2>
@@ -503,7 +502,7 @@
         supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return supabaseClient;
       }
-      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [];
+      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [], internalLinksDraft = { title: "", items: [] };
       const $ = (id) => document.getElementById(id),
         esc = (s) => String(s ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -1677,6 +1676,14 @@
       }
       function removeSocialPlatform(index){socialPlatformsDraft.splice(index,1);renderSocialPlatformsEditor()}
       async function saveSocialPlatforms(){try{await upsertSettings({social_links:JSON.stringify(socialPlatformsDraft)});alert("社群平台已儲存")}catch(e){alert("儲存失敗："+e.message)}}
+      function defaultInternalLinks(){return{title:"✈️ 開始規劃韓國自由行",items:[{icon:"🇰🇷",title:"濟州島攻略",description:"景點、美食、租車、自由行",url:"/Korea/Jeju"},{icon:"🌊",title:"釜山攻略",description:"景點、住宿、交通、Pass",url:"/Korea/Busan"},{icon:"🎫",title:"濟州 Pass",description:"Jeju Tour Pass、Jeju All Pass、Nowda Go",url:"/Korea/Jeju/Jeju_Pass"},{icon:"📱",title:"韓國 APP 教學",description:"Naver 預約與驗證教學",url:"/Korea/Naver_Verify"}]}}
+      function loadInternalLinksEditor(){try{const parsed=JSON.parse(settingsCache.internal_links||"");internalLinksDraft=parsed&&typeof parsed==="object"?{title:String(parsed.title||""),items:Array.isArray(parsed.items)?parsed.items:[]}:defaultInternalLinks()}catch{internalLinksDraft=defaultInternalLinks()}$("internal-links-title-input").value=internalLinksDraft.title;renderInternalLinksEditor()}
+      function syncInternalLinksDraft(){internalLinksDraft.title=$("internal-links-title-input")?.value.trim()||"";internalLinksDraft.items=internalLinksDraft.items.map((item,index)=>({icon:$("internal-link-icon-"+index)?.value.trim()||"",title:$("internal-link-title-"+index)?.value.trim()||"",description:$("internal-link-description-"+index)?.value.trim()||"",url:$("internal-link-url-"+index)?.value.trim()||""}))}
+      function renderInternalLinksEditor(){const box=$("internal-links-editor");if(!box)return;if(!internalLinksDraft.items.length){box.innerHTML='<div class="opacity-60">目前沒有連結，請按「新增連結」。</div>';return}box.innerHTML=internalLinksDraft.items.map((item,index)=>`<section class="internal-link-row"><div><label class="block text-sm font-semibold mb-1">圖標</label><input id="internal-link-icon-${index}" class="w-full border p-2 rounded bg-white" maxlength="20" value="${esc(item.icon||"")}" placeholder="🔗"></div><div><label class="block text-sm font-semibold mb-1">標題</label><input id="internal-link-title-${index}" class="w-full border p-2 rounded bg-white" maxlength="100" value="${esc(item.title||"")}"></div><div><label class="block text-sm font-semibold mb-1">描述</label><input id="internal-link-description-${index}" class="w-full border p-2 rounded bg-white" maxlength="200" value="${esc(item.description||"")}"></div><div class="internal-link-url"><label class="block text-sm font-semibold mb-1">導向連結</label><input id="internal-link-url-${index}" class="w-full border p-2 rounded bg-white" value="${esc(item.url||"")}" placeholder="/Korea/Jeju 或完整網址"></div><div class="internal-link-actions"><button type="button" onclick="moveInternalLinkItem(${index},-1)">上移</button><button type="button" onclick="moveInternalLinkItem(${index},1)">下移</button><button type="button" onclick="removeInternalLinkItem(${index})">刪除</button></div></section>`).join("")}
+      function addInternalLinkItem(){syncInternalLinksDraft();internalLinksDraft.items.push({icon:"🔗",title:"",description:"",url:""});renderInternalLinksEditor()}
+      function removeInternalLinkItem(index){syncInternalLinksDraft();internalLinksDraft.items.splice(index,1);renderInternalLinksEditor()}
+      function moveInternalLinkItem(index,direction){syncInternalLinksDraft();const target=index+direction;if(target<0||target>=internalLinksDraft.items.length)return;[internalLinksDraft.items[index],internalLinksDraft.items[target]]=[internalLinksDraft.items[target],internalLinksDraft.items[index]];renderInternalLinksEditor()}
+      async function saveInternalLinks(){syncInternalLinksDraft();if(!internalLinksDraft.title)return alert("請輸入區塊標題");const invalid=internalLinksDraft.items.find(item=>!item.title||!item.url);if(invalid)return alert("每個連結都必須填寫標題與導向連結");try{await upsertSettings({internal_links:JSON.stringify(internalLinksDraft)});alert("內部連結已儲存")}catch(error){alert("儲存失敗："+(error?.message||String(error)))}}
       function recommendationConfig(type){return type==="featured"?{ids:featuredArticleIds,limit:5,key:"featured_articles",title:"精選"}:{ids:popularArticleIds,limit:10,key:"popular_articles",title:"熱門"}}
       function setRecommendationIds(type,ids){if(type==="featured")featuredArticleIds=ids;else popularArticleIds=ids}
       function publishedAdminArticles(){return allArticlesCache.filter(a=>settingsCache["article_status_"+a.id]!=="draft")}
@@ -1901,13 +1908,13 @@
       function switchAdminTab(n) {
         [
           "account",
-          "social",
           "logo",
           "announcement",
           "categories",
           "articles",
           "featured",
           "popular",
+          "internal-links",
           "journey",
         ].forEach((t) => {
           const panel = $("admin-tab-" + t);
@@ -1916,11 +1923,11 @@
           button?.classList.toggle("bg-[#C9B59C]", t === n);
           button?.classList.toggle("text-white", t === n);
         });
-        if (n === "social") loadSocialPlatformsEditor();
         if (n === "categories") loadCategoriesAdmin();
         if (n === "articles") populateArticleParentDropdowns();
         if (n === "featured") renderRecommendationManager("featured");
         if (n === "popular") renderRecommendationManager("popular");
+        if (n === "internal-links") loadInternalLinksEditor();
         if (n === "journey") renderJourneyAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
       }
