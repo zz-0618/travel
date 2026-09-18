@@ -667,6 +667,67 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         .embedded-article-card-image{flex-basis:38%;width:38%}
         .embedded-article-card-body{padding:.7rem}.embedded-article-card-title{font-size:.95rem}.embedded-article-card-excerpt{font-size:.8rem}
       }
+  /* 韓國自由行導覽區塊 */
+  .korea-trip-sidebar{
+    background:#F9F6F0;
+    border:1px solid #C9B59C;
+    border-radius:16px;
+    padding:1.25rem;
+    box-shadow:0 3px 12px rgba(78,34,15,.06);
+  }
+
+  .korea-trip-title{
+    font-size:1.1rem;
+    font-weight:700;
+    color:#4E220F;
+    margin-bottom:1rem;
+    padding-bottom:.75rem;
+    border-bottom:1px solid #E5DDD2;
+  }
+
+  .korea-trip-grid{
+    display:flex;
+    flex-direction:column;
+    gap:.85rem;
+  }
+
+  .korea-trip-link{
+    display:flex;
+    gap:.8rem;
+    align-items:flex-start;
+    padding:.9rem;
+    background:#F7F3EE;
+    border:1px solid #E5DDD2;
+    border-radius:12px;
+    text-decoration:none;
+    color:#452829;
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease,
+      border-color .2s ease;
+  }
+
+  .korea-trip-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(69,40,41,.08);
+    border-color:#C9B59C;
+  }
+
+  .korea-trip-emoji{
+    font-size:1.35rem;
+    flex-shrink:0;
+  }
+
+  .korea-trip-name{
+    font-weight:700;
+    margin-bottom:.2rem;
+  }
+
+  .korea-trip-desc{
+    font-size:.82rem;
+    line-height:1.55;
+    color:#7B6A5B;
+  }
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -717,6 +778,82 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
               韓國自由行攻略與旅遊心得分享
             </p>
           </div>
+
+          <section class="korea-trip-sidebar">
+          
+            <h3 class="korea-trip-title">
+              ✈️ 開始規劃韓國自由行
+            </h3>
+          
+            <div class="korea-trip-grid">
+          
+              <a
+                href="https://travel.aleafpath.workers.dev/Korea/Jeju"
+                class="korea-trip-link"
+                title="濟州島自由行攻略"
+              >
+                <div class="korea-trip-emoji">🇰🇷</div>
+                <div>
+                  <div class="korea-trip-name">
+                    濟州島攻略
+                  </div>
+                  <div class="korea-trip-desc">
+                    景點、美食、租車、自由行
+                  </div>
+                </div>
+              </a>
+          
+              <a
+                href="https://travel.aleafpath.workers.dev/Korea/Busan"
+                class="korea-trip-link"
+                title="釜山自由行攻略"
+              >
+                <div class="korea-trip-emoji">🌊</div>
+                <div>
+                  <div class="korea-trip-name">
+                    釜山攻略
+                  </div>
+                  <div class="korea-trip-desc">
+                    景點、住宿、交通、Pass
+                  </div>
+                </div>
+              </a>
+
+              <a
+                href="https://travel.aleafpath.workers.dev/Korea/Jeju/Jeju_Pass"
+                class="korea-trip-link"
+                title="濟州 Pass"
+              >
+                <div class="korea-trip-emoji">🎫</div>
+                <div>
+                  <div class="korea-trip-name">
+                    濟州 Pass
+                  </div>
+                  <div class="korea-trip-desc">
+                    Jeju Tour Pass、Jeju All Pass、Nowda Go
+                  </div>
+                </div>
+              </a>
+          
+              <a
+                href="https://travel.aleafpath.workers.dev/Korea/Naver_Verify"
+                class="korea-trip-link"
+                title="Naver 預約教學"
+              >
+                <div class="korea-trip-emoji">📱</div>
+                <div>
+                  <div class="korea-trip-name">
+                    韓國 APP 教學
+                  </div>
+                  <div class="korea-trip-desc">
+                    Naver 預約與驗證教學
+                  </div>
+                </div>
+              </a>
+
+            </div>
+
+          </section>
           <section id="popular-articles-box" class="popular-articles-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="popular-articles-title">
             <h3 id="popular-articles-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">熱門文章</h3>
             <ol id="popular-articles-list" class="space-y-3 text-sm"></ol>
