@@ -1177,6 +1177,80 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           "itemListElement": items
         };
       }
+
+      function buildFaqSchema(article) {
+
+        const wrapper =
+          document.createElement("div");
+      
+        wrapper.innerHTML =
+          article.content || "";
+      
+        const faqItems = [
+          ...wrapper.querySelectorAll(
+            ".faq-item"
+          )
+        ];
+      
+        if (!faqItems.length) {
+          return null;
+        }
+      
+        const entities = [];
+      
+        faqItems.forEach(item => {
+      
+          const question =
+            item.querySelector("summary")
+              ?.textContent
+              ?.trim();
+      
+          const answer =
+            item.querySelector(".faq-answer")
+              ?.textContent
+              ?.trim();
+      
+          if (
+            !question ||
+            !answer
+          ) return;
+      
+          entities.push({
+      
+            "@type": "Question",
+      
+            "name": question,
+      
+            "acceptedAnswer": {
+      
+              "@type": "Answer",
+      
+              "text": answer
+      
+            }
+      
+          });
+      
+        });
+      
+        if (!entities.length) {
+          return null;
+        }
+      
+        return {
+      
+          "@context":
+            "https://schema.org",
+      
+          "@type":
+            "FAQPage",
+      
+          "mainEntity":
+            entities
+      
+        };
+      
+      }
       
       function updateStructuredData(article = null) {
 
@@ -1234,10 +1308,16 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             .trim();
       
         const description =
-          plainText.substring(
-            0,
-            160
-          );
+        (
+          article.excerpt ||
+          plainText
+        )
+        .trim()
+        .substring(
+          0,
+          160
+        );
+
       
         const socialImage =
           article.cover_image_url ||
@@ -1290,6 +1370,18 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       
             "@id":
               location.href
+
+            "articleBody":
+              plainText.substring(
+                0,
+                5000
+              ),
+            
+            "about": {
+              "@type":"Thing",
+              "name":
+                article.category
+            },
           },
       
           "author": {
@@ -1333,14 +1425,36 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         };
       
         const breadcrumbSchema =
-          buildBreadcrumbSchema(article);
+          buildBreadcrumbSchema(
+            article
+          );
+        
+        const faqSchema =
+          buildFaqSchema(
+            article
+          );
+        
+        const schemas = [
+        
+          blogPostingSchema,
+        
+          breadcrumbSchema
+        
+        ];
+        
+        if (faqSchema) {
+        
+          schemas.push(
+            faqSchema
+          );
+        
+        }
         
         script.textContent =
-          JSON.stringify([
-            blogPostingSchema,
-            breadcrumbSchema
-          ]);
-      }
+          JSON.stringify(
+            schemas
+          );
+              }
       
       function safePushState(state, path) {
         const safe = String(path || "/");
