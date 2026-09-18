@@ -92,6 +92,24 @@
       .article-content-style h4{background:var(--article-heading-line)!important;color:var(--ink)!important}
       .article-content-style h4 *{color:var(--ink)!important}
 
+
+      /* 旅遊資訊卡後台表單，獨立使用原生 CSS */
+      .travel-info-admin{margin:1.25rem 0;padding:1.25rem;background:#f9f6f0;border:1px solid #c9b59c;border-radius:16px}
+      .travel-info-admin-title{margin:0 0 1rem;font-size:1.15rem;font-weight:700;color:#452829}
+      .travel-info-toggle{display:flex;align-items:center;gap:.6rem;font-weight:700;cursor:pointer}
+      .travel-info-toggle input{width:18px;height:18px;accent-color:#8fa28a}
+      .travel-info-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}
+      .travel-info-fields[hidden]{display:none!important}
+      .travel-info-field{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+      .travel-info-field--full{grid-column:1/-1}
+      .travel-info-field label,.travel-info-audience-title{font-size:.9rem;font-weight:700}
+      .travel-info-field input,.travel-info-field select,.travel-info-field textarea{width:100%;padding:.7rem .8rem;background:#fff;color:#452829;border:1px solid #c9b59c;border-radius:9px;font:inherit;box-sizing:border-box}
+      .travel-info-field textarea{min-height:92px;resize:vertical;line-height:1.65}
+      .travel-info-audience{display:flex;flex-wrap:wrap;gap:.6rem .9rem;padding:.8rem;background:#fff;border:1px solid #c9b59c;border-radius:9px}
+      .travel-info-audience label{display:inline-flex;align-items:center;gap:.35rem;font-weight:400}
+      .travel-info-audience input{width:16px;height:16px;accent-color:#8fa28a}
+      @media(max-width:767px){.travel-info-fields{grid-template-columns:1fr}.travel-info-field--full{grid-column:auto}}
+
 </style>
   </head>
   <body class="min-h-screen">
@@ -415,7 +433,25 @@
                 class="w-full border p-2 rounded"
                 placeholder="文章網址後綴，例如 https://travel.aleafpath.workers.dev/Korea/Naver_Verify"
               />
-              <div id="new-toolbar" class="flex flex-wrap gap-2"></div>
+              
+              <section class="travel-info-admin" aria-labelledby="new-travel-info-heading">
+                <h3 id="new-travel-info-heading" class="travel-info-admin-title">📍 旅遊資訊卡</h3>
+                <label class="travel-info-toggle"><input type="checkbox" id="new-travel-info-enabled" onchange="toggleTravelInfoFields('new')"><span>顯示旅遊資訊卡</span></label>
+                <div id="new-travel-info-fields" class="travel-info-fields" hidden>
+                  <div class="travel-info-field"><label for="new-travel-info-name">景點名稱</label><input id="new-travel-info-name" type="text" placeholder="福泉寺（복천사）"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-type">類型</label><select id="new-travel-info-type"><option value="">請選擇</option><option value="景點">景點</option><option value="餐廳">餐廳</option><option value="咖啡廳">咖啡廳</option><option value="住宿">住宿</option><option value="購物">購物</option><option value="展覽">展覽</option><option value="其他">其他</option></select></div>
+                  <div class="travel-info-field"><label for="new-travel-info-location">所在地</label><input id="new-travel-info-location" type="text" placeholder="韓國・釜山"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-visit-date">實際造訪日期</label><input id="new-travel-info-visit-date" type="month"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-stay-duration">停留時間</label><input id="new-travel-info-stay-duration" type="text" placeholder="1小時"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-transportation">交通方式</label><input id="new-travel-info-transportation" type="text" placeholder="公車＋步行"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-price">價格資訊</label><input id="new-travel-info-price" type="text" placeholder="免費"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-rating">推薦程度</label><select id="new-travel-info-rating"><option value="">請選擇</option><option value="5">5</option><option value="4.5">4.5</option><option value="4">4</option><option value="3.5">3.5</option><option value="3">3</option></select></div>
+                  <div class="travel-info-field travel-info-field--full"><span class="travel-info-audience-title">適合族群</span><div class="travel-info-audience"><label><input type="checkbox" name="new-travel-info-audience" value="自由行"><span>自由行</span></label><label><input type="checkbox" name="new-travel-info-audience" value="親子"><span>親子</span></label><label><input type="checkbox" name="new-travel-info-audience" value="情侶"><span>情侶</span></label><label><input type="checkbox" name="new-travel-info-audience" value="攝影"><span>攝影</span></label><label><input type="checkbox" name="new-travel-info-audience" value="美食"><span>美食</span></label><label><input type="checkbox" name="new-travel-info-audience" value="自駕"><span>自駕</span></label><label><input type="checkbox" name="new-travel-info-audience" value="雨天備案"><span>雨天備案</span></label></div></div>
+                  <div class="travel-info-field travel-info-field--full"><label for="new-travel-info-highlight">一句特色</label><textarea id="new-travel-info-highlight" placeholder="隱身於山林中的佛寺秘境，可俯瞰釜山市景。"></textarea></div>
+                  <div class="travel-info-field travel-info-field--full"><label for="new-travel-info-personal-experience">實訪心得</label><textarea id="new-travel-info-personal-experience" placeholder="可輸入多行實際造訪心得"></textarea></div>
+                </div>
+              </section>
+<div id="new-toolbar" class="flex flex-wrap gap-2"></div>
               <div
                 id="new-article-editor"
                 contenteditable="true"
@@ -428,7 +464,25 @@
                 提交發布
               </button></div>
             </div>
-            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list"></div><div id="draft-edit-form" class="hidden space-y-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-article-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-article-child-select" class="border p-2 rounded"></select></div><div class="space-y-2"><label class="block font-semibold">文章封面圖</label><img id="draft-edit-cover-preview" alt="目前草稿封面圖" class="hidden w-48 aspect-video object-cover rounded-lg border"><input type="file" id="draft-edit-cover-file" accept="image/*" class="block w-full text-sm border p-2 rounded"></div><div class="space-y-2"><label>延伸閱讀文章</label><select id="draft-edit-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded"><input id="draft-edit-slug" class="w-full border p-2 rounded"><div id="draft-edit-toolbar" class="flex flex-wrap gap-2"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded overflow-y-auto article-content-style"></div><div class="flex gap-3"><button onclick="saveDraftEdits()" class="px-6 py-2 rounded">儲存更新(不發布)</button><button onclick="publishDraft()" class="px-6 py-2 rounded">發布文章</button></div></div></div><div id="sub-article-manage" class="space-y-4 hidden">
+            <div id="sub-article-drafts" class="space-y-4 hidden"><div id="admin-drafts-list"></div><div id="draft-edit-form" class="hidden space-y-4"><input type="hidden" id="draft-edit-id"><input id="draft-edit-title" class="w-full border p-2 rounded"><div class="grid md:grid-cols-2 gap-4"><select id="draft-edit-article-parent-select" onchange="updateChildDropdown('draft-edit')" class="border p-2 rounded"></select><select id="draft-edit-article-child-select" class="border p-2 rounded"></select></div><div class="space-y-2"><label class="block font-semibold">文章封面圖</label><img id="draft-edit-cover-preview" alt="目前草稿封面圖" class="hidden w-48 aspect-video object-cover rounded-lg border"><input type="file" id="draft-edit-cover-file" accept="image/*" class="block w-full text-sm border p-2 rounded"></div><div class="space-y-2"><label>延伸閱讀文章</label><select id="draft-edit-article-related-select" multiple size="7" class="w-full border p-2 rounded bg-white"></select></div><input id="draft-edit-tags" class="w-full border p-2 rounded"><input id="draft-edit-slug" class="w-full border p-2 rounded">
+              <section class="travel-info-admin" aria-labelledby="draft-edit-travel-info-heading">
+                <h3 id="draft-edit-travel-info-heading" class="travel-info-admin-title">📍 旅遊資訊卡</h3>
+                <label class="travel-info-toggle"><input type="checkbox" id="draft-edit-travel-info-enabled" onchange="toggleTravelInfoFields('draft-edit')"><span>顯示旅遊資訊卡</span></label>
+                <div id="draft-edit-travel-info-fields" class="travel-info-fields" hidden>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-name">景點名稱</label><input id="draft-edit-travel-info-name" type="text" placeholder="福泉寺（복천사）"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-type">類型</label><select id="draft-edit-travel-info-type"><option value="">請選擇</option><option value="景點">景點</option><option value="餐廳">餐廳</option><option value="咖啡廳">咖啡廳</option><option value="住宿">住宿</option><option value="購物">購物</option><option value="展覽">展覽</option><option value="其他">其他</option></select></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-location">所在地</label><input id="draft-edit-travel-info-location" type="text" placeholder="韓國・釜山"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-visit-date">實際造訪日期</label><input id="draft-edit-travel-info-visit-date" type="month"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-stay-duration">停留時間</label><input id="draft-edit-travel-info-stay-duration" type="text" placeholder="1小時"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-transportation">交通方式</label><input id="draft-edit-travel-info-transportation" type="text" placeholder="公車＋步行"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-price">價格資訊</label><input id="draft-edit-travel-info-price" type="text" placeholder="免費"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-rating">推薦程度</label><select id="draft-edit-travel-info-rating"><option value="">請選擇</option><option value="5">5</option><option value="4.5">4.5</option><option value="4">4</option><option value="3.5">3.5</option><option value="3">3</option></select></div>
+                  <div class="travel-info-field travel-info-field--full"><span class="travel-info-audience-title">適合族群</span><div class="travel-info-audience"><label><input type="checkbox" name="draft-edit-travel-info-audience" value="自由行"><span>自由行</span></label><label><input type="checkbox" name="draft-edit-travel-info-audience" value="親子"><span>親子</span></label><label><input type="checkbox" name="draft-edit-travel-info-audience" value="情侶"><span>情侶</span></label><label><input type="checkbox" name="draft-edit-travel-info-audience" value="攝影"><span>攝影</span></label><label><input type="checkbox" name="draft-edit-travel-info-audience" value="美食"><span>美食</span></label><label><input type="checkbox" name="draft-edit-travel-info-audience" value="自駕"><span>自駕</span></label><label><input type="checkbox" name="draft-edit-travel-info-audience" value="雨天備案"><span>雨天備案</span></label></div></div>
+                  <div class="travel-info-field travel-info-field--full"><label for="draft-edit-travel-info-highlight">一句特色</label><textarea id="draft-edit-travel-info-highlight" placeholder="隱身於山林中的佛寺秘境，可俯瞰釜山市景。"></textarea></div>
+                  <div class="travel-info-field travel-info-field--full"><label for="draft-edit-travel-info-personal-experience">實訪心得</label><textarea id="draft-edit-travel-info-personal-experience" placeholder="可輸入多行實際造訪心得"></textarea></div>
+                </div>
+              </section>
+<div id="draft-edit-toolbar" class="flex flex-wrap gap-2"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded overflow-y-auto article-content-style"></div><div class="flex gap-3"><button onclick="saveDraftEdits()" class="px-6 py-2 rounded">儲存更新(不發布)</button><button onclick="publishDraft()" class="px-6 py-2 rounded">發布文章</button></div></div></div><div id="sub-article-manage" class="space-y-4 hidden">
               <div id="admin-articles-list" class="space-y-2"></div>
               <div
                 id="edit-article-form"
@@ -466,7 +520,25 @@
                   class="w-full border p-2 rounded"
                   placeholder="文章網址後綴"
                 />
-                <div id="edit-toolbar" class="flex flex-wrap gap-2"></div>
+                
+              <section class="travel-info-admin" aria-labelledby="edit-travel-info-heading">
+                <h3 id="edit-travel-info-heading" class="travel-info-admin-title">📍 旅遊資訊卡</h3>
+                <label class="travel-info-toggle"><input type="checkbox" id="edit-travel-info-enabled" onchange="toggleTravelInfoFields('edit')"><span>顯示旅遊資訊卡</span></label>
+                <div id="edit-travel-info-fields" class="travel-info-fields" hidden>
+                  <div class="travel-info-field"><label for="edit-travel-info-name">景點名稱</label><input id="edit-travel-info-name" type="text" placeholder="福泉寺（복천사）"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-type">類型</label><select id="edit-travel-info-type"><option value="">請選擇</option><option value="景點">景點</option><option value="餐廳">餐廳</option><option value="咖啡廳">咖啡廳</option><option value="住宿">住宿</option><option value="購物">購物</option><option value="展覽">展覽</option><option value="其他">其他</option></select></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-location">所在地</label><input id="edit-travel-info-location" type="text" placeholder="韓國・釜山"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-visit-date">實際造訪日期</label><input id="edit-travel-info-visit-date" type="month"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-stay-duration">停留時間</label><input id="edit-travel-info-stay-duration" type="text" placeholder="1小時"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-transportation">交通方式</label><input id="edit-travel-info-transportation" type="text" placeholder="公車＋步行"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-price">價格資訊</label><input id="edit-travel-info-price" type="text" placeholder="免費"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-rating">推薦程度</label><select id="edit-travel-info-rating"><option value="">請選擇</option><option value="5">5</option><option value="4.5">4.5</option><option value="4">4</option><option value="3.5">3.5</option><option value="3">3</option></select></div>
+                  <div class="travel-info-field travel-info-field--full"><span class="travel-info-audience-title">適合族群</span><div class="travel-info-audience"><label><input type="checkbox" name="edit-travel-info-audience" value="自由行"><span>自由行</span></label><label><input type="checkbox" name="edit-travel-info-audience" value="親子"><span>親子</span></label><label><input type="checkbox" name="edit-travel-info-audience" value="情侶"><span>情侶</span></label><label><input type="checkbox" name="edit-travel-info-audience" value="攝影"><span>攝影</span></label><label><input type="checkbox" name="edit-travel-info-audience" value="美食"><span>美食</span></label><label><input type="checkbox" name="edit-travel-info-audience" value="自駕"><span>自駕</span></label><label><input type="checkbox" name="edit-travel-info-audience" value="雨天備案"><span>雨天備案</span></label></div></div>
+                  <div class="travel-info-field travel-info-field--full"><label for="edit-travel-info-highlight">一句特色</label><textarea id="edit-travel-info-highlight" placeholder="隱身於山林中的佛寺秘境，可俯瞰釜山市景。"></textarea></div>
+                  <div class="travel-info-field travel-info-field--full"><label for="edit-travel-info-personal-experience">實訪心得</label><textarea id="edit-travel-info-personal-experience" placeholder="可輸入多行實際造訪心得"></textarea></div>
+                </div>
+              </section>
+<div id="edit-toolbar" class="flex flex-wrap gap-2"></div>
                 <div
                   id="edit-article-editor"
                   contenteditable="true"
@@ -1301,6 +1373,29 @@
           .map((article) => `<option value="${esc(article.id)}" ${selected.has(String(article.id)) ? "selected" : ""}>${esc(article.title)}｜${esc(article.category || "未分類")}${article.subcategory ? " / " + esc(article.subcategory) : ""}</option>`)
           .join("");
       }
+
+      const TRAVEL_INFO_AUDIENCE=["自由行","親子","情侶","攝影","美食","自駕","雨天備案"];
+      function emptyTravelInfo(){return{enabled:false,name:"",type:"",location:"",visitDate:"",stayDuration:"",transportation:"",price:"",rating:"",audience:[],highlight:"",personalExperience:""}}
+      function normalizeTravelInfo(value){
+        let source=value;
+        if(typeof source==="string"){try{source=JSON.parse(source)}catch{source={}}}
+        source=source&&typeof source==="object"?source:{};
+        return{enabled:source.enabled===true,name:String(source.name||""),type:String(source.type||""),location:String(source.location||""),visitDate:String(source.visitDate||""),stayDuration:String(source.stayDuration||""),transportation:String(source.transportation||""),price:String(source.price||""),rating:String(source.rating||""),audience:Array.isArray(source.audience)?source.audience.filter(x=>TRAVEL_INFO_AUDIENCE.includes(x)):[],highlight:String(source.highlight||""),personalExperience:String(source.personalExperience||"")};
+      }
+      function toggleTravelInfoFields(prefix){const enabled=$(prefix+"-travel-info-enabled")?.checked===true;const fields=$(prefix+"-travel-info-fields");if(fields)fields.hidden=!enabled}
+      function readTravelInfoForm(prefix){
+        const value=id=>$(prefix+"-travel-info-"+id)?.value.trim()||"";
+        return normalizeTravelInfo({enabled:$(prefix+"-travel-info-enabled")?.checked===true,name:value("name"),type:value("type"),location:value("location"),visitDate:value("visit-date"),stayDuration:value("stay-duration"),transportation:value("transportation"),price:value("price"),rating:value("rating"),audience:[...document.querySelectorAll(`input[name="${prefix}-travel-info-audience"]:checked`)].map(x=>x.value),highlight:value("highlight"),personalExperience:value("personal-experience")});
+      }
+      function fillTravelInfoForm(prefix,raw){
+        const info=normalizeTravelInfo(raw),set=(id,value)=>{const node=$(prefix+"-travel-info-"+id);if(node)node.value=value||""};
+        const enabled=$(prefix+"-travel-info-enabled");if(enabled)enabled.checked=info.enabled;
+        set("name",info.name);set("type",info.type);set("location",info.location);set("visit-date",info.visitDate);set("stay-duration",info.stayDuration);set("transportation",info.transportation);set("price",info.price);set("rating",info.rating);set("highlight",info.highlight);set("personal-experience",info.personalExperience);
+        document.querySelectorAll(`input[name="${prefix}-travel-info-audience"]`).forEach(box=>box.checked=info.audience.includes(box.value));toggleTravelInfoFields(prefix);
+      }
+      function validateTravelInfo(info){if(!info.enabled)return info;if(!info.name)throw new Error("啟用旅遊資訊卡時，請填寫景點名稱");if(!info.type)throw new Error("啟用旅遊資訊卡時，請選擇類型");return info}
+      function travelInfoSettingsKey(articleId){return "article_travel_info_"+String(articleId)}
+      function travelInfoFromArticle(article){if(article&&article.travelInfo)return normalizeTravelInfo(article.travelInfo);try{return normalizeTravelInfo(settingsCache[travelInfoSettingsKey(article?.id)]||"")}catch{return emptyTravelInfo()}}
       function parseTags(v){return [...new Set(String(v||"").split(/[,，\n]/).map(x=>x.trim().replace(/^#/,"")).filter(Boolean))]}
       function getDrafts(){try{const v=JSON.parse(settingsCache.article_drafts||"[]");return Array.isArray(v)?v:[]}catch{return[]}}
       async function saveDrafts(v){await upsertSettings({article_drafts:JSON.stringify(v)})}
@@ -1323,6 +1418,7 @@
             content,
             cover_image_url,
             relatedArticleIds: selectedRelatedArticleIds("new"),
+            travelInfo: validateTravelInfo(readTravelInfoForm("new")),
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           };
@@ -1361,6 +1457,7 @@
         preview.src = draft.cover_image_url || "";
         preview.classList.toggle("hidden", !draft.cover_image_url);
         populateRelatedArticleSelect("draft-edit", { selectedIds: draft.relatedArticleIds || [] });
+        fillTravelInfoForm("draft-edit", draft.travelInfo);
         $("draft-edit-form").classList.remove("hidden");
         $("draft-edit-form").scrollIntoView({ behavior: "smooth", block: "start" });
       }
@@ -1387,6 +1484,7 @@
           content,
           cover_image_url,
           relatedArticleIds: selectedRelatedArticleIds("draft-edit"),
+          travelInfo: validateTravelInfo(readTravelInfoForm("draft-edit")),
           updated_at: new Date().toISOString(),
         };
         await saveDrafts(drafts);
@@ -1424,6 +1522,7 @@
             ["article_status_" + data.id]: "published",
             ["article_tags_" + data.id]: JSON.stringify(draft.tags || []),
             [relatedSettingsKey(data.id)]: JSON.stringify(draft.relatedArticleIds || []),
+            [travelInfoSettingsKey(data.id)]: JSON.stringify(draft.travelInfo || emptyTravelInfo()),
           });
           await saveDrafts(getDrafts().filter((item) => String(item.id) !== String(draft.id)));
           $("draft-edit-form").classList.add("hidden");
@@ -1450,6 +1549,8 @@
           return alert(error.message);
         }
         if (!title || !category) return alert("請輸入標題並選擇母標籤");
+        let travelInfo;
+        try { travelInfo=validateTravelInfo(readTravelInfoForm("new")); } catch(error){ return alert(error.message); }
         try {
           if (await slugExists(slug)) return alert("文章網址後綴已被使用");
           const cover_image_url = await uploadArticleCover(coverFile);
@@ -1472,7 +1573,7 @@
               .single();
           if (error) throw error;
           await upsertSettings({
-            [relatedSettingsKey(data.id)]:JSON.stringify(relatedArticleIds),["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(articleTags),
+            [relatedSettingsKey(data.id)]:JSON.stringify(relatedArticleIds),[travelInfoSettingsKey(data.id)]:JSON.stringify(travelInfo),["article_status_"+data.id]:"published",["article_tags_"+data.id]:JSON.stringify(articleTags),
           });
           alert("發布成功！\n" + location.origin + articlePath(data));
           $("new-article-title").value = "";
@@ -1480,6 +1581,7 @@
           $("new-article-cover-file").value = "";
           $("new-article-related-select").selectedIndex = -1;
           $("new-article-editor").innerHTML = "";
+          fillTravelInfoForm("new",emptyTravelInfo());
           await loadManageArticlesList();
         } catch (e) {
           alert("發布失敗：" + e.message);
@@ -1571,6 +1673,7 @@
           excludeId: a.id,
           selectedIds: relatedArticleIds,
         });
+        fillTravelInfoForm("edit",travelInfoFromArticle(a));
         $("edit-article-form").classList.remove("hidden");
       }
       function closeEditForm() {
@@ -1597,6 +1700,8 @@
         } catch (error) {
           return alert(error.message);
         }
+        let travelInfo;
+        try { travelInfo=validateTravelInfo(readTravelInfoForm("edit")); } catch(error){ return alert(error.message); }
         if (!title || !category) return alert("請輸入標題並選擇母標籤");
         try {
           if (await slugExists(slug, id)) return alert("文章網址後綴已被使用");
@@ -1624,6 +1729,7 @@
           if (error) throw error;
           await upsertSettings({
             [relatedSettingsKey(id)]: JSON.stringify(relatedArticleIds),
+            [travelInfoSettingsKey(id)]: JSON.stringify(travelInfo),
             ["article_tags_" + id]: JSON.stringify(articleTags)
           });
           alert("文章更新成功");
@@ -1948,6 +2054,7 @@
           setupArticleEditorImageUpload("edit-article-editor");
           setupArticleEditorImageUpload("draft-edit-article-editor");
           ["new", "edit", "draft-edit"].forEach(setupEditableTables);
+          fillTravelInfoForm("new",emptyTravelInfo());
           await Promise.all([fetchCategories(), loadSettings()]);
           await Promise.all([loadCategoriesAdmin(), loadManageArticlesList()]);
           fillSettingsForms();
