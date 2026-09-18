@@ -71,6 +71,14 @@
       .recommendation-row img{width:64px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:var(--sand)}
       .recommendation-order{display:flex;gap:.25rem}.recommendation-order button{padding:.25rem .5rem!important;border-radius:6px!important}
       @media(max-width:767px){.recommendation-manager{grid-template-columns:1fr}.recommendation-row{grid-template-columns:auto 52px minmax(0,1fr)}.recommendation-order{grid-column:2/-1;justify-content:flex-end}}
+
+      .article-content-style h3{margin:1.8em 0 .9em;padding-bottom:.35em;border-bottom:3px solid #8FA28A}
+      .article-content-style h4{margin:1.6em 0 .8em;padding:.55em .75em;border-radius:8px;background:#8FA28A;color:#fff!important}
+      .article-content-style h4 *{color:#fff!important}
+      .embedded-article-card{display:flex;width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;background:#F9F6F0;border:1px solid #C9B59C;border-radius:14px;box-shadow:0 3px 12px rgba(78,34,15,.08);text-decoration:none!important}
+      .embedded-article-card-image{flex:0 0 34%;width:34%;aspect-ratio:16/9;object-fit:cover;background:#C9B59C}
+      .embedded-article-card-body{flex:1;min-width:0;padding:.9rem 1rem;display:flex;flex-direction:column;justify-content:center}.embedded-article-card-title{font-size:1.05rem;font-weight:700;line-height:1.5}.embedded-article-card-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:.35rem;font-size:.88rem;line-height:1.55;opacity:.76}
+      .article-picker-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(69,40,41,.6)}.article-picker-dialog{width:min(94vw,720px);max-height:82vh;display:flex;flex-direction:column;background:#fff;border:1px solid var(--sand);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.28);overflow:hidden}.article-picker-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;background:var(--soft);border-bottom:1px solid var(--sand)}.article-picker-search{margin:1rem 1.2rem 0;padding:.7rem .8rem;border:1px solid var(--sand);border-radius:9px}.article-picker-list{overflow:auto;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.65rem}.article-picker-item{display:flex!important;align-items:center!important;gap:.8rem!important;width:100%;padding:.65rem!important;text-align:left!important;background:#fff!important;color:var(--ink)!important;border:1px solid var(--sand)!important;border-radius:10px!important}.article-picker-item img{width:92px;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:var(--sand)}
 </style>
   </head>
   <body class="min-h-screen">
@@ -589,7 +597,7 @@
             <select class="editor-btn" onchange="runTableDistributeAction('${t}',this.value);this.value=''"><option value="">平均寬高</option><option value="columns">平均欄寬</option><option value="rows">平均列高</option></select>
             <select class="editor-btn" onchange="applyTableCellAlignment('${t}',this.value);this.value=''"><option value="">對齊</option><option value="center-middle">水平置中／垂直置中</option><option value="left-middle">水平置左／垂直置中</option></select>
           </section>
-          <section class="editor-tool-group"><h3 class="editor-tool-title">功能</h3><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖</button><button class="editor-btn" onclick="insertEmbeddedHtml('${t}')">&lt;/&gt; 嵌入 HTML</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><select class="editor-btn" onchange="runFAQAction('${t}',this.value);this.value=''"><option value="">❓ FAQ</option><option value="insert">插入 FAQ</option><option value="add">FAQ 加一題</option></select></section>`;
+          <section class="editor-tool-group"><h3 class="editor-tool-title">功能</h3><button class="editor-btn" onclick="addLink('${t}')">🔗 連結</button><button class="editor-btn" onclick="openArticlePicker('${t}')">📰 插入文章</button><button class="editor-btn" onclick="insertMapCard('${t}')">📍 地圖</button><button class="editor-btn" onclick="insertEmbeddedHtml('${t}')">&lt;/&gt; 嵌入 HTML</button><button class="editor-btn" onclick="insertBox('${t}')">💡 提醒框</button><select class="editor-btn" onchange="runFAQAction('${t}',this.value);this.value=''"><option value="">❓ FAQ</option><option value="insert">插入 FAQ</option><option value="add">FAQ 加一題</option></select></section>`;
         const editor=$(t+"-article-editor");
         if(editor&&!toolbar.parentElement.classList.contains("editor-workspace")){const workspace=document.createElement("div");workspace.className="editor-workspace";toolbar.parentNode.insertBefore(workspace,toolbar);workspace.append(toolbar,editor)}
       }
@@ -659,6 +667,15 @@
         }
       }
 
+      let articlePickerType="new";
+      function articleExcerptText(article){const box=document.createElement("div");box.innerHTML=article.excerpt||article.content||"";return (box.textContent||"").replace(/\s+/g," ").trim().slice(0,140)}
+      function openArticlePicker(t){articlePickerType=t;document.querySelector(".article-picker-overlay")?.remove();const overlay=document.createElement("div");overlay.className="article-picker-overlay";overlay.innerHTML=`<section class="article-picker-dialog" role="dialog" aria-modal="true" aria-label="插入文章"><div class="article-picker-head"><h3 class="font-bold">選擇要插入的文章</h3><button type="button" onclick="closeArticlePicker()">×</button></div><input id="article-picker-search" class="article-picker-search" placeholder="搜尋文章標題或分類"><div id="article-picker-list" class="article-picker-list"></div></section>`;overlay.addEventListener("mousedown",e=>{if(e.target===overlay)closeArticlePicker()});document.body.appendChild(overlay);const input=$("article-picker-search");input.addEventListener("input",()=>renderArticlePickerList(input.value));renderArticlePickerList("");input.focus()}
+      function closeArticlePicker(){document.querySelector(".article-picker-overlay")?.remove()}
+      function renderArticlePickerList(query){const box=$("article-picker-list");if(!box)return;const q=String(query||"").trim().toLocaleLowerCase("zh-Hant");const items=allArticlesCache.filter(a=>settingsCache["article_status_"+a.id]!=="draft").filter(a=>!q||[a.title,a.category,a.subcategory].some(v=>String(v||"").toLocaleLowerCase("zh-Hant").includes(q)));box.innerHTML=items.length?items.map(a=>`<button type="button" class="article-picker-item" onclick="insertSelectedArticle('${a.id}')">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="">`:`<span style="width:92px;aspect-ratio:16/9;background:#C9B59C;border-radius:7px"></span>`}<span><b>${esc(a.title)}</b><small style="display:block;opacity:.65;margin-top:.25rem">${esc(a.category||"未分類")}${a.subcategory?" / "+esc(a.subcategory):""}</small></span></button>`).join(""):'<div class="opacity-60">找不到符合的文章</div>'}
+      async function insertSelectedArticle(id){let article=allArticlesCache.find(a=>String(a.id)===String(id));if(!article)return;if(!Object.prototype.hasOwnProperty.call(article,"content")&&!article.excerpt){const {data,error}=await supabaseClient.from("articles").select("*").eq("id",id).single();if(error||!data)return alert("文章載入失敗");article=data;const index=allArticlesCache.findIndex(a=>String(a.id)===String(id));if(index>=0)allArticlesCache[index]={...allArticlesCache[index],...data}}
+        const image=article.cover_image_url?`<img class="embedded-article-card-image" src="${esc(article.cover_image_url)}" alt="${esc(article.title)}">`:`<div class="embedded-article-card-image"></div>`;
+        const html=`<a class="embedded-article-card" href="${esc(articlePath(article))}" data-article-id="${esc(article.id)}" contenteditable="false">${image}<span class="embedded-article-card-body"><strong class="embedded-article-card-title">${esc(article.title)}</strong><span class="embedded-article-card-excerpt">${esc(articleExcerptText(article))}</span></span></a><p><br></p>`;
+        const editor=editorForType(articlePickerType);editor.focus();document.execCommand("insertHTML",false,html);closeArticlePicker()}
       function addLink(t) {
         const u = prompt("請輸入網址");
         if (u) {
@@ -1465,7 +1482,7 @@
       async function loadManageArticlesList() {
         const { data, error } = await supabaseClient
           .from("articles")
-          .select("id,title,category,subcategory,slug,created_at,updated_at,cover_image_url")
+          .select("id,title,category,subcategory,slug,created_at,updated_at,cover_image_url,excerpt,content")
           .order("created_at", { ascending: false });
         if (error) return alert(error.message);
         allArticlesCache = data || [];
