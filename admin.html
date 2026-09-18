@@ -667,15 +667,37 @@
         }
       }
 
-      let articlePickerType="new";
+      let articlePickerType="new", articlePickerRange=null;
       function articleExcerptText(article){const box=document.createElement("div");box.innerHTML=article.excerpt||article.content||"";return (box.textContent||"").replace(/\s+/g," ").trim().slice(0,140)}
-      function openArticlePicker(t){articlePickerType=t;document.querySelector(".article-picker-overlay")?.remove();const overlay=document.createElement("div");overlay.className="article-picker-overlay";overlay.innerHTML=`<section class="article-picker-dialog" role="dialog" aria-modal="true" aria-label="插入文章"><div class="article-picker-head"><h3 class="font-bold">選擇要插入的文章</h3><button type="button" onclick="closeArticlePicker()">×</button></div><input id="article-picker-search" class="article-picker-search" placeholder="搜尋文章標題或分類"><div id="article-picker-list" class="article-picker-list"></div></section>`;overlay.addEventListener("mousedown",e=>{if(e.target===overlay)closeArticlePicker()});document.body.appendChild(overlay);const input=$("article-picker-search");input.addEventListener("input",()=>renderArticlePickerList(input.value));renderArticlePickerList("");input.focus()}
+      function openArticlePicker(t){
+        articlePickerType=t;
+        const editor=editorForType(t),selection=window.getSelection();
+        articlePickerRange=(selection&&selection.rangeCount&&editor?.contains(selection.anchorNode))?selection.getRangeAt(0).cloneRange():getEditorRange(editor);
+        document.querySelector(".article-picker-overlay")?.remove();
+        const overlay=document.createElement("div");overlay.className="article-picker-overlay";
+        overlay.innerHTML=`<section class="article-picker-dialog" role="dialog" aria-modal="true" aria-label="插入文章"><div class="article-picker-head"><h3 class="font-bold">選擇要插入的文章</h3><button type="button" onclick="closeArticlePicker()">×</button></div><input id="article-picker-search" class="article-picker-search" placeholder="搜尋文章標題或分類"><div id="article-picker-list" class="article-picker-list"></div></section>`;
+        overlay.addEventListener("mousedown",e=>{if(e.target===overlay)closeArticlePicker()});document.body.appendChild(overlay);
+        const input=$("article-picker-search");input.addEventListener("input",()=>renderArticlePickerList(input.value));renderArticlePickerList("");input.focus();
+      }
       function closeArticlePicker(){document.querySelector(".article-picker-overlay")?.remove()}
       function renderArticlePickerList(query){const box=$("article-picker-list");if(!box)return;const q=String(query||"").trim().toLocaleLowerCase("zh-Hant");const items=allArticlesCache.filter(a=>settingsCache["article_status_"+a.id]!=="draft").filter(a=>!q||[a.title,a.category,a.subcategory].some(v=>String(v||"").toLocaleLowerCase("zh-Hant").includes(q)));box.innerHTML=items.length?items.map(a=>`<button type="button" class="article-picker-item" onclick="insertSelectedArticle('${a.id}')">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="">`:`<span style="width:92px;aspect-ratio:16/9;background:#C9B59C;border-radius:7px"></span>`}<span><b>${esc(a.title)}</b><small style="display:block;opacity:.65;margin-top:.25rem">${esc(a.category||"未分類")}${a.subcategory?" / "+esc(a.subcategory):""}</small></span></button>`).join(""):'<div class="opacity-60">找不到符合的文章</div>'}
-      async function insertSelectedArticle(id){let article=allArticlesCache.find(a=>String(a.id)===String(id));if(!article)return;if(!Object.prototype.hasOwnProperty.call(article,"content")&&!article.excerpt){const {data,error}=await supabaseClient.from("articles").select("*").eq("id",id).single();if(error||!data)return alert("文章載入失敗");article=data;const index=allArticlesCache.findIndex(a=>String(a.id)===String(id));if(index>=0)allArticlesCache[index]={...allArticlesCache[index],...data}}
+      function insertHtmlAtSavedRange(editor,html){
+        let range=articlePickerRange;
+        if(!range||!editor.contains(range.commonAncestorContainer))range=getEditorRange(editor);
+        range.deleteContents();
+        const fragment=range.createContextualFragment(html),last=fragment.lastChild;
+        range.insertNode(fragment);
+        const next=document.createRange();
+        if(last?.parentNode)next.setStartAfter(last);else{next.selectNodeContents(editor);next.collapse(false)}
+        next.collapse(true);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(next);articlePickerRange=next.cloneRange();editor.focus();
+      }
+      async function insertSelectedArticle(id){
+        let article=allArticlesCache.find(a=>String(a.id)===String(id));if(!article)return;
+        if(!Object.prototype.hasOwnProperty.call(article,"content")&&!article.excerpt){const {data,error}=await supabaseClient.from("articles").select("*").eq("id",id).single();if(error||!data)return alert("文章載入失敗");article=data;const index=allArticlesCache.findIndex(a=>String(a.id)===String(id));if(index>=0)allArticlesCache[index]={...allArticlesCache[index],...data}}
         const image=article.cover_image_url?`<img class="embedded-article-card-image" src="${esc(article.cover_image_url)}" alt="${esc(article.title)}">`:`<div class="embedded-article-card-image"></div>`;
         const html=`<a class="embedded-article-card" href="${esc(articlePath(article))}" data-article-id="${esc(article.id)}" contenteditable="false">${image}<span class="embedded-article-card-body"><strong class="embedded-article-card-title">${esc(article.title)}</strong><span class="embedded-article-card-excerpt">${esc(articleExcerptText(article))}</span></span></a><p><br></p>`;
-        const editor=editorForType(articlePickerType);editor.focus();document.execCommand("insertHTML",false,html);closeArticlePicker()}
+        const editor=editorForType(articlePickerType);closeArticlePicker();insertHtmlAtSavedRange(editor,html);articlePickerRange=null;
+      }
       function addLink(t) {
         const u = prompt("請輸入網址");
         if (u) {
