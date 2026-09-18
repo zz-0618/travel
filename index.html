@@ -629,6 +629,44 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         #frontend-nav-tabs .nav-search-item{right:.65rem}
         #frontend-nav-tabs .nav-search-shell.open{position:fixed;left:.65rem;right:.65rem;top:auto;width:auto;transform:none;z-index:60}
       }
+
+      /* 內文 H3 / H4 */
+      #article-body-content h3{margin:1.8em 0 .9em;padding-bottom:.35em;border-bottom:3px solid #8FA28A;color:var(--ink)!important}
+      #article-body-content h4{margin:1.6em 0 .8em;padding:.55em .75em;border-radius:8px;background:#8FA28A;color:#fff!important}
+      #article-body-content h4 *{color:#fff!important}
+
+      /* 所有文章標題與分類圖卡 */
+      .all-articles-title{font-size:1.65rem;font-weight:700;margin:0 0 1rem;padding-bottom:.55rem;border-bottom:2px solid #C9B59C}
+      .category-article-list{display:flex;flex-direction:column;gap:1.5rem}
+      .category-article-list .article-list-card{background:#F9F6F0;border:1px solid #C9B59C;border-radius:14px;box-shadow:0 3px 12px rgba(78,34,15,.08);overflow:hidden}
+      .category-article-list .article-list-image-link,.category-article-list .article-list-cover{border-radius:10px}
+
+      /* 內文插入文章卡片 */
+      .embedded-article-card{display:flex;width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;background:#F9F6F0;border:1px solid #C9B59C;border-radius:14px;box-shadow:0 3px 12px rgba(78,34,15,.08);color:var(--ink)!important;text-decoration:none!important}
+      .embedded-article-card-image{flex:0 0 34%;width:34%;aspect-ratio:16/9;object-fit:cover;background:#C9B59C}
+      .embedded-article-card-body{flex:1;min-width:0;padding:.9rem 1rem;display:flex;flex-direction:column;justify-content:center}
+      .embedded-article-card-title{font-size:1.05rem;font-weight:700;line-height:1.5;color:var(--ink)!important}
+      .embedded-article-card-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:.35rem;font-size:.88rem;line-height:1.55;color:rgba(69,40,41,.76)!important}
+
+      /* 手機分類列與搜尋視窗 */
+      .mobile-search-overlay{display:none}
+      @media(max-width:767px){
+        #site-header-bg + nav{overflow:visible}
+        #frontend-nav-tabs{display:flex!important;flex-wrap:nowrap!important;justify-content:flex-start!important;gap:1.15rem!important;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:.75rem 1rem .75rem 4.2rem!important}
+        #frontend-nav-tabs::-webkit-scrollbar{display:none}
+        #frontend-nav-tabs>li:not(.nav-search-item){flex:0 0 auto}
+        #frontend-nav-tabs .nav-search-item{position:absolute!important;left:.65rem!important;right:auto!important;top:50%;transform:translateY(-50%);z-index:42}
+        #frontend-nav-tabs .nav-search-shell{width:2.45rem!important}
+        #frontend-nav-tabs .nav-search-box,#frontend-nav-tabs .site-search-suggestions,#frontend-nav-tabs .site-search-status{display:none!important}
+        .mobile-search-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;padding:12vh 1rem 1rem;background:rgba(69,40,41,.62)}
+        .mobile-search-overlay.show{display:flex}
+        .mobile-search-dialog{position:relative;width:min(100%,34rem);padding:1rem;background:#fff;border:1px solid #C9B59C;border-radius:16px;box-shadow:0 18px 45px rgba(0,0,0,.28)}
+        .mobile-search-dialog .nav-search-box{display:flex!important;min-height:3rem}
+        .mobile-search-dialog .site-search-suggestions,.mobile-search-dialog .site-search-status{position:static;width:100%;margin-top:.65rem;box-shadow:none}
+        .mobile-search-close{position:absolute;right:.75rem;top:-2.8rem;width:2.35rem;height:2.35rem;border-radius:50%!important;background:#fff!important;color:#4E220F!important;border:0!important;font-size:1.35rem}
+        .embedded-article-card-image{flex-basis:38%;width:38%}
+        .embedded-article-card-body{padding:.7rem}.embedded-article-card-title{font-size:.95rem}.embedded-article-card-excerpt{font-size:.8rem}
+      }
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1123,16 +1161,24 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       let searchArticlesCache=[],searchResults=[],searchSuggestionIndex=-1,searchRequestId=0;
       const SEARCH_SUGGESTION_LIMIT=6;
       function articleCardHtml(a){
-        return `<article class="custom-card article-list-card rounded-xl shadow-sm"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
+        return `<article class="article-list-card"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
       }
       function navSearchHtml(){
-        return `<li class="nav-search-item"><div id="nav-search-shell" class="nav-search-shell"><button id="nav-search-toggle" type="button" class="nav-search-toggle" onclick="toggleNavSearch(true)" aria-label="開啟站內搜尋" aria-expanded="false">⌕</button><div class="nav-search-box"><input id="site-search-input" class="nav-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox" aria-label="搜尋建議"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></div></li>`;
+        return `<li class="nav-search-item"><div id="nav-search-shell" class="nav-search-shell"><button id="nav-search-toggle" type="button" class="nav-search-toggle" onclick="toggleNavSearch()" aria-label="開啟或收合站內搜尋" aria-expanded="false">⌕</button><div class="nav-search-box"><input id="site-search-input" class="nav-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></div></li>`;
       }
-      function toggleNavSearch(open){
-        const shell=$("nav-search-shell"),toggle=$("nav-search-toggle"),input=$("site-search-input");if(!shell)return;
-        shell.classList.toggle("open",open);toggle?.setAttribute("aria-expanded",String(open));
-        if(open)requestAnimationFrame(()=>input?.focus());else{renderSearchSuggestions([]);$("site-search-status")?.classList.remove("show")}
+      function ensureMobileSearchDialog(){
+        let overlay=$("mobile-search-overlay");if(overlay)return overlay;
+        overlay=document.createElement("div");overlay.id="mobile-search-overlay";overlay.className="mobile-search-overlay";
+        overlay.innerHTML=`<section class="mobile-search-dialog" role="dialog" aria-modal="true" aria-label="站內搜尋"><button type="button" class="mobile-search-close" onclick="closeMobileSearch()" aria-label="關閉搜尋">×</button><div class="nav-search-box"><input id="mobile-search-input" class="nav-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章"><button id="mobile-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="mobile-search-suggestions" class="site-search-suggestions" role="listbox"></div><div id="mobile-search-status" class="site-search-status" role="status" aria-live="polite"></div></section>`;
+        overlay.addEventListener("mousedown",e=>{if(e.target===overlay)closeMobileSearch()});document.body.appendChild(overlay);setupSearchInput($("mobile-search-input"));return overlay;
       }
+      function isMobileSearch(){return matchMedia("(max-width: 767px)").matches}
+      function activeSearchControls(){const mobile=isMobileSearch()&&$("mobile-search-overlay")?.classList.contains("show");return{input:$(mobile?"mobile-search-input":"site-search-input"),clear:$(mobile?"mobile-search-clear":"site-search-clear"),suggestions:$(mobile?"mobile-search-suggestions":"site-search-suggestions"),status:$(mobile?"mobile-search-status":"site-search-status")}}
+      function toggleNavSearch(){
+        if(isMobileSearch()){const overlay=ensureMobileSearchDialog();overlay.classList.add("show");document.body.style.overflow="hidden";requestAnimationFrame(()=>$("mobile-search-input")?.focus());return}
+        const shell=$("nav-search-shell"),toggle=$("nav-search-toggle");if(!shell)return;const open=!shell.classList.contains("open");shell.classList.toggle("open",open);toggle?.setAttribute("aria-expanded",String(open));if(open)requestAnimationFrame(()=>$('site-search-input')?.focus());else{renderSearchSuggestions([]);$("site-search-status")?.classList.remove("show")}
+      }
+      function closeMobileSearch(){const overlay=$("mobile-search-overlay");overlay?.classList.remove("show");document.body.style.overflow="";renderSearchSuggestions([]);$("mobile-search-status")?.classList.remove("show")}
       function normalizeSearchText(value){return String(value||"").normalize("NFKC").toLocaleLowerCase("zh-Hant").replace(/\s+/g," ").trim()}
       function plainArticleContent(value){const box=document.createElement("div");box.innerHTML=value||"";return box.textContent||""}
       function searchScore(article,query){
@@ -1161,14 +1207,14 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         return pool.filter(term=>{const key=normalizeSearchText(term);if(!key.includes(q)||seen.has(key))return false;seen.add(key);return true}).sort((a,b)=>{const an=normalizeSearchText(a),bn=normalizeSearchText(b);return Number(!an.startsWith(q))-Number(!bn.startsWith(q))||a.length-b.length||a.localeCompare(b,"zh-Hant")}).slice(0,SEARCH_SUGGESTION_LIMIT);
       }
       function renderSearchSuggestions(items){
-        const box=$("site-search-suggestions"),input=$("site-search-input");if(!box||!input)return;
+        const {suggestions:box,input}=activeSearchControls();if(!box||!input)return;
         searchSuggestionIndex=Math.min(searchSuggestionIndex,items.length-1);
         box.innerHTML=items.map((item,index)=>`<button type="button" class="site-search-suggestion ${index===searchSuggestionIndex?"active":""}" role="option" aria-selected="${index===searchSuggestionIndex}" data-search-suggestion="${esc(item)}"><span class="site-search-suggestion-icon" aria-hidden="true">⌕</span><span>${esc(item)}</span></button>`).join("");
         box.classList.toggle("show",items.length>0);input.setAttribute("aria-expanded",String(items.length>0));
         box.querySelectorAll("[data-search-suggestion]").forEach(button=>button.addEventListener("mousedown",event=>{event.preventDefault();input.value=button.dataset.searchSuggestion||"";runSiteSearch(input.value,{hideSuggestions:true});input.focus()}));
       }
       async function runSiteSearch(rawQuery,opt={}){
-        const input=$("site-search-input"),clear=$("site-search-clear"),status=$("site-search-status");if(!input||!status)return;
+        const {input,clear,status}=activeSearchControls();if(!input||!status)return;
         let resultsBox=$("site-search-results");
         if(!resultsBox){await fetchArticles("all",{page:1});resultsBox=$("site-search-results");if(!resultsBox)return;}
         const query=String(rawQuery??input.value).trim();clear?.classList.toggle("show",Boolean(query));status.classList.toggle("show",Boolean(query));
@@ -1180,29 +1226,22 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           const suggestions=opt.hideSuggestions?[]:buildSearchSuggestions(query,articles);renderSearchSuggestions(suggestions);
           status.textContent=searchResults.length?`找到 ${searchResults.length} 篇相關文章，已依相關度排序`:`找不到與「${query}」相關的文章`;
           $("featured-articles-section")?.classList.add("hidden");
-          resultsBox.innerHTML=searchResults.length?searchResults.map(articleCardHtml).join(""):`<div class="custom-card p-6 rounded">目前尚無符合「${esc(query)}」的文章。</div>`;
+          resultsBox.innerHTML=searchResults.length?`<div class="category-article-list">${searchResults.map(articleCardHtml).join("")}</div>`:`<div class="custom-card p-6 rounded">目前尚無符合「${esc(query)}」的文章。</div>`;
         }catch(error){console.error("站內搜尋失敗：",error);renderSearchSuggestions([]);status.textContent="搜尋暫時無法使用，請稍後再試。";}
       }
-      function clearSiteSearch(){const input=$("site-search-input");if(!input)return;input.value="";runSiteSearch("");input.focus()}
+      function clearSiteSearch(){const {input}=activeSearchControls();if(!input)return;input.value="";runSiteSearch("");input.focus()}
       function renderDefaultArticleList(){
         let list=[...allArticlesCache].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
         const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
-        return (pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,"all");
+        return `<div class="category-article-list">${pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>"}</div>`+renderArticlePagination(list.length,currentArticlePage,"all");
       }
-      function setupSiteSearch(){
-        const input=$("site-search-input");if(!input)return;
-        let debounceTimer;
+      function setupSearchInput(input){
+        if(!input||input.dataset.searchReady==="true")return;input.dataset.searchReady="true";let debounceTimer;
         input.addEventListener("input",()=>{searchSuggestionIndex=-1;clearTimeout(debounceTimer);debounceTimer=setTimeout(()=>runSiteSearch(input.value),90)});
-        input.addEventListener("keydown",event=>{
-          const buttons=[...document.querySelectorAll("#site-search-suggestions .site-search-suggestion")];
-          if(event.key==="ArrowDown"&&buttons.length){event.preventDefault();searchSuggestionIndex=(searchSuggestionIndex+1)%buttons.length;renderSearchSuggestions(buttons.map(x=>x.dataset.searchSuggestion));return;}
-          if(event.key==="ArrowUp"&&buttons.length){event.preventDefault();searchSuggestionIndex=(searchSuggestionIndex-1+buttons.length)%buttons.length;renderSearchSuggestions(buttons.map(x=>x.dataset.searchSuggestion));return;}
-          if(event.key==="Escape"){renderSearchSuggestions([]);return;}
-          if(event.key==="Enter"){event.preventDefault();const selected=buttons[searchSuggestionIndex]?.dataset.searchSuggestion;if(selected){input.value=selected;}runSiteSearch(input.value,{hideSuggestions:true}).then(()=>{if(searchResults[0])viewSingleArticle(searchResults[0].id)});}
-        });
+        input.addEventListener("keydown",event=>{const {suggestions}=activeSearchControls(),buttons=[...(suggestions?.querySelectorAll(".site-search-suggestion")||[])];if(event.key==="ArrowDown"&&buttons.length){event.preventDefault();searchSuggestionIndex=(searchSuggestionIndex+1)%buttons.length;renderSearchSuggestions(buttons.map(x=>x.dataset.searchSuggestion));return}if(event.key==="ArrowUp"&&buttons.length){event.preventDefault();searchSuggestionIndex=(searchSuggestionIndex-1+buttons.length)%buttons.length;renderSearchSuggestions(buttons.map(x=>x.dataset.searchSuggestion));return}if(event.key==="Escape"){isMobileSearch()?closeMobileSearch():toggleNavSearch();return}if(event.key==="Enter"){event.preventDefault();const selected=buttons[searchSuggestionIndex]?.dataset.searchSuggestion;if(selected)input.value=selected;runSiteSearch(input.value,{hideSuggestions:true}).then(()=>{if(searchResults[0])viewSingleArticle(searchResults[0].id)})}});
         input.addEventListener("focus",()=>{if(input.value)runSiteSearch(input.value)});
-        document.addEventListener("click",event=>{if(!event.target.closest?.(".nav-search-shell")){renderSearchSuggestions([]);$("site-search-status")?.classList.remove("show")}});
       }
+      function setupSiteSearch(){setupSearchInput($("site-search-input"));document.addEventListener("click",event=>{if(!isMobileSearch()&&!event.target.closest?.(".nav-search-shell")){renderSearchSuggestions([]);$("site-search-status")?.classList.remove("show")}})}
       async function fetchArticles(cat="all",opt={}){
         const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});
         if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}
@@ -1211,8 +1250,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.some(t=>getArticleTags(a).includes(t)));list=[...list].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
         const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
         $("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();
-        const cards=(pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>")+renderArticlePagination(list.length,currentArticlePage,cat);
-        c.innerHTML=cat==="all"?`<section id="featured-articles-section" class="featured-articles-section hidden"></section><div id="site-search-results">${cards}</div>`:tagBar(cat,base)+cards;
+        const cards=`<div class="category-article-list">${pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>"}</div>`+renderArticlePagination(list.length,currentArticlePage,cat);
+        c.innerHTML=cat==="all"?`<section id="featured-articles-section" class="featured-articles-section hidden"></section><h2 class="all-articles-title">所有文章</h2><div id="site-search-results">${cards}</div>`:tagBar(cat,base)+cards;
         if(cat==="all")renderFeaturedArticles();
         renderLatestArticles();renderPopularArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})
       }
@@ -1553,6 +1592,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function openColumnFilter(event,table,col){event.preventDefault();event.stopPropagation();closeTableMenu();const values=[...new Set(dataRows(table).map(r=>(r.cells[col]?.textContent||"").trim()||"（空白）"))].sort((a,b)=>a.localeCompare(b,"zh-Hant"));table._filterStates||={};table._filterStates[col]||=new Set(values);const allowed=table._filterStates[col],menu=document.createElement("div");menu.className="table-filter-menu";menu.innerHTML=`<div class="table-filter-menu-actions"><button data-a="all">全部勾選</button><button data-a="none">全部取消</button></div>`+values.map((v,n)=>`<label><input type="checkbox" data-n="${n}" ${allowed.has(v)?"checked":""}><span>${esc(v)}</span></label>`).join("");document.body.appendChild(menu);const r=event.currentTarget.getBoundingClientRect();menu.style.left=Math.min(r.left,innerWidth-menu.offsetWidth-12)+"px";menu.style.top=Math.min(r.bottom+6,innerHeight-menu.offsetHeight-12)+"px";menu.querySelectorAll("input").forEach(x=>x.onchange=()=>{const v=values[+x.dataset.n];x.checked?allowed.add(v):allowed.delete(v);applyTableFilters(table);event.currentTarget.classList.toggle("active",allowed.size<values.length)});menu.querySelector('[data-a="all"]').onclick=()=>{values.forEach(v=>allowed.add(v));menu.querySelectorAll("input").forEach(x=>x.checked=true);applyTableFilters(table);event.currentTarget.classList.remove("active")};menu.querySelector('[data-a="none"]').onclick=()=>{allowed.clear();menu.querySelectorAll("input").forEach(x=>x.checked=false);applyTableFilters(table);event.currentTarget.classList.add("active")};openTableMenu=menu}
       function sortTableColumn(event,table,col,button){event.preventDefault();event.stopPropagation();const direction=button.dataset.direction==="asc"?"desc":"asc";button.dataset.direction=direction;button.textContent=direction==="asc"?"↑":"↓";table.querySelectorAll(".table-sort-trigger").forEach(x=>{if(x!==button){x.dataset.direction="none";x.textContent="↕";x.classList.remove("active")}});button.classList.add("active");const rows=dataRows(table);rows.sort((a,b)=>{const av=(a.cells[col]?.textContent||"").trim(),bv=(b.cells[col]?.textContent||"").trim(),an=Number(av.replace(/,/g,"")),bn=Number(bv.replace(/,/g,""));const result=Number.isFinite(an)&&Number.isFinite(bn)?an-bn:av.localeCompare(bv,"zh-Hant",{numeric:true});return direction==="asc"?result:-result});const body=table.tBodies[0]||table;rows.forEach(row=>body.appendChild(row));applyTableFilters(table)}
       document.addEventListener("click",e=>{if(openTableMenu&&!openTableMenu.contains(e.target)&&!e.target.closest?.(".table-filter-trigger"))closeTableMenu()});
+      function setupEmbeddedArticleCards(){document.querySelectorAll("#article-body-content .embedded-article-card[data-article-id]").forEach(card=>{card.setAttribute("contenteditable","false");card.addEventListener("click",event=>{event.preventDefault();viewSingleArticle(card.dataset.articleId)})})}
       function renderMapCards() {
 
         document
