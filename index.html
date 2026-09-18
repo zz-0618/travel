@@ -1251,8 +1251,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
         $("floating-toc").classList.add("hidden");toggleTOC(false);hideRelatedArticles();
         const cards=`<div class="category-article-list">${pageItems.length?pageItems.map(articleCardHtml).join(""):"<div class='custom-card p-6 rounded'>目前尚無符合條件的文章。</div>"}</div>`+renderArticlePagination(list.length,currentArticlePage,cat);
-        c.innerHTML=cat==="all"?`<section id="featured-articles-section" class="featured-articles-section hidden"></section><h2 class="all-articles-title">所有文章</h2><div id="site-search-results">${cards}</div>`:tagBar(cat,base)+cards;
-        if(cat==="all")renderFeaturedArticles();
+        const showFeatured=cat==="all"&&currentArticlePage===1;
+        c.innerHTML=cat==="all"?`${showFeatured?'<section id="featured-articles-section" class="featured-articles-section hidden"></section>':''}<h2 class="all-articles-title">所有文章</h2><div id="site-search-results">${cards}</div>`:tagBar(cat,base)+cards;
+        if(showFeatured)renderFeaturedArticles();
         renderLatestArticles();renderPopularArticles();if(opt.scrollToList)c.scrollIntoView({behavior:"smooth",block:"start"})
       }
       function relatedSettingsKey(articleId) {
