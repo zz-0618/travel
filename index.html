@@ -802,6 +802,36 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .popular-articles-box a:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
       .travel-info-audience-value{line-height:1.65}
 
+
+      /* 精選卡片整張可點、旅遊資訊卡族群列、文內目錄、文末延伸閱讀 */
+      .featured-article-card{cursor:pointer}
+      .featured-article-card:focus-visible{outline:3px solid #8FA28A;outline-offset:3px}
+      .featured-article-title-text a,
+      .featured-article-title-text a:hover,
+      .featured-article-card:hover .featured-article-title-text a{color:inherit!important;text-decoration:none!important}
+      .travel-info-audience-row{grid-column:1/-1!important;display:grid!important;grid-template-columns:6.3rem minmax(0,1fr)!important;padding-right:0!important;padding-left:0!important;border-left:0!important}
+      .travel-info-audience-tags{display:flex;flex-wrap:wrap;gap:.45rem}
+      .travel-info-audience-tag{display:inline-flex;align-items:center;padding:.3rem .65rem;border:1px solid #d8c5b5;border-radius:9px;background:#fff;font-size:.82rem;line-height:1.4}
+      .inline-article-toc{margin:1.5rem 0;padding:1.2rem 1.3rem;background:var(--soft);border:1px solid var(--sand);border-radius:14px;box-shadow:0 3px 10px rgba(69,40,41,.05)}
+      .inline-article-toc-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.45rem;padding-bottom:.65rem;border-bottom:1px solid #ded0bf}
+      .inline-article-toc-title{font-weight:700;font-size:1.08rem}
+      .inline-article-toc-note{font-size:.75rem;color:#7b6a5b}
+      .inline-article-toc-list{margin:.85rem 0 0!important;padding-left:1.2rem!important}
+      .inline-article-toc-list li{margin:.38rem 0!important}
+      .inline-article-toc-list a{color:var(--ink)!important;text-decoration:none!important}
+      .inline-article-toc-list a:hover{color:var(--accent)!important;text-decoration:underline!important}
+      .article-related-section{max-width:760px;margin:2rem auto 0}
+      .article-related-title{margin:0 0 1rem;padding-bottom:.55rem;border-bottom:2px solid var(--sand);font-size:1.35rem;font-weight:700}
+      .article-related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}
+      .article-related-card{display:flex;min-width:0;overflow:hidden;background:var(--soft);border:1px solid var(--sand);border-radius:12px;box-shadow:0 3px 10px rgba(69,40,41,.06);color:var(--ink);text-decoration:none;transition:transform .2s ease,box-shadow .2s ease}
+      .article-related-card:hover{transform:translateY(-2px);box-shadow:0 7px 17px rgba(69,40,41,.09);color:var(--ink);text-decoration:none}
+      .article-related-image{flex:0 0 38%;width:38%;aspect-ratio:16/10;object-fit:cover;background:var(--sand)}
+      .article-related-image-placeholder{display:grid;place-items:center;color:rgba(69,40,41,.6)}
+      .article-related-body{display:flex;flex:1;min-width:0;flex-direction:column;justify-content:center;padding:.7rem .8rem}
+      .article-related-card-title{font-size:.92rem;font-weight:700;line-height:1.5}
+      .article-related-category{margin-top:.25rem;font-size:.72rem;color:#7b6a5b}
+      @media(max-width:767px){.travel-info-audience-row{grid-template-columns:5.7rem minmax(0,1fr)!important}.article-related-grid{grid-template-columns:1fr}.inline-article-toc{padding:1rem}.article-related-card-title{font-size:.9rem}}
+
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -1413,43 +1443,16 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         if (section) section.classList.add("hidden");
       }
       async function renderRelatedArticles(article) {
-        const section = $("related-articles-box"),
-          list = $("related-articles-list");
-        if (!section || !list || !article?.id) return;
-        let ids = [];
-        try {
-          const parsed = JSON.parse(settingsCache[relatedSettingsKey(article.id)] || "[]");
-          ids = Array.isArray(parsed) ? parsed.map(String).filter((id) => id !== String(article.id)) : [];
-        } catch {
-          ids = [];
-        }
-        if (!ids.length) {
-          list.innerHTML = "";
-          section.classList.add("hidden");
-          return;
-        }
-        const cached = new Map(allArticlesCache.map((item) => [String(item.id), item]));
-        const missingIds = ids.filter((id) => !cached.has(id));
-        if (missingIds.length) {
-          const { data, error } = await supabaseClient
-            .from("articles")
-            .select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url")
-            .in("id", missingIds);
-          if (error) console.error("延伸閱讀讀取失敗：", error);
-          (data || []).forEach((item) => {
-            cached.set(String(item.id), item);
-            if (!allArticlesCache.some((a) => String(a.id) === String(item.id))) allArticlesCache.push(item);
-          });
-        }
-        const related = ids.map((id) => cached.get(id)).filter(Boolean);
-        if (!related.length) {
-          list.innerHTML = "";
-          section.classList.add("hidden");
-          return;
-        }
-        list.innerHTML = related.map((a) =>
-          `<li><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="block"><span class="block font-semibold">${esc(a.title)}</span><span class="block text-xs opacity-60 mt-1">${formatArticleDate(a.created_at)}</span></a></li>`
-        ).join("");
+        const section=$("article-related-section"),grid=$("article-related-grid");
+        if(!section||!grid||!article?.id)return;
+        let ids=[];try{const parsed=JSON.parse(settingsCache[relatedSettingsKey(article.id)]||"[]");ids=Array.isArray(parsed)?parsed.map(String).filter(id=>id!==String(article.id)):[]}catch{ids=[]}
+        if(!ids.length){grid.innerHTML="";section.classList.add("hidden");return}
+        const cached=new Map(allArticlesCache.map(item=>[String(item.id),item]));
+        const missingIds=ids.filter(id=>!cached.has(id));
+        if(missingIds.length){const {data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").in("id",missingIds);if(error)console.error("延伸閱讀讀取失敗：",error);(data||[]).forEach(item=>{cached.set(String(item.id),item);if(!allArticlesCache.some(a=>String(a.id)===String(item.id)))allArticlesCache.push(item)})}
+        const related=ids.map(id=>cached.get(id)).filter(Boolean);
+        if(!related.length){grid.innerHTML="";section.classList.add("hidden");return}
+        grid.innerHTML=related.map(a=>`<a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-related-card">${a.cover_image_url?`<img class="article-related-image" src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<span class="article-related-image article-related-image-placeholder">Travel</span>`}<span class="article-related-body"><span class="article-related-card-title">${esc(a.title)}</span><span class="article-related-category">${esc(a.category||"")}${a.subcategory?" · "+esc(a.subcategory):""}</span></span></a>`).join("");
         section.classList.remove("hidden");
       }
       function defaultInternalLinks(){
@@ -1491,7 +1494,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const box=$("featured-articles-section");if(!box)return;
         const items=articlesBySavedOrder("featured_articles",5);
         if(!items.length){box.innerHTML="";box.classList.add("hidden");return}
-        box.innerHTML=`<h2 class="featured-articles-title">精選推薦</h2><div class="featured-articles-grid">${items.map(a=>`<article class="featured-article-card"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="featured-article-image" loading="lazy" decoding="async">`:`<div class="featured-article-image article-list-cover-placeholder">Travel</div>`}</a><div class="featured-article-body"><div class="featured-article-label">EDITOR'S PICK</div><h3 class="featured-article-title-text"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h3><p class="line-clamp-2 mt-2 text-sm opacity-75">${esc(a.excerpt||"")}</p></div></article>`).join("")}</div>`;
+        box.innerHTML=`<h2 class="featured-articles-title">精選推薦</h2><div class="featured-articles-grid">${items.map(a=>`<article class="featured-article-card" role="link" tabindex="0" aria-label="閱讀精選文章：${esc(a.title)}" onclick="openArticleCard(event,'${a.id}')" onkeydown="handleArticleCardKey(event,'${a.id}')"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="featured-article-image" loading="lazy" decoding="async">`:`<div class="featured-article-image article-list-cover-placeholder">Travel</div>`}</a><div class="featured-article-body"><div class="featured-article-label">EDITOR'S PICK</div><h3 class="featured-article-title-text"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h3><p class="line-clamp-2 mt-2 text-sm opacity-75">${esc(a.excerpt||"")}</p></div></article>`).join("")}</div>`;
         box.classList.remove("hidden");
       }
       function renderPopularArticles(){
@@ -1564,7 +1567,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const info=getArticleTravelInfo(article);if(!info.enabled)return"";
         const rows=[["景點名稱",info.name],["類型",info.type],["所在地",info.location],["造訪日期",formatVisitMonth(info.visitDate)],["停留時間",formatStayDuration(info.stayDuration)],["交通方式",info.transportation],["價格",info.price],["推薦程度",travelRatingText(info.rating),"rating"]].filter(row=>row[1]);
         const items=rows.map(([label,value,kind])=>`<div class="travel-info-item"><span class="travel-info-label">${esc(label)}</span><span class="travel-info-value ${kind==="rating"?"travel-info-rating":""}">${esc(value)}</span></div>`).join("");
-        const audience=info.audience.length?`<div class="travel-info-item"><span class="travel-info-label">適合族群</span><span class="travel-info-value travel-info-audience-value">${info.audience.map(esc).join("、")}</span></div>`:"";
+        const audience=info.audience.length?`<div class="travel-info-item travel-info-audience-row"><span class="travel-info-label">適合族群</span><span class="travel-info-value travel-info-audience-tags">${info.audience.map(x=>`<span class="travel-info-audience-tag">${esc(x)}</span>`).join("")}</span></div>`:"";
         const highlight=info.highlight?`<div class="travel-info-highlight"><span class="travel-info-highlight-title">✨ 一句特色</span>${esc(info.highlight)}</div>`:"";
         const experience=info.personalExperience?`<section class="travel-experience-card"><h2 class="travel-experience-heading">🍃 一葉知途實訪心得</h2><div class="travel-experience-content">${esc(info.personalExperience)}</div></section>`:"";
         return `<div class="travel-info-wrap"><section class="travel-info-card" aria-labelledby="travel-info-title"><h2 id="travel-info-title" class="travel-info-heading">📍 旅遊資訊</h2><div class="travel-info-grid">${items}${audience}</div>${highlight}</section>${experience}</div>`;
@@ -1596,7 +1599,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
         }).format(new Date(v)) : "";
         preloadImage("article-cover-preload", "");
-        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div>${travelInfoHtml(a)}<div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div></article>`;
+        $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div>${travelInfoHtml(a)}<div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div><section id="article-related-section" class="article-related-section hidden" aria-labelledby="article-related-title"><h2 id="article-related-title" class="article-related-title">延伸閱讀</h2><div id="article-related-grid" class="article-related-grid"></div></section></article>`;
         generateArticleTOC();
         renderMapCards();
         setupFrontendInteractiveTables();
@@ -1891,17 +1894,17 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       function scrollToArticleHeading(event,id){event.preventDefault();event.stopPropagation();const t=document.getElementById(id);if(!t)return;toggleTOC(false);requestAnimationFrame(()=>t.scrollIntoView({behavior:"smooth",block:"start"}))}
       function generateArticleTOC() {
-        const hs = document.querySelectorAll(
-          "#article-body-content h1,#article-body-content h2,#article-body-content h3,#article-body-content h4",
-        );
-        $("table-of-contents").innerHTML = hs.length
-          ? [...hs]
-              .map((h, i) => {
-                h.id = h.id || "heading-" + i;
-                return `<li style="padding-left:${(Number(h.tagName[1]) - 1) * 12}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')" class="block">• ${esc(h.innerText)}</a></li>`;
-              })
-              .join("")
-          : "<li>此文章無段落標題</li>";
+        const body=$("article-body-content");if(!body)return;
+        body.querySelector(".inline-article-toc")?.remove();
+        const headings=[...body.querySelectorAll("h1,h2,h3,h4")];
+        headings.forEach((h,i)=>h.id=h.id||"heading-"+i);
+        const listHtml=headings.length?headings.map(h=>`<li style="margin-left:${Math.max(0,(Number(h.tagName[1])-3)*12)}px"><a href="#${h.id}" onclick="scrollToArticleHeading(event,'${h.id}')">${esc(h.innerText)}</a></li>`).join(""):"<li>此文章無段落標題</li>";
+        $("table-of-contents").innerHTML=listHtml;
+        const firstH3=body.querySelector("h3");
+        if(!firstH3||!headings.length)return;
+        const nav=document.createElement("nav");nav.className="inline-article-toc";nav.setAttribute("aria-label","本篇文章目錄");
+        nav.innerHTML=`<div class="inline-article-toc-head"><span class="inline-article-toc-title">📂 本篇目錄</span><span class="inline-article-toc-note">右上角 ≡ 打開也可以看到</span></div><ol class="inline-article-toc-list">${listHtml}</ol>`;
+        firstH3.parentNode.insertBefore(nav,firstH3);
       }
       function localDateString() {
         const p = new Intl.DateTimeFormat("en-CA", {

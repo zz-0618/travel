@@ -116,6 +116,10 @@
       .travel-info-audience label{margin:0!important;padding:.2rem .1rem}
       .article-tags{display:flex;flex-wrap:wrap;gap:.55rem}
 
+
+      .travel-duration-control{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:.55rem}
+      .travel-duration-control input,.travel-duration-control select{width:100%}
+
 </style>
   </head>
   <body class="min-h-screen">
@@ -448,7 +452,7 @@
                   <div class="travel-info-field"><label for="new-travel-info-type">類型</label><select id="new-travel-info-type"><option value="">請選擇</option><option value="景點">景點</option><option value="餐廳">餐廳</option><option value="咖啡廳">咖啡廳</option><option value="住宿">住宿</option><option value="購物">購物</option><option value="展覽">展覽</option><option value="其他">其他</option></select></div>
                   <div class="travel-info-field"><label for="new-travel-info-location">所在地</label><input id="new-travel-info-location" type="text" placeholder="韓國・釜山"></div>
                   <div class="travel-info-field"><label for="new-travel-info-visit-date">實際造訪日期</label><input id="new-travel-info-visit-date" type="month"></div>
-                  <div class="travel-info-field"><label for="new-travel-info-stay-duration">停留時間</label><input id="new-travel-info-stay-duration" type="text" placeholder="1小時"></div>
+                  <div class="travel-info-field"><label for="new-travel-info-stay-duration">停留時間</label><div class="travel-duration-control"><input id="new-travel-info-stay-duration" type="number" min="0" step="0.5" inputmode="decimal" placeholder="例如 1"><select id="new-travel-info-stay-unit" aria-label="停留時間單位"><option value="小時">小時</option><option value="分鐘">分鐘</option></select></div></div>
                   <div class="travel-info-field"><label for="new-travel-info-transportation">交通方式</label><input id="new-travel-info-transportation" type="text" placeholder="公車＋步行"></div>
                   <div class="travel-info-field"><label for="new-travel-info-price">價格資訊</label><input id="new-travel-info-price" type="text" placeholder="免費"></div>
                   <div class="travel-info-field"><label for="new-travel-info-rating">推薦程度</label><select id="new-travel-info-rating"><option value="">請選擇</option><option value="5">5</option><option value="4.5">4.5</option><option value="4">4</option><option value="3.5">3.5</option><option value="3">3</option></select></div>
@@ -479,7 +483,7 @@
                   <div class="travel-info-field"><label for="draft-edit-travel-info-type">類型</label><select id="draft-edit-travel-info-type"><option value="">請選擇</option><option value="景點">景點</option><option value="餐廳">餐廳</option><option value="咖啡廳">咖啡廳</option><option value="住宿">住宿</option><option value="購物">購物</option><option value="展覽">展覽</option><option value="其他">其他</option></select></div>
                   <div class="travel-info-field"><label for="draft-edit-travel-info-location">所在地</label><input id="draft-edit-travel-info-location" type="text" placeholder="韓國・釜山"></div>
                   <div class="travel-info-field"><label for="draft-edit-travel-info-visit-date">實際造訪日期</label><input id="draft-edit-travel-info-visit-date" type="month"></div>
-                  <div class="travel-info-field"><label for="draft-edit-travel-info-stay-duration">停留時間</label><input id="draft-edit-travel-info-stay-duration" type="text" placeholder="1小時"></div>
+                  <div class="travel-info-field"><label for="draft-edit-travel-info-stay-duration">停留時間</label><div class="travel-duration-control"><input id="draft-edit-travel-info-stay-duration" type="number" min="0" step="0.5" inputmode="decimal" placeholder="例如 1"><select id="draft-edit-travel-info-stay-unit" aria-label="停留時間單位"><option value="小時">小時</option><option value="分鐘">分鐘</option></select></div></div>
                   <div class="travel-info-field"><label for="draft-edit-travel-info-transportation">交通方式</label><input id="draft-edit-travel-info-transportation" type="text" placeholder="公車＋步行"></div>
                   <div class="travel-info-field"><label for="draft-edit-travel-info-price">價格資訊</label><input id="draft-edit-travel-info-price" type="text" placeholder="免費"></div>
                   <div class="travel-info-field"><label for="draft-edit-travel-info-rating">推薦程度</label><select id="draft-edit-travel-info-rating"><option value="">請選擇</option><option value="5">5</option><option value="4.5">4.5</option><option value="4">4</option><option value="3.5">3.5</option><option value="3">3</option></select></div>
@@ -535,7 +539,7 @@
                   <div class="travel-info-field"><label for="edit-travel-info-type">類型</label><select id="edit-travel-info-type"><option value="">請選擇</option><option value="景點">景點</option><option value="餐廳">餐廳</option><option value="咖啡廳">咖啡廳</option><option value="住宿">住宿</option><option value="購物">購物</option><option value="展覽">展覽</option><option value="其他">其他</option></select></div>
                   <div class="travel-info-field"><label for="edit-travel-info-location">所在地</label><input id="edit-travel-info-location" type="text" placeholder="韓國・釜山"></div>
                   <div class="travel-info-field"><label for="edit-travel-info-visit-date">實際造訪日期</label><input id="edit-travel-info-visit-date" type="month"></div>
-                  <div class="travel-info-field"><label for="edit-travel-info-stay-duration">停留時間</label><input id="edit-travel-info-stay-duration" type="text" placeholder="1小時"></div>
+                  <div class="travel-info-field"><label for="edit-travel-info-stay-duration">停留時間</label><div class="travel-duration-control"><input id="edit-travel-info-stay-duration" type="number" min="0" step="0.5" inputmode="decimal" placeholder="例如 1"><select id="edit-travel-info-stay-unit" aria-label="停留時間單位"><option value="小時">小時</option><option value="分鐘">分鐘</option></select></div></div>
                   <div class="travel-info-field"><label for="edit-travel-info-transportation">交通方式</label><input id="edit-travel-info-transportation" type="text" placeholder="公車＋步行"></div>
                   <div class="travel-info-field"><label for="edit-travel-info-price">價格資訊</label><input id="edit-travel-info-price" type="text" placeholder="免費"></div>
                   <div class="travel-info-field"><label for="edit-travel-info-rating">推薦程度</label><select id="edit-travel-info-rating"><option value="">請選擇</option><option value="5">5</option><option value="4.5">4.5</option><option value="4">4</option><option value="3.5">3.5</option><option value="3">3</option></select></div>
@@ -1391,12 +1395,12 @@
       function toggleTravelInfoFields(prefix){const enabled=$(prefix+"-travel-info-enabled")?.checked===true;const fields=$(prefix+"-travel-info-fields");if(fields)fields.hidden=!enabled}
       function readTravelInfoForm(prefix){
         const value=id=>$(prefix+"-travel-info-"+id)?.value.trim()||"";
-        return normalizeTravelInfo({enabled:$(prefix+"-travel-info-enabled")?.checked===true,name:value("name"),type:value("type"),location:value("location"),visitDate:value("visit-date"),stayDuration:value("stay-duration"),transportation:value("transportation"),price:value("price"),rating:value("rating"),audience:[...document.querySelectorAll(`input[name="${prefix}-travel-info-audience"]:checked`)].map(x=>x.value),highlight:value("highlight"),personalExperience:value("personal-experience")});
+        return normalizeTravelInfo({enabled:$(prefix+"-travel-info-enabled")?.checked===true,name:value("name"),type:value("type"),location:value("location"),visitDate:value("visit-date"),stayDuration:(()=>{const amount=value("stay-duration"),unit=$(prefix+"-travel-info-stay-unit")?.value||"小時";return amount?amount+unit:""})(),transportation:value("transportation"),price:value("price"),rating:value("rating"),audience:[...document.querySelectorAll(`input[name="${prefix}-travel-info-audience"]:checked`)].map(x=>x.value),highlight:value("highlight"),personalExperience:value("personal-experience")});
       }
       function fillTravelInfoForm(prefix,raw){
         const info=normalizeTravelInfo(raw),set=(id,value)=>{const node=$(prefix+"-travel-info-"+id);if(node)node.value=value||""};
         const enabled=$(prefix+"-travel-info-enabled");if(enabled)enabled.checked=info.enabled;
-        set("name",info.name);set("type",info.type);set("location",info.location);set("visit-date",info.visitDate);set("stay-duration",info.stayDuration);set("transportation",info.transportation);set("price",info.price);set("rating",info.rating);set("highlight",info.highlight);set("personal-experience",info.personalExperience);
+        set("name",info.name);set("type",info.type);set("location",info.location);set("visit-date",info.visitDate);const durationMatch=String(info.stayDuration||"").match(/^([0-9]+(?:\.[0-9]+)?)\s*(小時|分鐘)?$/);set("stay-duration",durationMatch?durationMatch[1]:info.stayDuration);const stayUnit=$(prefix+"-travel-info-stay-unit");if(stayUnit)stayUnit.value=durationMatch?.[2]||"小時";set("transportation",info.transportation);set("price",info.price);set("rating",info.rating);set("highlight",info.highlight);set("personal-experience",info.personalExperience);
         document.querySelectorAll(`input[name="${prefix}-travel-info-audience"]`).forEach(box=>box.checked=info.audience.includes(box.value));toggleTravelInfoFields(prefix);
       }
       function validateTravelInfo(info){if(!info.enabled)return info;if(!info.name)throw new Error("啟用旅遊資訊卡時，請填寫景點名稱");if(!info.type)throw new Error("啟用旅遊資訊卡時，請選擇類型");return info}
