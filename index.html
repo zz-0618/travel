@@ -489,7 +489,13 @@
       .journey-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
       .journey-column { min-width: 0; }
       .journey-related-links { margin-top: .65rem; display: flex; flex-direction: column; gap: .3rem; font-size: .9rem; }
-      .journey-related-links a { color: var(--accent) !important; text-decoration: underline; overflow-wrap: anywhere; }
+      .journey-related-links a { color: var(--ink) !important; text-decoration: none; overflow-wrap: anywhere; transition:color .2s ease; }
+      .journey-related-links a:hover { color: var(--accent) !important; text-decoration: underline; text-underline-offset: 3px; }
+      .about-page-profile{display:grid;grid-template-columns:120px minmax(0,1fr);gap:1.5rem;align-items:start;margin:1.5rem 0 2rem;padding:1.5rem;background:var(--soft);border:1px solid var(--sand);border-radius:16px;box-shadow:0 3px 12px rgba(78,34,15,.06)}
+      .about-page-avatar{width:120px;height:120px;object-fit:cover;border-radius:50%;border:3px solid var(--sand);background:var(--card)}
+      .about-page-nickname{font-size:1.6rem;font-weight:700;line-height:1.5}
+      .about-page-intro{margin-top:.8rem;line-height:1.9;white-space:pre-line;overflow-wrap:anywhere}
+      @media(max-width:600px){.about-page-profile{grid-template-columns:1fr;text-align:center}.about-page-avatar{margin:0 auto}.about-page-intro{text-align:left}}
       .faq-block { margin: 2rem 0; font-family:"Noto Serif TC", serif; }
       .faq-block-title { font-size: 1.75rem; font-weight: 700; padding-bottom: .75rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--sand); position: relative; }
       .faq-block-title::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 32%; height: 2px; background: var(--accent); }
@@ -642,7 +648,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .category-article-list .article-list-image-link,.category-article-list .article-list-cover{border-radius:10px}
 
       /* 內文插入文章卡片 */
-      .embedded-article-card{display:flex;width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;background:#F9F6F0;border:1px solid #C9B59C;border-radius:14px;box-shadow:0 3px 12px rgba(78,34,15,.08);color:var(--ink)!important;text-decoration:none!important}
+      .embedded-article-card{display:flex;width:100%;max-width:100%;margin:1.5rem 0;overflow:hidden;background:#F9F6F0;border:1px solid #C9B59C;border-radius:14px;box-shadow:0 3px 12px rgba(78,34,15,.08);color:var(--ink)!important;text-decoration:none!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+      #article-body-content .embedded-article-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(69,40,41,.1);border-color:#C9B59C;color:var(--ink)!important;text-decoration:none!important}
+      #article-body-content .embedded-article-card *,#article-body-content .embedded-article-card:hover *{text-decoration:none!important}
       .embedded-article-card-image{flex:0 0 34%;width:34%;aspect-ratio:16/9;object-fit:cover;background:#C9B59C}
       .embedded-article-card-body{flex:1;min-width:0;padding:.9rem 1rem;display:flex;flex-direction:column;justify-content:center}
       .embedded-article-card-title{font-size:1.05rem;font-weight:700;line-height:1.5;color:var(--ink)!important}
@@ -901,6 +909,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             <h3 id="internal-links-title" class="korea-trip-title"></h3>
             <div id="internal-links-grid" class="korea-trip-grid"></div>
           </section>
+          <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list"></div></section>
           <section id="popular-articles-box" class="popular-articles-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="popular-articles-title">
             <h3 id="popular-articles-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">熱門文章</h3>
             <ol id="popular-articles-list" class="space-y-3 text-sm"></ol>
@@ -928,7 +937,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
               延伸閱讀
             </h3>
             <ol id="related-articles-list" class="space-y-3 text-sm"></ol>
-          </section><section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list"></div></section>
+          </section>
         </aside>
       </main>
     </div>
@@ -1748,15 +1757,16 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           p
             .map((x) => {
               const ch = categoriesCache.filter((c) => c.parent_id === x.id);
+              const displayName = x.name === "我的旅途" ? "關於我" : x.name;
               return ch.length
-                ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
-                : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(x.name)}</a></li>`;
+                ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(displayName)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
+                : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(displayName)}</a></li>`;
             })
             .join("") + navSearchHtml();
         setupSiteSearch();
       }
       function openCategory(name) {
-        name === "我的旅途" ? viewJourney() : filterCategory(name);
+        (name === "我的旅途" || name === "關於我") ? viewJourney() : filterCategory(name);
       }
       function breadcrumbLink(name) {
         return `<a href="${categoryPath(name)}" onclick="event.preventDefault();filterCategory('${jsq(name)}')" class="hover:underline">${esc(name)}</a>`;
@@ -1812,6 +1822,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         preloadImage("article-cover-preload", "");
         $("main-content-area").innerHTML = `<div class="mb-5 flex items-center justify-between gap-4"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</button><button onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button></div><nav class="mb-4 text-sm article-meta-muted"><a href="/" onclick="event.preventDefault();goHome()" class="hover:underline">首頁</a> › ${breadcrumbLink(a.category)}${a.subcategory ? " › " + breadcrumbLink(a.subcategory) : ""} › <span aria-current="page">${esc(a.title)}</span></nav><article><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${esc(a.title)}</h1><div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4"><span>最初撰寫：${f(a.created_at)}</span><span>最後更新：${f(a.updated_at)}</span><span class="article-tags">${getArticleTags(a).map(t=>`<span class="article-tag">#${esc(t)}</span>`).join("")}</span></div>${travelInfoHtml(a)}<div id="article-body-content" class="article-content-style pt-6">${a.content || ""}</div><section id="article-related-section" class="article-related-section hidden" aria-labelledby="article-related-title"><h2 id="article-related-title" class="article-related-title">延伸閱讀</h2><div id="article-related-grid" class="article-related-grid"></div></section></article>`;
         generateArticleTOC();
+        setupEmbeddedArticleCards();
         renderMapCards();
         setupFrontendInteractiveTables();
         await renderRelatedArticles(a);
@@ -1838,7 +1849,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const cat = categoriesCache.find((c) =>
           decodeURIComponent(categoryPath(c.name)).toLowerCase() === ("/" + parts.join("/")).toLowerCase()
         );
-        if (cat) return cat.name === "我的旅途"
+        if (cat) return (cat.name === "我的旅途" || cat.name === "關於我")
           ? viewJourney({ updateHistory: false })
           : fetchArticles(cat.name);
         showNotFound();
@@ -1874,10 +1885,10 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         taiwan.classList.toggle("journey-column-mobile-hidden", type !== "taiwan");
       }
       function viewJourney(opt = {}) {
-        const cat = categoryByName("我的旅途");
+        const cat = categoryByName("我的旅途") || categoryByName("關於我");
         if (opt.updateHistory !== false && cat)
           safePushState({ journey: true }, categoryPath(cat.name));
-        document.title = "我的旅途｜一葉知途 的旅遊部落格";
+        document.title = "關於我｜一葉知途 的旅遊部落格";
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
@@ -1888,7 +1899,10 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           const mobileClass = type === "taiwan" ? " journey-column-mobile-hidden" : "";
           return `<section id="journey-column-${type}" class="journey-column custom-card p-5 rounded-xl${mobileClass}"><h2 class="text-2xl font-bold border-b border-[#C9B59C] pb-2 mb-4">${title}</h2><div class="journey-timeline">${list.length ? list.map((x) => `<article class="journey-item"><div class="journey-period">${formatMonth(x.start)}${x.end ? " ～ " + formatMonth(x.end) : ""}</div><div class="journey-name">${esc(x.name)}</div>${renderJourneyRelatedLinks(x)}</article>`).join("") : '<div class="p-4 opacity-60">目前尚無旅途紀錄。</div>'}</div></section>`;
         };
-        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">我的旅途</h1><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="abroad" selected>國外 Abroad</option><option value="taiwan">臺灣 Taiwan</option></select></div><div class="journey-columns">${renderGroup("abroad", "國外 Abroad")}${renderGroup("taiwan", "臺灣 Taiwan")}</div></section>`;
+        const avatarUrl = settingsCache.avatar || "";
+        const nickname = settingsCache.nickname || "一葉知途";
+        const fullIntro = settingsCache.full_intro || settingsCache.bio || "一個隨筆紀錄的人";
+        $("main-content-area").innerHTML = `<section><div class="mb-5"><button onclick="goHome()" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回首頁</button></div><h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">關於我</h1><section class="about-page-profile" aria-labelledby="about-page-nickname">${avatarUrl ? `<img class="about-page-avatar" src="${esc(avatarUrl)}" alt="${esc(nickname)}的頭像" width="120" height="120">` : `<div class="about-page-avatar" aria-hidden="true"></div>`}<div><h2 id="about-page-nickname" class="about-page-nickname">${esc(nickname)}</h2><div class="about-page-intro">${esc(fullIntro)}</div></div></section><section aria-labelledby="my-journey-title"><h2 id="my-journey-title" class="text-3xl font-bold leading-[1.5]">我的旅途</h2><p class="mt-2 opacity-75 mb-6">走過的地方與留下的旅程紀錄</p><div class="journey-mobile-filter mb-5"><label for="journey-mobile-select" class="block font-semibold mb-2">選擇旅遊分類</label><select id="journey-mobile-select" onchange="setJourneyMobileType(this.value)" class="w-full border border-[#C9B59C] bg-white p-3 rounded-lg"><option value="abroad" selected>國外 Abroad</option><option value="taiwan">臺灣 Taiwan</option></select></div><div class="journey-columns">${renderGroup("abroad", "國外 Abroad")}${renderGroup("taiwan", "臺灣 Taiwan")}</div></section></section>`;
         renderLatestArticles();
         scrollTo({ top: 0 });
       }

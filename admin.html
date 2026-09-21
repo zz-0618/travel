@@ -233,6 +233,7 @@
             <h2 class="admin-nav-heading">側邊欄</h2>
             <button onclick="switchAdminTab('internal-links')" id="tab-internal-links-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 內部連結</button>
             <button onclick="switchAdminTab('popular')" id="tab-popular-btn" class="w-full text-left px-4 py-3 rounded-lg">🔥 熱門文章</button>
+            <button onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🌐 社群平台</button>
           </section>
           <section class="admin-nav-group">
             <h2 class="admin-nav-heading">文章</h2>
@@ -283,11 +284,21 @@
                 placeholder="一個隨筆紀錄的人"
               ></textarea>
             </div>
+            <div>
+              <label class="block font-semibold mb-1" for="admin-full-intro">完整介紹</label>
+              <textarea
+                id="admin-full-intro"
+                class="w-full border p-3 rounded min-h-56"
+                maxlength="5000"
+                placeholder="請輸入顯示在前台「關於我」頁面的完整介紹，可使用換行分段。"
+              ></textarea>
+              <p class="mt-2 text-xs opacity-70">此內容會顯示於「關於我」頁面的頭像與暱稱下方。</p>
+            </div>
             <button
               onclick="saveProfileSettings()"
               class="text-white px-6 py-2 rounded-lg bg-[#C9B59C]"
             >
-              儲存暱稱與簡介
+              儲存帳號資料與完整介紹
             </button>
           </div>
           <div id="admin-tab-logo" class="admin-tab-content space-y-4 hidden">
@@ -408,6 +419,22 @@
               <button type="button" onclick="addInternalLinkItem()" class="px-5 py-2 rounded-lg">新增連結</button>
               <button type="button" onclick="saveInternalLinks()" class="px-6 py-2 rounded-lg">儲存內部連結</button>
             </div>
+          </div>
+          <div id="admin-tab-social" class="admin-tab-content space-y-5 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">社群平台管理</h2>
+            <p class="text-sm opacity-70">設定完成後，會顯示在前台側邊欄分類區塊下方。平台名稱與連結都可以隨時修改，也可以新增、刪除多個平台。</p>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-[1fr_2fr_auto] gap-3 items-end">
+              <div>
+                <label class="block font-semibold mb-1" for="social-platform-name">平台名稱</label>
+                <input id="social-platform-name" class="w-full border p-2 rounded bg-white" maxlength="80" placeholder="例如：Instagram">
+              </div>
+              <div>
+                <label class="block font-semibold mb-1" for="social-platform-url">平台連結</label>
+                <input id="social-platform-url" type="url" class="w-full border p-2 rounded bg-white" placeholder="https://..."></div>
+              <button type="button" onclick="addSocialPlatform()" class="px-5 py-2 rounded-lg">新增平台</button>
+            </div>
+            <div id="admin-social-platforms-list" class="space-y-3"></div>
+            <button type="button" onclick="saveSocialPlatforms()" class="px-6 py-2 rounded-lg">儲存社群平台</button>
           </div>
           <div id="admin-tab-popular" class="admin-tab-content space-y-5 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">熱門文章管理</h2>
@@ -1904,6 +1931,8 @@
           $("admin-nickname").value = settingsCache.nickname || "zz";
         if ($("admin-bio"))
           $("admin-bio").value = settingsCache.bio || "一個隨筆紀錄的人";
+        if ($("admin-full-intro"))
+          $("admin-full-intro").value = settingsCache.full_intro || "";
         if ($("announcement-enabled"))
           $("announcement-enabled").checked =
             settingsCache.announcement_enabled === "true";
@@ -1922,10 +1951,11 @@
 
       async function saveProfileSettings() {
         const nickname = $("admin-nickname").value.trim(),
-          bio = $("admin-bio").value.trim();
+          bio = $("admin-bio").value.trim(),
+          full_intro = $("admin-full-intro").value.trim();
         if (!nickname) return alert("暱稱不可空白");
         try {
-          await upsertSettings({ nickname, bio });
+          await upsertSettings({ nickname, bio, full_intro });
           alert("帳號資料已更新");
         } catch (e) {
           alert("更新失敗：" + e.message);
@@ -2110,6 +2140,7 @@
           "featured",
           "popular",
           "internal-links",
+          "social",
           "journey",
         ].forEach((t) => {
           const panel = $("admin-tab-" + t);
@@ -2123,6 +2154,7 @@
         if (n === "featured") renderRecommendationManager("featured");
         if (n === "popular") renderRecommendationManager("popular");
         if (n === "internal-links") loadInternalLinksEditor();
+        if (n === "social") loadSocialPlatformsEditor();
         if (n === "journey") renderJourneyAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
       }
