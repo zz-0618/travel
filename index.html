@@ -25,6 +25,13 @@
     <meta property="og:site_name" content="一葉知途">
 
     <meta property="og:image" content="">
+    <meta property="og:image:secure_url" content="">
+    <meta property="og:image:alt" content="一葉知途文章封面">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="一葉知途｜韓國自由行攻略">
+    <meta name="twitter:description" content="一葉知途分享韓國自由行攻略，包含濟州島及釜山的美食、交通、住宿與旅遊心得。">
+    <meta name="twitter:image" content="">
 
     <script
       id="structured-data"
@@ -854,6 +861,16 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       .toc-level-4 .toc-number{width:4em;}
       .toc-level-4{padding-left:2em;}
   
+
+      .discount-codes-box,.discount-codes-box *{font-family:"Noto Serif TC","Source Han Serif TC","思源宋體",serif!important;box-sizing:border-box}
+      .discount-codes-box{background:var(--soft);border:1px solid var(--sand);color:var(--ink)}
+      .discount-code-list{display:flex;flex-direction:column;gap:.7rem}
+      button.discount-code-card{display:grid!important;grid-template-columns:58px minmax(0,1fr);gap:.8rem;align-items:center;width:100%;padding:.7rem!important;border:0!important;border-radius:12px!important;color:#fff!important;text-align:left;cursor:pointer;box-shadow:0 3px 10px rgba(69,40,41,.12);transition:transform .2s ease,box-shadow .2s ease}
+      button.discount-code-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(69,40,41,.18)}
+      .discount-code-logo{display:block;width:58px;height:58px;border-radius:10px;object-fit:cover;background:#fff}
+      .discount-code-content{min-width:0}.discount-code-value{display:block;color:#fff!important;font-size:1.15rem;font-weight:700;line-height:1.35;overflow-wrap:anywhere}.discount-code-expiry{display:block;margin-top:.2rem;color:rgba(255,255,255,.9)!important;font-size:.72rem;line-height:1.45}
+      .discount-code-note{margin-top:.75rem;font-size:.72rem;line-height:1.5;color:#7b6a5b;text-align:center}
+      .discount-copy-toast{position:fixed;left:50%;bottom:2rem;z-index:150;transform:translate(-50%,12px);padding:.65rem 1rem;border-radius:999px;background:#452829;color:#fff;font-family:"Noto Serif TC","Source Han Serif TC","思源宋體",serif;opacity:0;pointer-events:none;transition:.2s ease}.discount-copy-toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -909,7 +926,6 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             <h3 id="internal-links-title" class="korea-trip-title"></h3>
             <div id="internal-links-grid" class="korea-trip-grid"></div>
           </section>
-          <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list"></div></section>
           <section id="popular-articles-box" class="popular-articles-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="popular-articles-title">
             <h3 id="popular-articles-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">熱門文章</h3>
             <ol id="popular-articles-list" class="space-y-3 text-sm"></ol>
@@ -925,6 +941,13 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             </h3>
             <ol id="latest-articles-list" class="space-y-3 text-sm"></ol>
           </section>
+          <section id="discount-codes-box" class="discount-codes-box hidden p-5 rounded-xl shadow-sm" aria-labelledby="discount-codes-title">
+            <h3 id="discount-codes-title" class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">折扣碼專區</h3>
+            <div id="discount-codes-list" class="discount-code-list"></div>
+            <p class="discount-code-note">點選該折扣碼即可複製</p>
+          </section>
+          <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list"></div></section>
+
           <section
             id="related-articles-box"
             class="related-articles-box hidden p-5 rounded-xl shadow-sm"
@@ -1149,6 +1172,13 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         return safePath(parts);
       }
 
+      function setMeta(selector,value){const node=document.querySelector(selector);if(node)node.setAttribute("content",String(value||""))}
+      function updateOpenGraph(article=null){
+        const defaultTitle="一葉知途｜韓國自由行攻略",defaultDescription="一葉知途分享韓國自由行攻略，包含濟州島及釜山的美食、交通、住宿與旅遊心得。";
+        if(!article){setMeta('meta[property="og:type"]',"website");setMeta('meta[property="og:title"]',defaultTitle);setMeta('meta[property="og:description"]',defaultDescription);setMeta('meta[property="og:image"]',settingsCache.logo||"");setMeta('meta[property="og:image:secure_url"]',settingsCache.logo||"");setMeta('meta[property="og:url"]',location.href);setMeta('meta[name="twitter:title"]',defaultTitle);setMeta('meta[name="twitter:description"]',defaultDescription);setMeta('meta[name="twitter:image"]',settingsCache.logo||"");return}
+        const box=document.createElement("div");box.innerHTML=article.content||"";const description=String(article.excerpt||(box.textContent||"").replace(/\s+/g," ").trim()).slice(0,160);const image=article.cover_image_url||settingsCache.logo||"";
+        setMeta('meta[property="og:type"]',"article");setMeta('meta[property="og:title"]',article.title);setMeta('meta[property="og:description"]',description);setMeta('meta[property="og:image"]',image);setMeta('meta[property="og:image:secure_url"]',image);setMeta('meta[property="og:image:alt"]',article.title+"文章封面");setMeta('meta[property="og:url"]',location.href);setMeta('meta[name="twitter:title"]',article.title);setMeta('meta[name="twitter:description"]',description);setMeta('meta[name="twitter:image"]',image);
+      }
       function buildBreadcrumbSchema(article) {
 
         const items = [
@@ -1708,6 +1738,11 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         section.classList.remove("hidden");
       }
       function renderSocialPlatforms(){const s=$("social-platforms-box"),b=$("social-platforms-list");if(!s||!b)return;let v=[];try{v=JSON.parse(settingsCache.social_links||"[]")}catch{}if(!v.length){s.classList.add("hidden");return}b.innerHTML=v.map(x=>`<a class="social-platform-link" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.name)}</a>`).join("");s.classList.remove("hidden")}
+      const COUPON_PLATFORM_STYLE={KLOOK:{color:"#ff5b00",logo:"/assets/klook.png"},KKDAY:{color:"#26BEC9",logo:"/assets/kkday.png"},TRIP:{color:"#287DFA",logo:"/assets/trip.png"}};
+      function getDiscountCodes(){try{const value=JSON.parse(settingsCache.discount_codes||"[]");return Array.isArray(value)?value.filter(x=>x&&COUPON_PLATFORM_STYLE[x.platform]&&String(x.code||"").trim()):[]}catch{return[]}}
+      function renderDiscountCodes(){const section=$("discount-codes-box"),box=$("discount-codes-list");if(!section||!box)return;const items=getDiscountCodes();if(!items.length){box.innerHTML="";section.classList.add("hidden");return}box.innerHTML=items.map((x,i)=>{const style=COUPON_PLATFORM_STYLE[x.platform];return `<button type="button" class="discount-code-card" style="background:${style.color}!important" onclick="copyDiscountCode(${i})" aria-label="複製 ${esc(x.platform)} 折扣碼 ${esc(x.code)}"><img class="discount-code-logo" src="${style.logo}" alt="${esc(x.platform)} 圖示" width="58" height="58" loading="lazy"><span class="discount-code-content"><strong class="discount-code-value">${esc(x.code)}</strong><small class="discount-code-expiry">${esc(x.expiry||"")}</small></span></button>`}).join("");section.classList.remove("hidden")}
+      async function copyDiscountCode(index){const item=getDiscountCodes()[index];if(!item)return;try{await navigator.clipboard.writeText(item.code);showDiscountToast(`已複製折扣碼：${item.code}`)}catch{prompt("請手動複製折扣碼",item.code)}}
+      function showDiscountToast(message){let toast=$("discount-copy-toast");if(!toast){toast=document.createElement("div");toast.id="discount-copy-toast";toast.className="discount-copy-toast";document.body.appendChild(toast)}toast.textContent=message;toast.classList.add("show");clearTimeout(showDiscountToast.timer);showDiscountToast.timer=setTimeout(()=>toast.classList.remove("show"),1800)}
       function parseRecommendationIds(key,limit){try{const value=JSON.parse(settingsCache[key]||"[]");return Array.isArray(value)?value.map(String).slice(0,limit):[]}catch{return[]}}
       function articlesBySavedOrder(key,limit){const map=new Map(allArticlesCache.filter(isPublishedArticle).map(a=>[String(a.id),a]));return parseRecommendationIds(key,limit).map(id=>map.get(id)).filter(Boolean)}
       function renderFeaturedArticles(){
@@ -1827,6 +1862,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         setupFrontendInteractiveTables();
         await renderRelatedArticles(a);
         updateStructuredData(a);
+        updateOpenGraph(a);
         scrollTo({ top: 0 });
       }
       async function handleCurrentRoute() {
@@ -1911,6 +1947,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         document.title = "一葉知途｜韓國自由行攻略";
         await fetchArticles();
         updateStructuredData();
+        updateOpenGraph();
         scrollTo({ top: 0 });
         showAnnouncementIfActive();
       }
@@ -2321,6 +2358,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         applyCategoryOrder();
         renderFrontendNav();
         renderLatestArticles();
+        renderDiscountCodes();
         renderSocialPlatforms();
         renderInternalLinks();
         const heroImage = $("site-logo-image");

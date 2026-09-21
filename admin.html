@@ -199,6 +199,12 @@
           margin-top: .5rem;
       }
   
+
+      /* 後台左側標籤高度縮為原本約 2/3 */
+      .admin-nav-group button{min-height:48px!important;padding-top:10px!important;padding-bottom:10px!important;margin-top:.6rem!important;border-radius:12px!important}
+      .admin-nav-group{padding:.7rem 0 1.2rem!important}.admin-nav-heading{margin-bottom:.65rem!important}
+      .coupon-admin-row{display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,1fr) auto auto;gap:.75rem;align-items:end;padding:1rem;background:var(--soft);border:1px solid var(--sand);border-radius:12px}
+      @media(max-width:767px){.coupon-admin-row{grid-template-columns:1fr}}
 </style>
   </head>
   <body class="min-h-screen">
@@ -233,6 +239,7 @@
             <h2 class="admin-nav-heading">側邊欄</h2>
             <button onclick="switchAdminTab('internal-links')" id="tab-internal-links-btn" class="w-full text-left px-4 py-3 rounded-lg">🔗 內部連結</button>
             <button onclick="switchAdminTab('popular')" id="tab-popular-btn" class="w-full text-left px-4 py-3 rounded-lg">🔥 熱門文章</button>
+            <button onclick="switchAdminTab('coupons')" id="tab-coupons-btn" class="w-full text-left px-4 py-3 rounded-lg">🎟️ 折扣碼</button>
             <button onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🌐 社群平台</button>
           </section>
           <section class="admin-nav-group">
@@ -419,6 +426,18 @@
               <button type="button" onclick="addInternalLinkItem()" class="px-5 py-2 rounded-lg">新增連結</button>
               <button type="button" onclick="saveInternalLinks()" class="px-6 py-2 rounded-lg">儲存內部連結</button>
             </div>
+          </div>
+          <div id="admin-tab-coupons" class="admin-tab-content space-y-5 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">折扣碼管理</h2>
+            <p class="text-sm opacity-70">選擇平台、輸入折扣碼與效期。前台卡片會顯示於最新文章下方，訪客點選卡片即可複製折扣碼。</p>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-[140px_1fr_1fr_auto] gap-3 items-end">
+              <div><label class="block font-semibold mb-1" for="coupon-platform">平台</label><select id="coupon-platform" class="w-full border p-2 rounded bg-white"><option value="KLOOK">KLOOK</option><option value="KKDAY">KKDAY</option><option value="TRIP">TRIP</option></select></div>
+              <div><label class="block font-semibold mb-1" for="coupon-code">折扣碼</label><input id="coupon-code" class="w-full border p-2 rounded bg-white" maxlength="100" placeholder="例如：ALEAF100"></div>
+              <div><label class="block font-semibold mb-1" for="coupon-expiry">效期</label><input id="coupon-expiry" class="w-full border p-2 rounded bg-white" maxlength="100" placeholder="例如：有效至 2026/12/31"></div>
+              <button type="button" onclick="addCoupon()" class="px-5 py-2 rounded-lg">新增</button>
+            </div>
+            <div id="admin-coupons-list" class="space-y-3"></div>
+            <button type="button" onclick="saveCoupons()" class="px-6 py-2 rounded-lg">儲存折扣碼</button>
           </div>
           <div id="admin-tab-social" class="admin-tab-content space-y-5 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">社群平台管理</h2>
@@ -690,7 +709,7 @@
         supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return supabaseClient;
       }
-      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [], internalLinksDraft = { title: "", items: [] };
+      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [], internalLinksDraft = { title: "", items: [] }, couponsDraft = [];
       const $ = (id) => document.getElementById(id),
         esc = (s) => String(s ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -1877,6 +1896,12 @@
         Object.assign(settingsCache, items);
       }
 
+      function loadCouponsEditor(){try{couponsDraft=JSON.parse(settingsCache.discount_codes||"[]");if(!Array.isArray(couponsDraft))couponsDraft=[]}catch{couponsDraft=[]}renderCouponsEditor()}
+      function renderCouponsEditor(){const box=$("admin-coupons-list");if(!box)return;if(!couponsDraft.length){box.innerHTML='<div class="opacity-60">目前尚未設定折扣碼。</div>';return}box.innerHTML=couponsDraft.map((x,i)=>`<div class="coupon-admin-row"><div><label class="block text-sm font-semibold mb-1">平台</label><select id="coupon-edit-platform-${i}" class="w-full border p-2 rounded bg-white">${["KLOOK","KKDAY","TRIP"].map(p=>`<option value="${p}" ${p===x.platform?"selected":""}>${p}</option>`).join("")}</select></div><div><label class="block text-sm font-semibold mb-1">折扣碼</label><input id="coupon-edit-code-${i}" class="w-full border p-2 rounded bg-white" value="${esc(x.code||"")}"></div><div><label class="block text-sm font-semibold mb-1">效期</label><input id="coupon-edit-expiry-${i}" class="w-full border p-2 rounded bg-white" value="${esc(x.expiry||"")}"></div><button type="button" onclick="updateCoupon(${i})">更新</button><button type="button" onclick="removeCoupon(${i})">刪除</button></div>`).join("")}
+      function addCoupon(){const platform=$("coupon-platform").value,code=$("coupon-code").value.trim(),expiry=$("coupon-expiry").value.trim();if(!code||!expiry)return alert("請輸入折扣碼與效期");couponsDraft.push({platform,code,expiry});$("coupon-code").value="";$("coupon-expiry").value="";renderCouponsEditor()}
+      function updateCoupon(i){const platform=$("coupon-edit-platform-"+i)?.value,code=$("coupon-edit-code-"+i)?.value.trim(),expiry=$("coupon-edit-expiry-"+i)?.value.trim();if(!code||!expiry)return alert("請輸入折扣碼與效期");couponsDraft[i]={platform,code,expiry};renderCouponsEditor()}
+      function removeCoupon(i){couponsDraft.splice(i,1);renderCouponsEditor()}
+      async function saveCoupons(){try{await upsertSettings({discount_codes:JSON.stringify(couponsDraft)});alert("折扣碼已儲存")}catch(e){alert("儲存失敗："+e.message)}}
       let socialPlatformsDraft=[];
       function loadSocialPlatformsEditor(){try{socialPlatformsDraft=JSON.parse(settingsCache.social_links||"[]");if(!Array.isArray(socialPlatformsDraft))socialPlatformsDraft=[]}catch{socialPlatformsDraft=[]}renderSocialPlatformsEditor()}
       function renderSocialPlatformsEditor(){
@@ -2140,6 +2165,7 @@
           "featured",
           "popular",
           "internal-links",
+          "coupons",
           "social",
           "journey",
         ].forEach((t) => {
@@ -2154,6 +2180,7 @@
         if (n === "featured") renderRecommendationManager("featured");
         if (n === "popular") renderRecommendationManager("popular");
         if (n === "internal-links") loadInternalLinksEditor();
+        if (n === "coupons") loadCouponsEditor();
         if (n === "social") loadSocialPlatformsEditor();
         if (n === "journey") renderJourneyAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
