@@ -205,6 +205,11 @@
       .admin-nav-group{padding:.7rem 0 1.2rem!important}.admin-nav-heading{margin-bottom:.65rem!important}
       .coupon-admin-row{display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,1fr) auto auto;gap:.75rem;align-items:end;padding:1rem;background:var(--soft);border:1px solid var(--sand);border-radius:12px}
       @media(max-width:767px){.coupon-admin-row{grid-template-columns:1fr}}
+
+      .asset-admin-row{display:grid;grid-template-columns:84px minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr) auto auto;gap:.75rem;align-items:end;padding:1rem;background:var(--soft);border:1px solid var(--sand);border-radius:12px}
+      .asset-admin-thumb{width:72px;height:72px;object-fit:cover;border:1px solid var(--sand);background:#fff}
+      .article-manage-picker{position:relative}.article-manage-results{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;max-height:300px;overflow:auto;background:#fff;border:1px solid var(--sand);border-radius:10px;box-shadow:0 10px 25px rgba(69,40,41,.16)}.article-manage-option{display:block;width:100%;padding:.7rem .85rem;text-align:left;background:#fff!important;color:var(--ink)!important;border:0!important;border-bottom:1px solid rgba(201,181,156,.4)!important;border-radius:0!important}.article-manage-option:hover{background:var(--soft)!important}
+      @media(max-width:900px){.asset-admin-row{grid-template-columns:72px 1fr}.asset-admin-row>*:not(.asset-admin-thumb){grid-column:2}.asset-admin-row button{grid-column:auto}}
 </style>
   </head>
   <body class="min-h-screen">
@@ -241,6 +246,7 @@
             <button onclick="switchAdminTab('popular')" id="tab-popular-btn" class="w-full text-left px-4 py-3 rounded-lg">🔥 熱門文章</button>
             <button onclick="switchAdminTab('coupons')" id="tab-coupons-btn" class="w-full text-left px-4 py-3 rounded-lg">🎟️ 折扣碼</button>
             <button onclick="switchAdminTab('social')" id="tab-social-btn" class="w-full text-left px-4 py-3 rounded-lg">🌐 社群平台</button>
+            <button onclick="switchAdminTab('ads')" id="tab-ads-btn" class="w-full text-left px-4 py-3 rounded-lg">📣 廣告欄位</button>
           </section>
           <section class="admin-nav-group">
             <h2 class="admin-nav-heading">文章</h2>
@@ -440,19 +446,27 @@
           </div>
           <div id="admin-tab-social" class="admin-tab-content space-y-5 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">社群平台管理</h2>
-            <p class="text-sm opacity-70">設定完成後，會顯示在前台側邊欄分類區塊下方。平台名稱與連結都可以隨時修改，也可以新增、刪除多個平台。</p>
-            <div class="custom-card p-4 rounded-xl grid md:grid-cols-[1fr_2fr_auto] gap-3 items-end">
-              <div>
-                <label class="block font-semibold mb-1" for="social-platform-name">平台名稱</label>
-                <input id="social-platform-name" class="w-full border p-2 rounded bg-white" maxlength="80" placeholder="例如：Instagram">
-              </div>
-              <div>
-                <label class="block font-semibold mb-1" for="social-platform-url">平台連結</label>
-                <input id="social-platform-url" type="url" class="w-full border p-2 rounded bg-white" placeholder="https://..."></div>
-              <button type="button" onclick="addSocialPlatform()" class="px-5 py-2 rounded-lg">新增平台</button>
+            <p class="text-sm opacity-70">上傳平台圖示並填寫連結。前台只顯示圖示，每列最多三個。</p>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-[1fr_1.5fr_1.5fr_auto] gap-3 items-end">
+              <div><label class="block font-semibold mb-1">平台名稱</label><input id="social-platform-name" class="w-full border p-2 rounded bg-white" placeholder="例如：Instagram"></div>
+              <div><label class="block font-semibold mb-1">平台連結</label><input id="social-platform-url" type="url" class="w-full border p-2 rounded bg-white" placeholder="https://..."></div>
+              <div><label class="block font-semibold mb-1">平台圖示</label><input id="social-platform-icon" type="file" accept="image/*" class="w-full border p-2 rounded bg-white"></div>
+              <button type="button" onclick="addSocialPlatform()">新增平台</button>
             </div>
             <div id="admin-social-platforms-list" class="space-y-3"></div>
-            <button type="button" onclick="saveSocialPlatforms()" class="px-6 py-2 rounded-lg">儲存社群平台</button>
+            <button type="button" onclick="saveSocialPlatforms()" class="px-6 py-2">儲存社群平台</button>
+          </div>
+          <div id="admin-tab-ads" class="admin-tab-content space-y-5 hidden">
+            <h2 class="text-2xl font-bold border-b pb-2">廣告欄位管理</h2>
+            <p class="text-sm opacity-70">廣告說明只供後台辨識，不會顯示在前台。前台只顯示照片，點擊照片會開啟設定連結。</p>
+            <div class="custom-card p-4 rounded-xl grid md:grid-cols-[1.4fr_1.5fr_1.2fr_auto] gap-3 items-end">
+              <div><label class="block font-semibold mb-1">廣告照片</label><input id="ad-image-file" type="file" accept="image/*" class="w-full border p-2 rounded bg-white"></div>
+              <div><label class="block font-semibold mb-1">跳轉連結</label><input id="ad-link-url" type="url" class="w-full border p-2 rounded bg-white" placeholder="https://..."></div>
+              <div><label class="block font-semibold mb-1">後台說明</label><input id="ad-description" class="w-full border p-2 rounded bg-white" placeholder="僅供自己辨識"></div>
+              <button type="button" onclick="addAdvertisement()">新增廣告</button>
+            </div>
+            <div id="admin-ads-list" class="space-y-3"></div>
+            <button type="button" onclick="saveAdvertisements()" class="px-6 py-2">儲存廣告欄位</button>
           </div>
           <div id="admin-tab-popular" class="admin-tab-content space-y-5 hidden">
             <h2 class="text-2xl font-bold border-b pb-2">熱門文章管理</h2>
@@ -617,7 +631,12 @@
                 </div>
               </section>
 <div id="draft-edit-toolbar" class="flex flex-wrap gap-2"></div><div id="draft-edit-article-editor" contenteditable="true" class="w-full border rounded overflow-y-auto article-content-style"></div><div class="flex gap-3"><button onclick="saveDraftEdits()" class="px-6 py-2 rounded">儲存更新(不發布)</button><button onclick="publishDraft()" class="px-6 py-2 rounded">發布文章</button></div></div></div><div id="sub-article-manage" class="space-y-4 hidden">
-              <div id="admin-articles-list" class="space-y-2"></div>
+              <div class="article-manage-picker">
+                <label class="block font-semibold mb-2" for="article-manage-search">選擇要維護的文章</label>
+                <input id="article-manage-search" class="w-full border p-3 rounded bg-white" autocomplete="off" placeholder="輸入文章標題、分類或網址後綴搜尋" oninput="filterManageArticleOptions(this.value)" onfocus="filterManageArticleOptions(this.value)">
+                <div id="article-manage-results" class="article-manage-results hidden"></div>
+              </div>
+              <div id="admin-articles-list" class="hidden"></div>
               <div
                 id="edit-article-form"
                 class="hidden space-y-4 border-t pt-4"
@@ -678,18 +697,9 @@
                   contenteditable="true"
                   class="w-full border rounded overflow-y-auto article-content-style"
                 ></div>
-                <div class="flex justify-between">
-                  <button
-                    onclick="closeEditForm()"
-                    class="px-4 py-2 border rounded"
-                  >
-                    取消</button
-                  ><button
-                    onclick="updateExistingArticle()"
-                    class="text-white px-6 py-2 rounded bg-[#C9B59C]"
-                  >
-                    提交修改
-                  </button>
+                <div class="flex justify-between items-center gap-3">
+                  <button id="edit-delete-button" onclick="deleteCurrentEditedArticle()" class="delete-button px-4 py-2 rounded">刪除文章</button>
+                  <div class="flex gap-3"><button onclick="closeEditForm()" class="px-4 py-2 border rounded">取消</button><button onclick="updateExistingArticle()" class="text-white px-6 py-2 rounded bg-[#C9B59C]">提交修改</button></div>
                 </div>
               </div>
             </div>
@@ -708,7 +718,7 @@
         supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return supabaseClient;
       }
-      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [], internalLinksDraft = { title: "", items: [] }, couponsDraft = [];
+      let allArticlesCache = [], categoriesCache = [], settingsCache = {}, journeyEntries = [], categoryOrder = [], featuredArticleIds = [], popularArticleIds = [], internalLinksDraft = { title: "", items: [] }, couponsDraft = [], adsDraft = [];
       const $ = (id) => document.getElementById(id),
         esc = (s) => String(s ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -1747,13 +1757,17 @@
         populateRelatedArticleSelect("new");
         renderRecommendationManager("featured");
         renderRecommendationManager("popular");
-        $("admin-articles-list").innerHTML = allArticlesCache
-          .map(
-            (a) =>
-              `<div class="p-3 bg-[#F9F6F0] border rounded flex justify-between"><div><b>${esc(a.title)}</b><div class="text-xs opacity-60">${esc(articlePath(a))}</div></div><div><button onclick="loadArticleToEdit('${a.id}')" class="text-xs bg-[#C9B59C] text-white px-3 py-1 rounded">修改</button> <button onclick="deleteArticle('${a.id}')" class="text-xs bg-red-500 text-white px-3 py-1 rounded">刪除</button></div></div>`,
-          )
-          .join("");
+        filterManageArticleOptions($("article-manage-search")?.value||"");
       }
+      function filterManageArticleOptions(query=""){
+        const box=$("article-manage-results"),input=$("article-manage-search");if(!box||!input)return;
+        const q=String(query).trim().toLocaleLowerCase("zh-Hant");
+        const items=allArticlesCache.filter(a=>!q||[a.title,a.category,a.subcategory,a.slug].some(v=>String(v||"").toLocaleLowerCase("zh-Hant").includes(q))).slice(0,80);
+        box.innerHTML=items.length?items.map(a=>`<button type="button" class="article-manage-option" onclick="selectManageArticle('${a.id}')"><b>${esc(a.title)}</b><small class="block opacity-60 mt-1">${esc(a.category||"未分類")}${a.subcategory?" / "+esc(a.subcategory):""} · ${esc(a.slug||"")}</small></button>`).join(""):'<div class="p-3 opacity-60">找不到符合的文章</div>';
+        box.classList.remove("hidden");
+      }
+      function selectManageArticle(id){const article=allArticlesCache.find(a=>String(a.id)===String(id));if($("article-manage-search"))$("article-manage-search").value=article?.title||"";$("article-manage-results")?.classList.add("hidden");loadArticleToEdit(id)}
+      async function deleteCurrentEditedArticle(){const id=$("edit-article-id").value;if(!id)return alert("尚未選擇文章");await deleteArticle(id);closeEditForm();if($("article-manage-search"))$("article-manage-search").value=""}
       async function loadArticleToEdit(id) {
         const { data: a, error } = await supabaseClient
           .from("articles")
@@ -1905,26 +1919,27 @@
       function removeCoupon(i){couponsDraft.splice(i,1);renderCouponsEditor()}
       async function saveCoupons(){try{await upsertSettings({discount_codes:JSON.stringify(couponsDraft)});alert("折扣碼已儲存")}catch(e){alert("儲存失敗："+e.message)}}
       let socialPlatformsDraft=[];
+      async function uploadManagedImage(file,folder,maxWidth=700,maxHeight=700){
+        if(!file)throw new Error("請先選擇圖片");
+        const optimized=await compressImage(file,{maxWidth,maxHeight,quality:.88,square:false});
+        const random=crypto.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const path=`${folder}/${random}.webp`;
+        const {data,error}=await supabaseClient.storage.from("blog-assets").upload(path,optimized,{cacheControl:"31536000",contentType:"image/webp",upsert:false});
+        if(error)throw error;
+        return supabaseClient.storage.from("blog-assets").getPublicUrl(data.path).data.publicUrl;
+      }
       function loadSocialPlatformsEditor(){try{socialPlatformsDraft=JSON.parse(settingsCache.social_links||"[]");if(!Array.isArray(socialPlatformsDraft))socialPlatformsDraft=[]}catch{socialPlatformsDraft=[]}renderSocialPlatformsEditor()}
-      function renderSocialPlatformsEditor(){
-        const box=$("admin-social-platforms-list");
-        if(!box)return;
-        if(!socialPlatformsDraft.length){box.innerHTML='<div class="opacity-60">目前尚未設定社群平台。</div>';return;}
-        box.innerHTML=socialPlatformsDraft.map((x,index)=>`<div class="custom-card p-3 rounded grid md:grid-cols-[1fr_2fr_auto_auto] gap-3 items-center"><input id="social-edit-name-${index}" class="border p-2 rounded bg-white" value="${esc(x.name)}" placeholder="平台名稱"><input id="social-edit-url-${index}" type="url" class="border p-2 rounded bg-white" value="${esc(x.url)}" placeholder="完整網址"><button type="button" onclick="updateSocialPlatform(${index})">更新</button><button type="button" onclick="removeSocialPlatform(${index})">刪除</button></div>`).join("");
-      }
-      function addSocialPlatform(){const name=$("social-platform-name").value.trim(),url=$("social-platform-url").value.trim();if(!name||!url)return alert("請輸入平台名稱及連結");try{const parsed=new URL(url);if(!/^https?:$/.test(parsed.protocol))throw new Error()}catch{return alert("請輸入完整的 http 或 https 連結")}socialPlatformsDraft.push({name,url});$("social-platform-name").value="";$("social-platform-url").value="";renderSocialPlatformsEditor()}
-
-      function updateSocialPlatform(index){
-        const name=$("social-edit-name-"+index)?.value.trim();
-        const url=$("social-edit-url-"+index)?.value.trim();
-        if(!name||!url)return alert("請輸入平台名稱及連結");
-        try{const parsed=new URL(url);if(!/^https?:$/.test(parsed.protocol))throw new Error()}catch{return alert("請輸入完整的 http 或 https 連結")}
-        socialPlatformsDraft[index]={name,url};
-        renderSocialPlatformsEditor();
-        alert("平台資料已更新，請再按下「儲存社群平台」完成儲存");
-      }
-      function removeSocialPlatform(index){socialPlatformsDraft.splice(index,1);renderSocialPlatformsEditor()}
+      function renderSocialPlatformsEditor(){const box=$("admin-social-platforms-list");if(!box)return;if(!socialPlatformsDraft.length){box.innerHTML='<div class="opacity-60">目前尚未設定社群平台。</div>';return}box.innerHTML=socialPlatformsDraft.map((x,i)=>`<div class="asset-admin-row">${x.iconUrl?`<img class="asset-admin-thumb" src="${esc(x.iconUrl)}" alt="">`:`<span class="asset-admin-thumb"></span>`}<input id="social-edit-name-${i}" class="border p-2 rounded bg-white" value="${esc(x.name||"")}" placeholder="平台名稱"><input id="social-edit-url-${i}" type="url" class="border p-2 rounded bg-white" value="${esc(x.url||"")}" placeholder="完整網址"><input id="social-edit-icon-${i}" type="file" accept="image/*" class="border p-2 rounded bg-white"><button type="button" onclick="updateSocialPlatform(${i})">更新</button><button type="button" onclick="removeSocialPlatform(${i})">刪除</button></div>`).join("")}
+      async function addSocialPlatform(){const name=$("social-platform-name").value.trim(),url=$("social-platform-url").value.trim(),file=$("social-platform-icon").files[0];if(!name||!url||!file)return alert("請填寫平台名稱、連結並選擇圖示");try{new URL(url);const iconUrl=await uploadManagedImage(file,"social-icons",320,320);socialPlatformsDraft.push({name,url,iconUrl});$("social-platform-name").value="";$("social-platform-url").value="";$("social-platform-icon").value="";renderSocialPlatformsEditor()}catch(e){alert("新增失敗："+(e?.message||String(e)))}}
+      async function updateSocialPlatform(i){const name=$("social-edit-name-"+i).value.trim(),url=$("social-edit-url-"+i).value.trim(),file=$("social-edit-icon-"+i).files[0];if(!name||!url)return alert("請填寫平台名稱與連結");try{new URL(url);const iconUrl=file?await uploadManagedImage(file,"social-icons",320,320):(socialPlatformsDraft[i].iconUrl||"");socialPlatformsDraft[i]={name,url,iconUrl};renderSocialPlatformsEditor();alert("已更新，請按下儲存社群平台") }catch(e){alert("更新失敗："+(e?.message||String(e)))}}
+      function removeSocialPlatform(i){socialPlatformsDraft.splice(i,1);renderSocialPlatformsEditor()}
       async function saveSocialPlatforms(){try{await upsertSettings({social_links:JSON.stringify(socialPlatformsDraft)});alert("社群平台已儲存")}catch(e){alert("儲存失敗："+e.message)}}
+      function loadAdvertisementsEditor(){try{adsDraft=JSON.parse(settingsCache.sidebar_ads||"[]");if(!Array.isArray(adsDraft))adsDraft=[]}catch{adsDraft=[]}renderAdvertisementsEditor()}
+      function renderAdvertisementsEditor(){const box=$("admin-ads-list");if(!box)return;if(!adsDraft.length){box.innerHTML='<div class="opacity-60">目前尚未設定廣告。</div>';return}box.innerHTML=adsDraft.map((x,i)=>`<div class="asset-admin-row"><img class="asset-admin-thumb" src="${esc(x.imageUrl||"")}" alt=""><input id="ad-edit-description-${i}" class="border p-2 rounded bg-white" value="${esc(x.description||"")}" placeholder="後台說明"><input id="ad-edit-url-${i}" type="url" class="border p-2 rounded bg-white" value="${esc(x.url||"")}" placeholder="完整網址"><input id="ad-edit-image-${i}" type="file" accept="image/*" class="border p-2 rounded bg-white"><button type="button" onclick="updateAdvertisement(${i})">更新</button><button type="button" onclick="removeAdvertisement(${i})">刪除</button></div>`).join("")}
+      async function addAdvertisement(){const file=$("ad-image-file").files[0],url=$("ad-link-url").value.trim(),description=$("ad-description").value.trim();if(!file||!url)return alert("請選擇照片並輸入跳轉連結");try{new URL(url);const imageUrl=await uploadManagedImage(file,"sidebar-ads",1200,1200);adsDraft.push({imageUrl,url,description});$("ad-image-file").value="";$("ad-link-url").value="";$("ad-description").value="";renderAdvertisementsEditor()}catch(e){alert("新增失敗："+(e?.message||String(e)))}}
+      async function updateAdvertisement(i){const url=$("ad-edit-url-"+i).value.trim(),description=$("ad-edit-description-"+i).value.trim(),file=$("ad-edit-image-"+i).files[0];if(!url)return alert("請輸入跳轉連結");try{new URL(url);const imageUrl=file?await uploadManagedImage(file,"sidebar-ads",1200,1200):adsDraft[i].imageUrl;adsDraft[i]={imageUrl,url,description};renderAdvertisementsEditor();alert("已更新，請按下儲存廣告欄位") }catch(e){alert("更新失敗："+(e?.message||String(e)))}}
+      function removeAdvertisement(i){adsDraft.splice(i,1);renderAdvertisementsEditor()}
+      async function saveAdvertisements(){try{await upsertSettings({sidebar_ads:JSON.stringify(adsDraft)});alert("廣告欄位已儲存")}catch(e){alert("儲存失敗："+e.message)}}
       function defaultInternalLinks(){return{title:"✈️ 開始規劃韓國自由行",items:[{icon:"🇰🇷",title:"濟州島攻略",description:"景點、美食、租車、自由行",url:"/Korea/Jeju"},{icon:"🌊",title:"釜山攻略",description:"景點、住宿、交通、Pass",url:"/Korea/Busan"},{icon:"🎫",title:"濟州 Pass",description:"Jeju Tour Pass、Jeju All Pass、Nowda Go",url:"/Korea/Jeju/Jeju_Pass"},{icon:"📱",title:"韓國 APP 教學",description:"Naver 預約與驗證教學",url:"/Korea/Naver_Verify"}]}}
       function loadInternalLinksEditor(){try{const parsed=JSON.parse(settingsCache.internal_links||"");internalLinksDraft=parsed&&typeof parsed==="object"?{title:String(parsed.title||""),items:Array.isArray(parsed.items)?parsed.items:[]}:defaultInternalLinks()}catch{internalLinksDraft=defaultInternalLinks()}$("internal-links-title-input").value=internalLinksDraft.title;renderInternalLinksEditor()}
       function syncInternalLinksDraft(){internalLinksDraft.title=$("internal-links-title-input")?.value.trim()||"";internalLinksDraft.items=internalLinksDraft.items.map((item,index)=>({icon:$("internal-link-icon-"+index)?.value.trim()||"",title:$("internal-link-title-"+index)?.value.trim()||"",description:$("internal-link-description-"+index)?.value.trim()||"",url:$("internal-link-url-"+index)?.value.trim()||""}))}
@@ -2169,6 +2184,7 @@
           "internal-links",
           "coupons",
           "social",
+          "ads",
           "journey",
         ].forEach((t) => {
           const panel = $("admin-tab-" + t);
@@ -2184,6 +2200,7 @@
         if (n === "internal-links") loadInternalLinksEditor();
         if (n === "coupons") loadCouponsEditor();
         if (n === "social") loadSocialPlatformsEditor();
+        if (n === "ads") loadAdvertisementsEditor();
         if (n === "journey") renderJourneyAdmin();
         if (n === "account" || n === "announcement") fillSettingsForms();
       }
