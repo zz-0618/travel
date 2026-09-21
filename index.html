@@ -862,7 +862,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
 
       .social-platforms-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}.social-platform-icon-link{display:block;aspect-ratio:1;border:0;background:transparent;text-decoration:none;transition:transform .2s ease,filter .2s ease}.social-platform-icon-link:hover{transform:translateY(-2px);filter:drop-shadow(0 7px 8px rgba(69,40,41,.16))}.social-platform-icon{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;background:#fff}.sidebar-ads-box{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}.sidebar-ads-list{display:flex;flex-direction:column;gap:1rem}.sidebar-ad-link{display:block;width:100%;background:transparent;text-decoration:none;transition:transform .2s ease,filter .2s ease}.sidebar-ad-link:hover{transform:translateY(-2px);filter:drop-shadow(0 8px 10px rgba(69,40,41,.16))}.sidebar-ad-image{display:block;width:100%;height:auto;border-radius:0!important;background:transparent}
 
-      .trip-affiliate-ad{width:100%;padding:0;margin:0;background:transparent;border:0;overflow:hidden}.trip-affiliate-ad iframe{border:0!important;border-radius:0!important;background:transparent}
+      .trip-affiliate-ad{display:block!important;width:100%;min-height:320px;padding:0;margin:0;background:transparent;border:0;overflow:visible}.trip-affiliate-ad-mount{display:flex;justify-content:center;width:100%;min-height:320px}.trip-affiliate-ad iframe{display:block!important;width:320px!important;max-width:100%!important;height:320px!important;min-height:320px!important;border:0!important;border-radius:0!important;background:transparent!important}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -936,20 +936,12 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           <section id="discount-codes-box" class="discount-codes-box hidden p-5 rounded-xl shadow-sm"><h3 class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">折扣碼專區</h3><div id="discount-codes-list" class="discount-code-list"></div><p class="discount-code-note">點選該折扣碼即可複製</p></section>
           <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list" class="social-platforms-list"></div></section>
           <section id="sidebar-ads-box" class="sidebar-ads-box hidden" aria-label="廣告"><div id="sidebar-ads-list" class="sidebar-ads-list"></div></section>
-          <section class="trip-affiliate-ad" aria-label="Trip.com 廣告">
-            <iframe
-              src="https://tw.trip.com/partners/ad/S19907897?Allianceid=10658054&amp;SID=331830283&amp;trip_sub1="
-              title="Trip.com 廣告"
-              width="320"
-              height="320"
-              frameborder="0"
-              scrolling="no"
-              loading="lazy"
-              referrerpolicy="strict-origin-when-cross-origin"
-              style="display:block;width:100%;max-width:320px;height:320px;margin:0 auto;border:0;overflow:hidden"
-            ></iframe>
+          <section id="trip-affiliate-ad" class="trip-affiliate-ad" aria-label="Trip.com 廣告">
+            <div id="trip-affiliate-ad-mount" class="trip-affiliate-ad-mount"></div>
+            <noscript>
+              <iframe src="https://tw.trip.com/partners/ad/S19907897?Allianceid=10658054&amp;SID=331830283&amp;trip_sub1=" title="Trip.com 廣告" width="320" height="320" frameborder="0" scrolling="no" style="display:block;width:320px;max-width:100%;height:320px;margin:0 auto;border:0"></iframe>
+            </noscript>
           </section>
-
           <section
             id="related-articles-box"
             class="related-articles-box hidden p-5 rounded-xl shadow-sm"
@@ -1523,14 +1515,18 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const canonical=document.getElementById("canonical-link")||document.querySelector('link[rel="canonical"]');
         if(canonical)canonical.href=canonicalUrl;
       }
-      function isArticleTocLink(link){
-        return Boolean(link?.closest?.("#table-of-contents, .inline-article-toc")) || String(link?.getAttribute?.("href")||"").startsWith("#heading-");
+      function isSameTabNavigationLink(link){
+        if(!link)return false;
+        const href=String(link.getAttribute?.("href")||"");
+        const isArticleToc=Boolean(link.closest?.("#table-of-contents, .inline-article-toc"))||href.startsWith("#heading-");
+        const isTopCategory=Boolean(link.closest?.("#frontend-nav-tabs"));
+        return isArticleToc||isTopCategory;
       }
       function enforceNewTabLinks(root=document){
         root.querySelectorAll?.('a[href]').forEach(link=>{
           const raw=link.getAttribute("href")||"";
           if(!raw||raw.startsWith("javascript:"))return;
-          if(isArticleTocLink(link)){
+          if(isSameTabNavigationLink(link)){
             link.removeAttribute("target");
             link.removeAttribute("rel");
             return;
@@ -1545,12 +1541,29 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         observer.observe(document.body,{childList:true,subtree:true});
         document.addEventListener("click",event=>{
           const link=event.target.closest?.('a[href]');
-          if(!link||isArticleTocLink(link))return;
+          if(!link||isSameTabNavigationLink(link))return;
           const href=link.getAttribute("href")||"";
           if(!href||href.startsWith("javascript:"))return;
           event.preventDefault();event.stopImmediatePropagation();
           window.open(new URL(href,location.href).href,"_blank","noopener,noreferrer");
         },true);
+      }
+      function mountTripAffiliateAd(){
+        const mount=document.getElementById("trip-affiliate-ad-mount");
+        if(!mount||mount.dataset.mounted==="true")return;
+        mount.dataset.mounted="true";
+        const iframe=document.createElement("iframe");
+        iframe.id="S19907897";
+        iframe.name="S19907897";
+        iframe.title="Trip.com 廣告";
+        iframe.width="320";
+        iframe.height="320";
+        iframe.frameBorder="0";
+        iframe.scrolling="no";
+        iframe.setAttribute("allowtransparency","true");
+        iframe.src="https://tw.trip.com/partners/ad/S19907897?Allianceid=10658054&SID=331830283&trip_sub1=";
+        iframe.style.cssText="display:block;width:320px;max-width:100%;height:320px;min-height:320px;margin:0 auto;border:0;background:transparent";
+        mount.replaceChildren(iframe);
       }
       function safePushState(state, path) {
         const safe = String(path || "/");
@@ -1561,6 +1574,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
 
       addEventListener("DOMContentLoaded", async () => {
         installGlobalNewTabPolicy();
+        mountTripAffiliateAd();
         updateDynamicSeo(null,{path:location.pathname});
         await initSupabase();
         try {
