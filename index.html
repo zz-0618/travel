@@ -25,6 +25,8 @@
     <meta property="og:site_name" content="一葉知途">
 
     <meta property="og:image" content="">
+    <meta property="og:url" content="">
+    <link id="canonical-link" rel="canonical" href="https://travel.aleafpath.workers.dev/">
 
     <script
       id="structured-data"
@@ -859,6 +861,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       button.discount-code-card{display:grid!important;grid-template-columns:58px minmax(0,1fr);gap:.8rem;align-items:center;width:100%;padding:.7rem!important;border:0!important;border-radius:12px!important;color:#fff!important;text-align:left;cursor:pointer;box-shadow:0 3px 10px rgba(69,40,41,.12);transition:.2s}.discount-code-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(69,40,41,.18)}.discount-code-logo{display:block;width:58px;height:58px;border-radius:10px;object-fit:cover;background:#fff}.discount-code-logo-placeholder{display:grid;place-items:center;color:#452829;font-weight:700}.discount-code-value{display:block;color:#fff!important;font-size:1.15rem;font-weight:700;overflow-wrap:anywhere}.discount-code-expiry{display:block;margin-top:.2rem;color:rgba(255,255,255,.9)!important;font-size:.72rem}.discount-code-note{margin-top:.75rem;font-size:.72rem;color:#7b6a5b;text-align:center}.discount-copy-toast{position:fixed;left:50%;bottom:2rem;z-index:150;transform:translate(-50%,12px);padding:.65rem 1rem;border-radius:999px;background:#452829;color:#fff;opacity:0;pointer-events:none;transition:.2s}.discount-copy-toast.show{opacity:1;transform:translate(-50%,0)}
 
       .social-platforms-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}.social-platform-icon-link{display:block;aspect-ratio:1;border:0;background:transparent;text-decoration:none;transition:transform .2s ease,filter .2s ease}.social-platform-icon-link:hover{transform:translateY(-2px);filter:drop-shadow(0 7px 8px rgba(69,40,41,.16))}.social-platform-icon{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;background:#fff}.sidebar-ads-box{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}.sidebar-ads-list{display:flex;flex-direction:column;gap:1rem}.sidebar-ad-link{display:block;width:100%;background:transparent;text-decoration:none;transition:transform .2s ease,filter .2s ease}.sidebar-ad-link:hover{transform:translateY(-2px);filter:drop-shadow(0 8px 10px rgba(69,40,41,.16))}.sidebar-ad-image{display:block;width:100%;height:auto;border-radius:0!important;background:transparent}
+
+      .trip-affiliate-ad{width:100%;padding:0;margin:0;background:transparent;border:0;overflow:hidden}.trip-affiliate-ad iframe{border:0!important;border-radius:0!important;background:transparent}
 </style>
   </head>
   <body class="min-h-screen flex flex-col justify-between">
@@ -932,6 +936,19 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           <section id="discount-codes-box" class="discount-codes-box hidden p-5 rounded-xl shadow-sm"><h3 class="text-lg font-bold border-b border-[#C9B59C] pb-2 mb-3">折扣碼專區</h3><div id="discount-codes-list" class="discount-code-list"></div><p class="discount-code-note">點選該折扣碼即可複製</p></section>
           <section id="social-platforms-box" class="social-platforms-box hidden p-5 rounded-xl shadow-sm"><h3 class="font-bold mb-3">其他社群平台</h3><div id="social-platforms-list" class="social-platforms-list"></div></section>
           <section id="sidebar-ads-box" class="sidebar-ads-box hidden" aria-label="廣告"><div id="sidebar-ads-list" class="sidebar-ads-list"></div></section>
+          <section class="trip-affiliate-ad" aria-label="Trip.com 廣告">
+            <iframe
+              src="https://tw.trip.com/partners/ad/S19907897?Allianceid=10658054&amp;SID=331830283&amp;trip_sub1="
+              title="Trip.com 廣告"
+              width="320"
+              height="320"
+              frameborder="0"
+              scrolling="no"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              style="display:block;width:100%;max-width:320px;height:320px;margin:0 auto;border:0;overflow:hidden"
+            ></iframe>
+          </section>
 
           <section
             id="related-articles-box"
@@ -1488,6 +1505,53 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           );
               }
       
+      const DEFAULT_PAGE_TITLE="一葉知途｜韓國自由行攻略";
+      const DEFAULT_PAGE_DESCRIPTION="一葉知途分享韓國自由行攻略，包含濟州島及釜山的美食、交通、住宿與旅遊心得。";
+      function setMetaContent(selector,value){const node=document.querySelector(selector);if(node)node.setAttribute("content",String(value||""))}
+      function updateDynamicSeo(article=null,options={}){
+        const box=document.createElement("div");
+        if(article)box.innerHTML=article.content||"";
+        const description=String(options.description||(article?.excerpt||box.textContent||DEFAULT_PAGE_DESCRIPTION)).replace(/\s+/g," ").trim().slice(0,160)||DEFAULT_PAGE_DESCRIPTION;
+        const title=String(options.title||(article?`${article.title}｜一葉知途`:DEFAULT_PAGE_TITLE));
+        const canonicalUrl=new URL(options.path||location.pathname,location.origin).href;
+        document.title=title;
+        setMetaContent('meta[name="description"]',description);
+        setMetaContent('meta[property="og:title"]',title);
+        setMetaContent('meta[property="og:description"]',description);
+        setMetaContent('meta[property="og:url"]',canonicalUrl);
+        if(article?.cover_image_url)setMetaContent('meta[property="og:image"]',article.cover_image_url);
+        const canonical=document.getElementById("canonical-link")||document.querySelector('link[rel="canonical"]');
+        if(canonical)canonical.href=canonicalUrl;
+      }
+      function isArticleTocLink(link){
+        return Boolean(link?.closest?.("#table-of-contents, .inline-article-toc")) || String(link?.getAttribute?.("href")||"").startsWith("#heading-");
+      }
+      function enforceNewTabLinks(root=document){
+        root.querySelectorAll?.('a[href]').forEach(link=>{
+          const raw=link.getAttribute("href")||"";
+          if(!raw||raw.startsWith("javascript:"))return;
+          if(isArticleTocLink(link)){
+            link.removeAttribute("target");
+            link.removeAttribute("rel");
+            return;
+          }
+          link.target="_blank";
+          link.rel="noopener noreferrer";
+        });
+      }
+      function installGlobalNewTabPolicy(){
+        enforceNewTabLinks(document);
+        const observer=new MutationObserver(records=>records.forEach(record=>records && record.addedNodes.forEach(node=>{if(node.nodeType===1){if(node.matches?.('a[href]'))enforceNewTabLinks(node.parentElement||document);else enforceNewTabLinks(node)}})));
+        observer.observe(document.body,{childList:true,subtree:true});
+        document.addEventListener("click",event=>{
+          const link=event.target.closest?.('a[href]');
+          if(!link||isArticleTocLink(link))return;
+          const href=link.getAttribute("href")||"";
+          if(!href||href.startsWith("javascript:"))return;
+          event.preventDefault();event.stopImmediatePropagation();
+          window.open(new URL(href,location.href).href,"_blank","noopener,noreferrer");
+        },true);
+      }
       function safePushState(state, path) {
         const safe = String(path || "/");
         if (!safe.startsWith("/") || safe.startsWith("//"))
@@ -1496,6 +1560,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
 
       addEventListener("DOMContentLoaded", async () => {
+        installGlobalNewTabPolicy();
+        updateDynamicSeo(null,{path:location.pathname});
         await initSupabase();
         try {
           await Promise.all([
@@ -1653,6 +1719,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});
         if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}
         allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];
+        if(cat==="all")updateDynamicSeo(null,{title:DEFAULT_PAGE_TITLE,description:DEFAULT_PAGE_DESCRIPTION,path:"/"});
+        else updateDynamicSeo(null,{title:`${cat}｜一葉知途`,description:`一葉知途的${cat}旅遊文章、實際體驗與行程資訊。`,path:categoryPath(cat)});
         let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}
         const base=[...list];if(activeTagFilters.length)list=list.filter(a=>activeTagFilters.some(t=>getArticleTags(a).includes(t)));list=[...list].sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
         const totalPages=Math.max(1,Math.ceil(list.length/ARTICLES_PER_PAGE));currentArticlePage=Math.min(Math.max(Number(opt.page)||1,1),totalPages);const pageItems=list.slice((currentArticlePage-1)*ARTICLES_PER_PAGE,currentArticlePage*ARTICLES_PER_PAGE);
@@ -1827,7 +1895,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         if (cacheIndex >= 0) allArticlesCache[cacheIndex] = { ...allArticlesCache[cacheIndex], ...a };
         else allArticlesCache.push(a);
         if (opt.updateHistory !== false) safePushState({ id: a.id }, articlePath(a));
-        document.title = `${a.title}｜一葉知途`;
+        updateDynamicSeo(a,{path:articlePath(a)});
         $("floating-toc").classList.remove("hidden");
         toggleTOC(false);
         const f = (v) => v ? new Intl.DateTimeFormat("zh-TW", {
@@ -1902,7 +1970,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const cat = categoryByName("我的旅途") || categoryByName("關於我");
         if (opt.updateHistory !== false && cat)
           safePushState({ journey: true }, categoryPath(cat.name));
-        document.title = "關於我｜一葉知途 的旅遊部落格";
+        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:settingsCache.full_intro||settingsCache.bio||DEFAULT_PAGE_DESCRIPTION,path:cat?categoryPath(cat.name):location.pathname});
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
@@ -1922,7 +1990,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       async function goHome() {
         safePushState({}, "/");
-        document.title = "一葉知途｜韓國自由行攻略";
+        updateDynamicSeo(null,{title:DEFAULT_PAGE_TITLE,description:DEFAULT_PAGE_DESCRIPTION,path:"/"});
         await fetchArticles();
         updateStructuredData();
         scrollTo({ top: 0 });
