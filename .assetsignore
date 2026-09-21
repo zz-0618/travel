@@ -1,0 +1,11 @@
+_worker.js
+src/
+wrangler.jsonc
+package.json
+package-lock.json
+node_modules/
+.git/
+.gitignore
+README.txt
+*.zip
+*.py

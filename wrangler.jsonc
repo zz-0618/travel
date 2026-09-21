@@ -1,9 +1,12 @@
 {
-  "name": "travel",
-  "compatibility_date": "2026-08-25",
-
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "a-leaf-path",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-21",
   "assets": {
     "directory": ".",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true
   }
 }
