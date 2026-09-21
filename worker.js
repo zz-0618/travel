@@ -4,17 +4,38 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // sitemap
     if (url.pathname === '/sitemap.xml') {
       return generateSitemap(request, env);
     }
 
+    // robots
     if (url.pathname === '/robots.txt') {
       return generateRobots(request);
     }
 
-    return env.ASSETS.fetch(request);
+    // 先嘗試取得實體資源
+    const response = await env.ASSETS.fetch(request);
+
+    // 找得到檔案直接回傳
+    if (response.status !== 404) {
+      return response;
+    }
+
+    // 有副檔名表示圖片、css、js 等資源
+    // 保持真正 404
+    if (url.pathname.includes('.')) {
+      return response;
+    }
+
+    // SPA Routing Fallback
+    // 所有文章路徑都回到首頁讓前端 router 處理
+    return env.ASSETS.fetch(
+      new Request(new URL('/', request.url))
+    );
   },
 };
+
 
 async function generateSitemap(request, env) {
   try {
