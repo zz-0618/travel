@@ -8,4 +8,9 @@
     "directory": ".",
     "binding": "ASSETS"
   }
+
+  "vars": {
+    "SUPABASE_ANON_KEY": "sb_publishable__8VdnjBQYgeFtPdArs4lww_4RJxrDye",
+    "SUPABASE_URL": "https://rpzqioezweftrjtrneos.supabase.co"
+  },
 }
