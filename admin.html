@@ -298,6 +298,11 @@
               ></textarea>
             </div>
             <div>
+              <label class="block font-semibold mb-1" for="admin-email">Email</label>
+              <input id="admin-email" type="email" class="w-full border p-2 rounded" maxlength="254" autocomplete="email" placeholder="hello@example.com" />
+              <p class="mt-2 text-xs opacity-70">此 Email 會顯示在前台右側「關於我」的個人簡介下方。</p>
+            </div>
+            <div>
               <label class="block font-semibold mb-1" for="admin-full-intro">完整介紹</label>
               <textarea
                 id="admin-full-intro"
@@ -1973,6 +1978,8 @@
           $("admin-nickname").value = settingsCache.nickname || "zz";
         if ($("admin-bio"))
           $("admin-bio").value = settingsCache.bio || "一個隨筆紀錄的人";
+        if ($("admin-email"))
+          $("admin-email").value = settingsCache.profile_email || "";
         if ($("admin-full-intro"))
           $("admin-full-intro").value = settingsCache.full_intro || "";
         if ($("announcement-enabled"))
@@ -1994,10 +2001,12 @@
       async function saveProfileSettings() {
         const nickname = $("admin-nickname").value.trim(),
           bio = $("admin-bio").value.trim(),
+          profile_email = $("admin-email").value.trim(),
           full_intro = $("admin-full-intro").value.trim();
         if (!nickname) return alert("暱稱不可空白");
+        if (profile_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile_email)) return alert("請輸入有效的 Email 格式");
         try {
-          await upsertSettings({ nickname, bio, full_intro });
+          await upsertSettings({ nickname, bio, profile_email, full_intro });
           alert("帳號資料已更新");
         } catch (e) {
           alert("更新失敗：" + e.message);

@@ -761,6 +761,12 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         background: var(--soft) !important;
         border-color: var(--sand) !important;
       }
+      .about-me-email{margin-top:.65rem;font-size:.82rem;color:var(--ink);overflow-wrap:anywhere;text-decoration:none}
+      .about-me-email:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+      .category-sidebar{background:var(--soft);border:1px solid var(--sand);color:var(--ink)}
+      .category-sidebar-title{font-size:1.1rem;font-weight:700;padding-bottom:.65rem;margin-bottom:.75rem;border-bottom:1px solid var(--sand)}
+      .category-sidebar-tree{display:flex;flex-direction:column;gap:.8rem}.category-sidebar-parent{display:flex;align-items:center;justify-content:space-between;gap:.75rem;font-weight:700;color:var(--ink);text-decoration:none}.category-sidebar-children{display:flex;flex-direction:column;gap:.45rem;padding:.55rem 0 0 1rem}.category-sidebar-child{display:flex;align-items:center;justify-content:space-between;gap:.75rem;color:var(--ink);font-size:.92rem;text-decoration:none}.category-sidebar-parent:hover,.category-sidebar-child:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px}.category-sidebar-count{flex:0 0 auto;font-variant-numeric:tabular-nums;white-space:nowrap}
+      .article-list-meta-row{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .8rem;margin-top:.4rem;color:rgba(69,40,41,.7);font-size:.75rem;line-height:1.5}.article-list-meta-row .article-list-breadcrumb{margin-top:0;color:inherit;font-size:inherit;line-height:inherit}.article-list-edited-date{color:inherit;white-space:nowrap}
       /* 文章頁標題橫線、H3 底線與 H4 底色共用同一色 */
       :root { --article-heading-line: #D8C5B5; }
       #article-body-content h3 {
@@ -910,8 +916,12 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             <p id="site-bio" class="text-sm mt-1 opacity-90">
               韓國自由行攻略與旅遊心得分享
             </p>
+            <a id="site-email" class="about-me-email hidden" href=""></a>
           </div>
-
+          <section id="category-sidebar" class="category-sidebar hidden p-5 rounded-xl shadow-sm" aria-labelledby="category-sidebar-title">
+            <h3 id="category-sidebar-title" class="category-sidebar-title">分類</h3>
+            <div id="category-sidebar-tree" class="category-sidebar-tree"></div>
+          </section>
           <section id="internal-links-sidebar" class="korea-trip-sidebar hidden" aria-labelledby="internal-links-title">
             <h3 id="internal-links-title" class="korea-trip-title"></h3>
             <div id="internal-links-grid" class="korea-trip-grid"></div>
@@ -1076,7 +1086,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         categoriesCache = [],
         settingsCache = {},
         journeyEntries = [],
-        categoryOrder = [];
+        categoryOrder = [],
+        sidebarArticlesCache = [];
       const $ = (id) => document.getElementById(id),
         esc = (s) =>
           String(s ?? "").replace(
@@ -1510,7 +1521,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function isSameTabNavigationLink(link){
         if(!link)return false;
         const href=String(link.getAttribute?.("href")||"");
-        return Boolean(link.closest?.("#frontend-nav-tabs, #table-of-contents, .inline-article-toc")) || href.startsWith("#heading-");
+        return Boolean(link.closest?.("#frontend-nav-tabs, #table-of-contents, .inline-article-toc, .category-sidebar")) || href.startsWith("#heading-");
       }
       function enforceNewTabLinks(root=document){
         root.querySelectorAll?.('a[href]').forEach(link=>{
@@ -1620,7 +1631,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         event.preventDefault();viewSingleArticle(id);
       }
       function articleCardHtml(a){
-        return `<article class="article-list-card" role="link" tabindex="0" aria-label="閱讀文章：${esc(a.title)}" onclick="openArticleCard(event,'${a.id}')" onkeydown="handleArticleCardKey(event,'${a.id}')"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
+        return `<article class="article-list-card" role="link" tabindex="0" aria-label="閱讀文章：${esc(a.title)}" onclick="openArticleCard(event,'${a.id}')" onkeydown="handleArticleCardKey(event,'${a.id}')"><div class="article-list-image-wrap"><a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-list-image-link">${a.cover_image_url?`<img src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" class="article-list-cover" loading="lazy" decoding="async">`:`<div class="article-list-cover article-list-cover-placeholder">Travel</div>`}</a></div><div class="article-list-content"><h2 class="text-2xl font-bold"><a class="article-title-link" href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')">${esc(a.title)}</a></h2><div class="article-list-meta-row"><nav class="article-list-breadcrumb">${esc(a.category)}${a.subcategory?" › "+esc(a.subcategory):""}</nav><time class="article-list-edited-date" datetime="${esc(a.updated_at||a.created_at||"")}">${formatArticleDate(a.updated_at||a.created_at)}</time></div><p class="line-clamp-2 mt-3">${esc(a.excerpt||"")}</p></div></article>`;
       }
       function navSearchHtml(){
         return `<li class="nav-search-item"><div id="nav-search-shell" class="nav-search-shell"><button id="nav-search-toggle" type="button" class="nav-search-toggle" onclick="toggleNavSearch()" aria-label="開啟或收合站內搜尋" aria-expanded="false">⌕</button><div class="nav-search-box"><input id="site-search-input" class="nav-search-input" type="search" inputmode="search" autocomplete="off" spellcheck="false" placeholder="搜尋文章、分類、標籤或內容" aria-label="搜尋站內文章" aria-autocomplete="list" aria-controls="site-search-suggestions" aria-expanded="false"><button id="site-search-clear" class="site-search-clear" type="button" aria-label="清除搜尋" onclick="clearSiteSearch()">×</button></div><div id="site-search-suggestions" class="site-search-suggestions" role="listbox"></div><div id="site-search-status" class="site-search-status" role="status" aria-live="polite"></div></div></li>`;
@@ -1704,7 +1715,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       async function fetchArticles(cat="all",opt={}){
         const c=$("main-content-area"),{data,error}=await supabaseClient.from("articles").select("id,title,category,subcategory,slug,created_at,updated_at,excerpt,cover_image_url").order("created_at",{ascending:false});
         if(error){c.innerHTML=`<div>讀取失敗：${esc(error.message)}</div>`;return}
-        allArticlesCache=(data||[]).filter(isPublishedArticle);activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];
+        allArticlesCache=(data||[]).filter(isPublishedArticle);sidebarArticlesCache=[...allArticlesCache];renderCategorySidebar();activeCategoryName=cat;if(!opt.preserveTags)activeTagFilters=[];
         if(cat==="all")updateDynamicSeo(null,{title:DEFAULT_PAGE_TITLE,description:DEFAULT_PAGE_DESCRIPTION,path:"/"});
         else updateDynamicSeo(null,{title:`${cat}｜一葉知途`,description:`一葉知途的${cat}旅遊文章、實際體驗與行程資訊。`,path:categoryPath(cat)});
         let list=allArticlesCache;if(cat!=="all"){const target=categoryByName(cat);if(target&&!target.parent_id){const names=[target.name,...categoriesCache.filter(x=>x.parent_id===target.id).map(x=>x.name)];list=list.filter(a=>names.includes(a.category)||names.includes(a.subcategory))}else list=list.filter(a=>a.category===cat||a.subcategory===cat)}
@@ -1736,6 +1747,15 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         if(!related.length){grid.innerHTML="";section.classList.add("hidden");return}
         grid.innerHTML=related.map(a=>`<a href="${articlePath(a)}" onclick="event.preventDefault();viewSingleArticle('${a.id}')" class="article-related-card">${a.cover_image_url?`<img class="article-related-image" src="${esc(a.cover_image_url)}" alt="${esc(a.title)}" loading="lazy" decoding="async">`:`<span class="article-related-image article-related-image-placeholder">Travel</span>`}<span class="article-related-body"><span class="article-related-card-title">${esc(a.title)}</span><span class="article-related-category">${esc(a.category||"")}${a.subcategory?" · "+esc(a.subcategory):""}</span></span></a>`).join("");
         section.classList.remove("hidden");
+      }
+      async function renderCategorySidebar(){
+        const section=$("category-sidebar"),tree=$("category-sidebar-tree");if(!section||!tree)return;
+        try{
+          if(!sidebarArticlesCache.length){const {data,error}=await supabaseClient.from("articles").select("id,category,subcategory");if(error)throw error;sidebarArticlesCache=(data||[]).filter(isPublishedArticle);}
+          const parents=categoriesCache.filter(category=>!category.parent_id);if(!parents.length){tree.innerHTML="";section.classList.add("hidden");return;}
+          const countFor=category=>{const children=categoriesCache.filter(item=>String(item.parent_id||"")===String(category.id));const childNames=new Set(children.map(item=>item.name));return sidebarArticlesCache.filter(article=>article.category===category.name||article.subcategory===category.name||childNames.has(article.category)||childNames.has(article.subcategory)).length;};
+          tree.innerHTML=parents.map(parent=>{const children=categoriesCache.filter(item=>String(item.parent_id||"")===String(parent.id));const parentLink=`<a class="category-sidebar-parent" href="${categoryPath(parent.name)}" onclick="event.preventDefault();filterCategory('${jsq(parent.name)}')"><span>${esc(parent.name)}</span><span class="category-sidebar-count">( ${countFor(parent)} )</span></a>`;const childLinks=children.length?`<div class="category-sidebar-children">${children.map(child=>`<a class="category-sidebar-child" href="${categoryPath(child.name)}" onclick="event.preventDefault();filterCategory('${jsq(child.name)}')"><span>${esc(child.name)}</span><span class="category-sidebar-count">( ${countFor(child)} )</span></a>`).join("")}</div>`:"";return `<section>${parentLink}${childLinks}</section>`;}).join("");section.classList.remove("hidden");
+        }catch(error){console.error("側邊欄分類載入失敗：",error);tree.innerHTML="";section.classList.add("hidden");}
       }
       function defaultInternalLinks(){
         return {
@@ -2393,6 +2413,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         renderSocialPlatforms();
         renderSidebarAds();
         renderInternalLinks();
+        renderCategorySidebar();
         const heroImage = $("site-logo-image");
         if (settingsCache.logo) {
           preloadImage("hero-image-preload", settingsCache.logo, "high");
@@ -2410,6 +2431,9 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         }
         $("site-nickname").textContent = settingsCache.nickname || "zz";
         $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
+        const profileEmail=String(settingsCache.profile_email||"").trim();
+        const emailNode=$("site-email");
+        if(emailNode){emailNode.textContent=profileEmail;emailNode.href=profileEmail?"mailto:"+profileEmail:"";emailNode.classList.toggle("hidden",!profileEmail);}
       }
      
     </script>
