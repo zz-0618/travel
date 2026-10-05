@@ -1841,7 +1841,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       function renderFrontendNav() {
         const p = categoriesCache.filter((c) => !c.parent_id);
         $("frontend-nav-tabs").innerHTML =
-          '<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>' +
+          '<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>
+           <li><a href="/";viewJourney()">關於我</a></li>' +
           p
             .map((x) => {
               const ch = categoriesCache.filter((c) => c.parent_id === x.id);
