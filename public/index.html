@@ -1842,39 +1842,68 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const p = categoriesCache.filter((c) => !c.parent_id);
       
         $("frontend-nav-tabs").innerHTML =
-        `
-        <li>
-          <a href="/" onclick="event.preventDefault();goHome()">首頁</a>
-        </li>
-        
-        <li>
-          <a href="/about_me"
-             onclick 關於我
-          </a>
-        </li>
-        `
-        +
-        p
-        .filter(x =>
-          x.name !== "我的旅途" &&
-          x.name !== "關於我"
-        )
-        .map((x) => {
-          const ch = categoriesCache.filter(
-            (c) => c.parent_id === x.id
-          );
-        
-          return ch.length
-            ? `你的原本下拉選單程式`
-            : `你的原本單一分類程式`;
-        })
-        .join("")
-        +
-        navSearchHtml();
+          `
+            <li>
+              <a href="/"
+                 onclick="event.preventDefault();goHome()">
+                 首頁
+              </a>
+            </li>
       
-        setupSiteSearch();
-      }
-            .join("") + navSearchHtml();
+            <li>
+              <a href="/";viewJourney()">
+                 關於我
+              </a>
+            </li>
+          `
+          +
+          p
+            .filter(
+              x =>
+                x.name !== "我的旅途" &&
+                x.name !== "關於我"
+            )
+            .map((x) => {
+              const ch = categoriesCache.filter(
+                (c) => c.parent_id === x.id
+              );
+      
+              const displayName = x.name;
+      
+              return ch.length
+                ? `
+                  <li class="relative dropdown-parent">
+                    "
+                       onclick="event.preventDefault();openCategory('${jsq(x.name)}')">
+                       ${esc(displayName)} ▾
+                    </a>
+      
+                    <ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">
+                      ${ch.map((y) => `
+                        <li>
+                          "
+                             class="block px-4 py-1"
+                             onclick="event.preventDefault();openCategory('${jsq(y.name)}')">
+                             ${esc(y.name)}
+                          </a>
+                        </li>
+                      `).join("")}
+                    </ul>
+                  </li>
+                `
+                : `
+                  <li>
+                    "
+                       onclick="event.preventDefault();openCategory('${jsq(x.name)}')">
+                       ${esc(displayName)}
+                    </a>
+                  </li>
+                `;
+            })
+            .join("")
+          +
+          navSearchHtml();
+      
         setupSiteSearch();
       }
       function openCategory(name) {
