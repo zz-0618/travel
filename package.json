@@ -2,7 +2,7 @@
   "name": "travel",
   "private": true,
   "scripts": {
-    "build-css": "tailwindcss -i ./input.css -o ./css/style.css --minify",
+    "build-css": "tailwindcss -i ./input.css -o ./public/css/style.css --minify",
     "build": "npm run build-css"
   },
   "devDependencies": {
