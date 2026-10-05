@@ -1839,11 +1839,17 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         }).format(new Date(v));
       }
       function renderFrontendNav() {
-        const p = categoriesCache.filter((c) => !c.parent_id);
+        const p = categoriesCache.filter(
+          (c) =>
+            !c.parent_id &&
+            c.name !== "我的旅途" &&
+            c.name !== "關於我"
+        );
+      
         $("frontend-nav-tabs").innerHTML =
           '<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>' +
-          p
-            .map((x) => {
+      
+          '<li><a href="/about_me" onclick="event.preventDefault();view.map((x) => {
               const ch = categoriesCache.filter((c) => c.parent_id === x.id);
               const displayName = x.name === "我的旅途" ? "關於我" : x.name;
               return ch.length
@@ -1918,6 +1924,10 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         scrollTo({ top: 0 });
       }
       async function handleCurrentRoute() {
+        if (location.pathname === "/about_me") {
+          viewJourney({ updateHistory: false });
+          return;
+        }
         const parts = decodeURIComponent(location.pathname).split("/").filter(Boolean);
         if (!parts.length || parts[0] === "index.html") {
           await fetchArticles();
@@ -1974,9 +1984,12 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       function viewJourney(opt = {}) {
         const cat = categoryByName("我的旅途") || categoryByName("關於我");
-        if (opt.updateHistory !== false && cat)
-          safePushState({ journey: true }, categoryPath(cat.name));
-        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:settingsCache.full_intro||settingsCache.bio||DEFAULT_PAGE_DESCRIPTION,path:cat?categoryPath(cat.name):location.pathname});
+        if (opt.updateHistory !== false)
+          safePushState(
+            { journey: true },
+            "/about_me"
+          );
+        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:settingsCache.full_intro||settingsCache.bio||DEFAULT_PAGE_DESCRIPTION,path:"/about_me"});
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
