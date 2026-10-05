@@ -29,7 +29,8 @@ export default {
     if (
       url.pathname === '/' ||
       url.pathname === '/index.html' ||
-      url.pathname === '/admin.html'
+      url.pathname === '/admin' ||
+      url.pathname === '/admin/'
     ) {
       return env.ASSETS.fetch(request);
     }
