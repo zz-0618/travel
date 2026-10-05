@@ -28,11 +28,38 @@ export default {
       return response;
     }
 
-    // SPA Routing Fallback
-    // 所有文章路徑都回到首頁讓前端 router 處理
-    return env.ASSETS.fetch(
-      new Request(new URL('/', request.url))
-    );
+    // 嘗試用網址最後一段找文章
+    const pathParts =
+      decodeURIComponent(url.pathname)
+      .split("/")
+      .filter(Boolean);
+       
+      const slug =
+      pathParts[pathParts.length - 1];
+       
+      if (slug) {
+       
+      const article =
+      await findArticleBySlug(
+      env,
+      slug
+      );
+       
+      if (article) {
+       
+      return renderArticleHtml(
+      request,
+      env,
+      article
+      );
+      }
+      }
+       
+      return env.ASSETS.fetch(
+      new Request(
+      new URL("/", request.url)
+      )
+      );
   },
 };
 
@@ -148,6 +175,34 @@ async function supabaseSelect(env, table, select) {
   const data = await response.json();
   if (!Array.isArray(data)) throw new Error(`Supabase ${table} response is not an array`);
   return data;
+}
+
+async function findArticleBySlug(env, slug) {
+
+  const baseUrl =
+    env.SUPABASE_URL.replace(/\/$/, '');
+
+  const endpoint =
+    `${baseUrl}/rest/v1/articles`
+    + `?slug=eq.${encodeURIComponent(slug)}`
+    + `&select=*`
+    + `&limit=1`;
+
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: env.SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+      Accept: 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+
+  return data?.[0] || null;
 }
 
 function buildArticlePath(article, categoryMap) {
