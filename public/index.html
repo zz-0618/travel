@@ -1857,58 +1857,50 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             <li>
               <a
                 href="/about_me"
-                onclick
-                關於我
-              </a>
-            </li>
-          `
+                onclick="event.preventDefault();viewJourney();"
+         `
           +
-          p
-            .map((x) => {
-              const ch = categoriesCache.filter(
-                (c) => c.parent_id === x.id
-              );
+          p.map((x) => {
+            const ch = categoriesCache.filter(
+              (c) => c.parent_id === x.id
+            );
       
-              const displayName = x.name;
+            const displayName = x.name;
       
-              return ch.length
-                ? `
-                    <li class="relative dropdown-parent">
-                      <a
-                        href="${categoryPath(x.fault();openCategory('${jsq(x.name)}')"
-                      >
-                        ${esc(displayName)} ▾
-                      </a>
+            return ch.length
+              ? `
+                  <li class="relative dropdown-parent">
+                    <a
+                      href="${categoryPath(x.name)}"
+                      onclick=me)}')"
+                    >
+                      ${esc(displayName)} ▾
+                    </a>
       
-                      <ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">
-                        ${ch
-                          .map(
-                            (y) => `
-                          <li>
-                            <a
-                              href="${categoryPath("
-                              onclick="event.preventDefault();openCategory('${jsq(y.name)}')"
-                            >
-                              ${esc(y.name)}
-                            </a>
-                          </li>
-                        `
-                          )
-                          .join("")}
-                      </ul>
-                    </li>
-                  `
-                : `
-                    <li>
-                      "
-                        onclick="event.preventDefault();openCategory('${jsq(x.name)}')"
-                      >
-                        ${esc(displayName)}
-                      </a>
-                    </li>
-                  `;
-            })
-            .join("")
+                    <ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">
+                      ${ch.map((y) => `
+                        <li>
+                          "
+                            class="block px-4 py-1"
+                            onclick="event.preventDefault();openCategory('${jsq(y.name)}')"
+                          >
+                            ${esc(y.name)}
+                          </a>
+                        </li>
+                      `).join("")}
+                    </ul>
+                  </li>
+                `
+              : `
+                  <li>
+                    <a
+                     onclick="event.preventDefault();openCategory('${jsq(x.name)}')"
+                    >
+                      ${esc(displayName)}
+                    </a>
+                  </li>
+                `;
+          }).join("")
           +
           navSearchHtml();
       
