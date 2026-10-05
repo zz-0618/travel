@@ -1842,27 +1842,35 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const p = categoriesCache.filter((c) => !c.parent_id);
       
         $("frontend-nav-tabs").innerHTML =
-          `
-          <li>
-            <a href="/" onclick="event.preventDefault();goHome()">首頁</a>
-          </li>
-      
-          <li>
-            <a href="/about_me"
-               onclick 關於我
-            </a>
-          </li>
-          `
-          +
-          p
-            .filter(x =>
-              x.name !== "我的旅途" &&
-              x.name !== "關於我"
-            )
-            .map(...)
-            .join("")
-          +
-          navSearchHtml();
+        `
+        <li>
+          <a href="/" onclick="event.preventDefault();goHome()">首頁</a>
+        </li>
+        
+        <li>
+          <a href="/about_me"
+             onclick 關於我
+          </a>
+        </li>
+        `
+        +
+        p
+        .filter(x =>
+          x.name !== "我的旅途" &&
+          x.name !== "關於我"
+        )
+        .map((x) => {
+          const ch = categoriesCache.filter(
+            (c) => c.parent_id === x.id
+          );
+        
+          return ch.length
+            ? `你的原本下拉選單程式`
+            : `你的原本單一分類程式`;
+        })
+        .join("")
+        +
+        navSearchHtml();
       
         setupSiteSearch();
       }
