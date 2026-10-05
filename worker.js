@@ -1,75 +1,68 @@
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+const SITE_NAME = '一葉知途';
+const DEFAULT_DESCRIPTION = '一葉知途分享韓國自由行攻略，包含濟州島及釜山的美食、交通、住宿與旅遊心得。';
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // sitemap
     if (url.pathname === '/sitemap.xml') {
       return generateSitemap(request, env);
     }
 
-    // robots
     if (url.pathname === '/robots.txt') {
       return generateRobots(request);
     }
 
-    // 先嘗試取得實體資源
-    const response = await env.ASSETS.fetch(request);
-
-    // 找得到檔案直接回傳
-    if (response.status !== 404) {
-      return response;
+    // 有副檔名的路徑視為實體資源，例如圖片、CSS、JS、favicon。
+    if (hasFileExtension(url.pathname)) {
+      return env.ASSETS.fetch(request);
     }
 
-    // 有副檔名表示圖片、css、js 等資源
-    // 保持真正 404
-    if (url.pathname.includes('.')) {
-      return response;
+    // 首頁與後台直接回傳靜態資源。
+    if (
+      url.pathname === '/' ||
+      url.pathname === '/index.html' ||
+      url.pathname === '/admin.html'
+    ) {
+      return env.ASSETS.fetch(request);
     }
 
-    // 嘗試用網址最後一段找文章
-    const pathParts =
-      decodeURIComponent(url.pathname)
-      .split("/")
+    // 重要：乾淨網址先查文章，再交給 ASSETS。
+    // 不能先因 ASSETS 回傳 SPA 的 index.html 就直接 return，否則搜尋引擎只會看到首頁 SEO。
+    const pathParts = decodeURIComponent(url.pathname)
+      .split('/')
       .filter(Boolean);
-       
-      const slug =
-      pathParts[pathParts.length - 1];
-       
-      if (slug) {
-       
-      const article =
-      await findArticleBySlug(
-      env,
-      slug
-      );
-       
+    const slug = pathParts.at(-1) || '';
+
+    if (slug) {
+      const article = await findPublishedArticleBySlug(env, slug);
       if (article) {
-       
-      return renderArticleHtml(
-      request,
-      env,
-      article
-      );
+        return renderArticleHtml(request, env, article);
       }
-      }
-       
-      return env.ASSETS.fetch(
-      new Request(
-      new URL("/index.html", request.url)
-      )
-      );
+    }
+
+    // 非文章路徑（例如分類頁）仍交給前端 SPA 處理。
+    return env.ASSETS.fetch(
+      new Request(new URL('/', request.url), request),
+    );
   },
 };
 
+function hasFileExtension(pathname) {
+  return /\/[^/]+\.[A-Za-z0-9]{1,10}$/.test(pathname);
+}
 
 async function generateSitemap(request, env) {
   try {
     requireEnv(env, ['SUPABASE_URL', 'SUPABASE_ANON_KEY']);
 
     const [articles, categories, settings] = await Promise.all([
-      supabaseSelect(env, 'articles', 'id,category,subcategory,slug,created_at,updated_at'),
+      supabaseSelect(
+        env,
+        'articles',
+        'id,category,subcategory,slug,created_at,updated_at',
+      ),
       supabaseSelect(env, 'categories', 'id,name,slug,parent_id'),
       supabaseSelect(env, 'settings', 'key,value'),
     ]);
@@ -105,7 +98,9 @@ async function generateSitemap(request, env) {
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
       ...Array.from(urls.values()).map(({ loc, lastmod }) => {
         const fields = [`<loc>${escapeXml(loc)}</loc>`];
-        if (lastmod) fields.push(`<lastmod>${escapeXml(toW3cDate(lastmod))}</lastmod>`);
+        if (lastmod) {
+          fields.push(`<lastmod>${escapeXml(toW3cDate(lastmod))}</lastmod>`);
+        }
         return `  <url>${fields.join('')}</url>`;
       }),
       '</urlset>',
@@ -154,16 +149,14 @@ function generateRobots(request) {
 }
 
 async function supabaseSelect(env, table, select) {
+  requireEnv(env, ['SUPABASE_URL', 'SUPABASE_ANON_KEY']);
+
   const baseUrl = env.SUPABASE_URL.replace(/\/$/, '');
   const endpoint = new URL(`${baseUrl}/rest/v1/${table}`);
   endpoint.searchParams.set('select', select);
 
   const response = await fetch(endpoint, {
-    headers: {
-      apikey: env.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
-      Accept: 'application/json',
-    },
+    headers: supabaseHeaders(env),
   });
 
   if (!response.ok) {
@@ -173,36 +166,224 @@ async function supabaseSelect(env, table, select) {
   }
 
   const data = await response.json();
-  if (!Array.isArray(data)) throw new Error(`Supabase ${table} response is not an array`);
+  if (!Array.isArray(data)) {
+    throw new Error(`Supabase ${table} response is not an array`);
+  }
+
   return data;
 }
 
-async function findArticleBySlug(env, slug) {
+async function findPublishedArticleBySlug(env, slug) {
+  try {
+    requireEnv(env, ['SUPABASE_URL', 'SUPABASE_ANON_KEY']);
 
-  const baseUrl =
-    env.SUPABASE_URL.replace(/\/$/, '');
+    const baseUrl = env.SUPABASE_URL.replace(/\/$/, '');
+    const endpoint = new URL(`${baseUrl}/rest/v1/articles`);
+    endpoint.searchParams.set('slug', `eq.${slug}`);
+    endpoint.searchParams.set('select', '*');
+    endpoint.searchParams.set('limit', '1');
 
-  const endpoint =
-    `${baseUrl}/rest/v1/articles`
-    + `?slug=eq.${encodeURIComponent(slug)}`
-    + `&select=*`
-    + `&limit=1`;
+    const response = await fetch(endpoint, {
+      headers: supabaseHeaders(env),
+    });
 
-  const response = await fetch(endpoint, {
-    headers: {
-      apikey: env.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
-      Accept: 'application/json'
+    if (!response.ok) {
+      console.error('Article query failed:', response.status, await response.text());
+      return null;
     }
-  });
 
-  if (!response.ok) {
+    const rows = await response.json();
+    const article = Array.isArray(rows) ? rows[0] : null;
+    if (!article) return null;
+
+    const status = await getSettingValue(env, `article_status_${article.id}`);
+    return status === 'draft' ? null : article;
+  } catch (error) {
+    console.error('Article lookup failed:', error);
     return null;
   }
+}
 
-  const data = await response.json();
+async function getSettingValue(env, key) {
+  const baseUrl = env.SUPABASE_URL.replace(/\/$/, '');
+  const endpoint = new URL(`${baseUrl}/rest/v1/settings`);
+  endpoint.searchParams.set('key', `eq.${key}`);
+  endpoint.searchParams.set('select', 'value');
+  endpoint.searchParams.set('limit', '1');
 
-  return data?.[0] || null;
+  const response = await fetch(endpoint, {
+    headers: supabaseHeaders(env),
+  });
+
+  if (!response.ok) return null;
+
+  const rows = await response.json();
+  return Array.isArray(rows) ? rows[0]?.value ?? null : null;
+}
+
+function supabaseHeaders(env) {
+  return {
+    apikey: env.SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+    Accept: 'application/json',
+  };
+}
+
+async function renderArticleHtml(request, env, article) {
+  const indexResponse = await env.ASSETS.fetch(
+    new Request(new URL('/', request.url), request),
+  );
+
+  if (!indexResponse.ok) return indexResponse;
+
+  const articleUrl = new URL(request.url).href;
+  const title = `${normalizeText(article.title) || SITE_NAME}｜${SITE_NAME}`;
+  const description = buildDescription(article);
+  const image = absoluteUrl(article.cover_image_url, new URL(request.url).origin);
+  const structuredData = buildArticleStructuredData({
+    article,
+    articleUrl,
+    description,
+    image,
+  });
+
+  const rewriter = new HTMLRewriter()
+    .on('title', new TextContentHandler(title))
+    .on('meta[name="description"]', new MetaContentHandler(description))
+    .on('meta[name="robots"]', new MetaContentHandler('index,follow,max-image-preview:large'))
+    .on('meta[property="og:type"]', new MetaContentHandler('article'))
+    .on('meta[property="og:title"]', new MetaContentHandler(title))
+    .on('meta[property="og:description"]', new MetaContentHandler(description))
+    .on('meta[property="og:url"]', new MetaContentHandler(articleUrl))
+    .on('meta[property="og:image"]', new MetaContentHandler(image))
+    .on('meta[name="twitter:card"]', new MetaContentHandler('summary_large_image'))
+    .on('meta[name="twitter:title"]', new MetaContentHandler(title))
+    .on('meta[name="twitter:description"]', new MetaContentHandler(description))
+    .on('meta[name="twitter:image"]', new MetaContentHandler(image))
+    .on('link[rel="canonical"]', new AttributeHandler('href', articleUrl))
+    .on('#structured-data', new JsonLdHandler(structuredData));
+
+  const response = rewriter.transform(indexResponse);
+  const headers = new Headers(response.headers);
+  headers.set('Content-Type', 'text/html; charset=UTF-8');
+  headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+  headers.set('X-Robots-Tag', 'index, follow, max-image-preview:large');
+  headers.set('Vary', 'Accept-Encoding');
+
+  return new Response(response.body, {
+    status: 200,
+    headers,
+  });
+}
+
+class TextContentHandler {
+  constructor(value) {
+    this.value = value;
+  }
+
+  element(element) {
+    element.setInnerContent(this.value);
+  }
+}
+
+class MetaContentHandler {
+  constructor(value) {
+    this.value = value || '';
+  }
+
+  element(element) {
+    element.setAttribute('content', this.value);
+  }
+}
+
+class AttributeHandler {
+  constructor(name, value) {
+    this.name = name;
+    this.value = value;
+  }
+
+  element(element) {
+    element.setAttribute(this.name, this.value);
+  }
+}
+
+class JsonLdHandler {
+  constructor(value) {
+    this.value = value;
+  }
+
+  element(element) {
+    element.setInnerContent(JSON.stringify(this.value));
+  }
+}
+
+function buildDescription(article) {
+  const excerpt = normalizeText(article.excerpt);
+  if (excerpt) return excerpt.slice(0, 160);
+
+  const plainContent = stripHtml(article.content);
+  return (plainContent || DEFAULT_DESCRIPTION).slice(0, 160);
+}
+
+function buildArticleStructuredData({ article, articleUrl, description, image }) {
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: normalizeText(article.title),
+    description,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleUrl,
+    },
+    author: {
+      '@type': 'Person',
+      name: SITE_NAME,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+    },
+    articleSection: normalizeText(article.subcategory || article.category),
+    inLanguage: 'zh-TW',
+  };
+
+  if (image) data.image = [image];
+  if (article.created_at) data.datePublished = article.created_at;
+  if (article.updated_at || article.created_at) {
+    data.dateModified = article.updated_at || article.created_at;
+  }
+
+  return data;
+}
+
+function absoluteUrl(value, origin) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+
+  try {
+    return new URL(raw, origin).href;
+  } catch {
+    return '';
+  }
+}
+
+function stripHtml(value) {
+  return normalizeText(
+    String(value || '')
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'"),
+  );
+}
+
+function normalizeText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
 function buildArticlePath(article, categoryMap) {
@@ -217,96 +398,10 @@ function buildArticlePath(article, categoryMap) {
 
   const articleSlug = normalizeSlug(article.slug);
   if (!articleSlug) return '';
-  parts.push(articleSlug);
 
+  parts.push(articleSlug);
   const clean = parts.filter(Boolean).map(encodeURIComponent);
   return clean.length ? `/${clean.join('/')}` : '';
-}
-
-async function renderArticleHtml(
-  request,
-  env,
-  article
-) {
-
-  const indexResponse =
-    await env.ASSETS.fetch(
-      new Request(
-        new URL('/index.html', request.url)
-      )
-    );
-
-  const title =
-    `${article.title}｜一葉知途`;
-
-  const description =
-    (article.excerpt || '')
-      .replace(/\s+/g, ' ')
-      .substring(0, 160);
-
-  const articleUrl =
-    request.url;
-
-  return new HTMLRewriter()
-
-    .on(
-      'title',
-      {
-        element(el) {
-          el.setInnerContent(title);
-        }
-      }
-    )
-
-    .on(
-      'meta[name="description"]',
-      {
-        element(el) {
-          el.setAttribute(
-            'content',
-            description
-          );
-        }
-      }
-    )
-
-    .on(
-      'meta[property="og:title"]',
-      {
-        element(el) {
-          el.setAttribute(
-            'content',
-            title
-          );
-        }
-      }
-    )
-
-    .on(
-      'meta[property="og:description"]',
-      {
-        element(el) {
-          el.setAttribute(
-            'content',
-            description
-          );
-        }
-      }
-    )
-
-    .on(
-      'meta[property="og:url"]',
-      {
-        element(el) {
-          el.setAttribute(
-            'content',
-            articleUrl
-          );
-        }
-      }
-    )
-
-    .transform(indexResponse);
 }
 
 function buildCategoryPath(category, categories) {
@@ -320,6 +415,7 @@ function buildCategoryPath(category, categories) {
   }
 
   if (category.slug) parts.push(normalizeSlug(category.slug));
+
   const clean = parts.filter(Boolean).map(encodeURIComponent);
   return clean.length ? `/${clean.join('/')}` : '/';
 }
@@ -353,6 +449,8 @@ function escapeXml(value) {
 
 function requireEnv(env, names) {
   for (const name of names) {
-    if (!env[name]) throw new Error(`Missing Worker environment variable: ${name}`);
+    if (!env[name]) {
+      throw new Error(`Missing Worker environment variable: ${name}`);
+    }
   }
 }
