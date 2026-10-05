@@ -1848,16 +1848,20 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       
         $("frontend-nav-tabs").innerHTML =
           `
-          <li>
-            <a href="/" onclick="event.preventDefault();goHome()">
-              首頁
-            </a>
-          </li>
+            <li>
+              <a href="/" onclick="event.preventDefault();goHome()">
+                首頁
+              </a>
+            </li>
       
-          <li>
-            <a
-              href="/about_me"
-              onclick="event.preventDefault();viewJourney  `
+            <li>
+              <a
+                href="/about_me"
+                onclick
+                關於我
+              </a>
+            </li>
+          `
           +
           p
             .map((x) => {
@@ -1869,40 +1873,40 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       
               return ch.length
                 ? `
-                  <li class="relative dropdown-parent">
-                    <a
-                     onclick="event.preventDefault();openCategory('${jsq(x.name)}')"
-                    >
-                      ${esc(displayName)} ▾
-                    </a>
+                    <li class="relative dropdown-parent">
+                      <a
+                        href="${categoryPath(x.fault();openCategory('${jsq(x.name)}')"
+                      >
+                        ${esc(displayName)} ▾
+                      </a>
       
-                    <ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">
-                      ${ch
-                        .map(
-                          (y) => `
-                        <li>
-                          <a
-                           class="block px-4 py-1"
-                            onclick="event.preventDefault();openCategory('${jsq(y.name)}')"
-                          >
-                            ${esc(y.name)}
-                          </a>
-                        </li>
-                      `
-                        )
-                        .join("")}
-                    </ul>
-                  </li>
-                `
+                      <ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">
+                        ${ch
+                          .map(
+                            (y) => `
+                          <li>
+                            <a
+                              href="${categoryPath("
+                              onclick="event.preventDefault();openCategory('${jsq(y.name)}')"
+                            >
+                              ${esc(y.name)}
+                            </a>
+                          </li>
+                        `
+                          )
+                          .join("")}
+                      </ul>
+                    </li>
+                  `
                 : `
-                  <li>
-                    "
-                      onclick="event.preventDefault();openCategory('${jsq(x.name)}')"
-                    >
-                      ${esc(displayName)}
-                    </a>
-                  </li>
-                `;
+                    <li>
+                      "
+                        onclick="event.preventDefault();openCategory('${jsq(x.name)}')"
+                      >
+                        ${esc(displayName)}
+                      </a>
+                    </li>
+                  `;
             })
             .join("")
           +
@@ -2037,7 +2041,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         const cat = categoryByName("我的旅途") || categoryByName("關於我");
         if (opt.updateHistory !== false && cat)
           safePushState({ journey: true }, "/about_me");
-        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:settingsCache.full_intro||settingsCache.bio||DEFAULT_PAGE_DESCRIPTION,path:cat?categoryPath(cat.name):location.pathname});
+        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:settingsCache.full_intro||settingsCache.bio||DEFAULT_PAGE_DESCRIPTION,path:"/about_me"});
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
