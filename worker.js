@@ -57,7 +57,7 @@ export default {
        
       return env.ASSETS.fetch(
       new Request(
-      new URL("/", request.url)
+      new URL("/index.html", request.url)
       )
       );
   },
@@ -232,7 +232,7 @@ async function renderArticleHtml(
   const indexResponse =
     await env.ASSETS.fetch(
       new Request(
-        new URL('/', request.url)
+        new URL('/index.html', request.url)
       )
     );
 
