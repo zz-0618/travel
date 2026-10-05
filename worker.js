@@ -223,6 +223,92 @@ function buildArticlePath(article, categoryMap) {
   return clean.length ? `/${clean.join('/')}` : '';
 }
 
+async function renderArticleHtml(
+  request,
+  env,
+  article
+) {
+
+  const indexResponse =
+    await env.ASSETS.fetch(
+      new Request(
+        new URL('/', request.url)
+      )
+    );
+
+  const title =
+    `${article.title}｜一葉知途`;
+
+  const description =
+    (article.excerpt || '')
+      .replace(/\s+/g, ' ')
+      .substring(0, 160);
+
+  const articleUrl =
+    request.url;
+
+  return new HTMLRewriter()
+
+    .on(
+      'title',
+      {
+        element(el) {
+          el.setInnerContent(title);
+        }
+      }
+    )
+
+    .on(
+      'meta[name="description"]',
+      {
+        element(el) {
+          el.setAttribute(
+            'content',
+            description
+          );
+        }
+      }
+    )
+
+    .on(
+      'meta[property="og:title"]',
+      {
+        element(el) {
+          el.setAttribute(
+            'content',
+            title
+          );
+        }
+      }
+    )
+
+    .on(
+      'meta[property="og:description"]',
+      {
+        element(el) {
+          el.setAttribute(
+            'content',
+            description
+          );
+        }
+      }
+    )
+
+    .on(
+      'meta[property="og:url"]',
+      {
+        element(el) {
+          el.setAttribute(
+            'content',
+            articleUrl
+          );
+        }
+      }
+    )
+
+    .transform(indexResponse);
+}
+
 function buildCategoryPath(category, categories) {
   const parts = [];
 
