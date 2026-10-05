@@ -2357,7 +2357,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       async function openAdminPanel() {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) location.href = "/admin.html";
+        if (session) location.href = "/manage.html";
         else $("login-modal").classList.remove("hidden");
       }
       async function loginWithEmail() {
@@ -2366,7 +2366,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         if (!email || !password) return alert("請輸入帳號與密碼");
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) return alert("登入失敗：" + error.message);
-        location.href = "/admin.html";
+        location.href = "/manage.html";
       }
       
       function closeLoginModal() {
