@@ -1839,43 +1839,133 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         }).format(new Date(v));
       }
       function renderFrontendNav() {
-        const p = categoriesCache.filter(
-          (c) =>
-            !c.parent_id &&
-            c.name !== "我的旅途" &&
-            c.name !== "關於我"
+        const nav = $("frontend-nav-tabs");
+        if (!nav) return;
+      
+        nav.replaceChildren();
+      
+        const createNavLink = (
+          label,
+          href,
+          onClick,
+          className = ""
+        ) => {
+          const li = document.createElement("li");
+          const link = document.createElement("a");
+      
+          link.href = href;
+          link.textContent = label;
+      
+          if (className) {
+            link.className = className;
+          }
+      
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            onClick();
+          });
+      
+          li.appendChild(link);
+      
+          return li;
+        };
+      
+        nav.appendChild(
+          createNavLink(
+            "首頁",
+            "/",
+            goHome
+          )
         );
       
-        const homeLink =
-          '<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>';
+        nav.appendChild(
+          createNavLink(
+            "關於我",
+            "/about_me",
+            viewJourney
+          )
+        );
       
-        const aboutLink =
-          '<li><a href="/";viewJourney()">關於我</a></li>';
+        const parents = categoriesCache.filter(
+          (category) =>
+            !category.parent_id &&
+            category.name !== "我的旅途" &&
+            category.name !== "關於我"
+        );
       
-        const categoryLinks = p
-          .map((x) => {
-            const ch = categoriesCache.filter(
-              (c) => c.parent_id === x.id
+        parents.forEach((parent) => {
+          const children = categoriesCache.filter(
+            (category) =>
+              category.parent_id === parent.id
+          );
+      
+          if (!children.length) {
+            nav.appendChild(
+              createNavLink(
+                parent.name,
+                categoryPath(parent.name),
+                () => openCategory(parent.name)
+              )
             );
       
-            const displayName = x.name;
+            return;
+          }
       
-            return ch.length
-              ? `<li class="relative dropdown-parent">" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(displayName)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch
-                  .map(
-                    (y) =>
-                      `<li>" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`
-                  )
-                  .join("")}</ul></li>`
-              : `<li>" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(displayName)}</a></li>`;
-          })
-          .join("");
+          const parentItem =
+            document.createElement("li");
       
-        $("frontend-nav-tabs").innerHTML =
-          homeLink +
-          aboutLink +
-          categoryLinks +
-          navSearchHtml();
+          parentItem.className =
+            "relative dropdown-parent";
+      
+          const parentLink =
+            document.createElement("a");
+      
+          parentLink.href =
+            categoryPath(parent.name);
+      
+          parentLink.textContent =
+            `${parent.name} ▾`;
+      
+          parentLink.addEventListener(
+            "click",
+            (event) => {
+              event.preventDefault();
+              openCategory(parent.name);
+            }
+          );
+      
+          parentItem.appendChild(parentLink);
+      
+          const childList =
+            document.createElement("ul");
+      
+          childList.className =
+            "dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2";
+      
+          children.forEach((child) => {
+            childList.appendChild(
+              createNavLink(
+                child.name,
+                categoryPath(child.name),
+                () => openCategory(child.name),
+                "block px-4 py-1"
+              )
+            );
+          });
+      
+          parentItem.appendChild(childList);
+          nav.appendChild(parentItem);
+        });
+      
+        const searchTemplate =
+          document.createElement("template");
+      
+        searchTemplate.innerHTML =
+          navSearchHtml().trim();
+      
+        nav.appendChild(
+          searchTemplate.content
+        );
       
         setupSiteSearch();
       }
