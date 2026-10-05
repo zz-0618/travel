@@ -1840,70 +1840,17 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       }
       function renderFrontendNav() {
         const p = categoriesCache.filter((c) => !c.parent_id);
-      
         $("frontend-nav-tabs").innerHTML =
-          `
-            <li>
-              <a href="/"
-                 onclick="event.preventDefault();goHome()">
-                 首頁
-              </a>
-            </li>
-      
-            <li>
-              <a href="/";viewJourney()">
-                 關於我
-              </a>
-            </li>
-          `
-          +
+          '<li><a href="/" onclick="event.preventDefault();goHome()">首頁</a></li>' +
           p
-            .filter(
-              x =>
-                x.name !== "我的旅途" &&
-                x.name !== "關於我"
-            )
             .map((x) => {
-              const ch = categoriesCache.filter(
-                (c) => c.parent_id === x.id
-              );
-      
-              const displayName = x.name;
-      
+              const ch = categoriesCache.filter((c) => c.parent_id === x.id);
+              const displayName = x.name === "我的旅途" ? "關於我" : x.name;
               return ch.length
-                ? `
-                  <li class="relative dropdown-parent">
-                    "
-                       onclick="event.preventDefault();openCategory('${jsq(x.name)}')">
-                       ${esc(displayName)} ▾
-                    </a>
-      
-                    <ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">
-                      ${ch.map((y) => `
-                        <li>
-                          "
-                             class="block px-4 py-1"
-                             onclick="event.preventDefault();openCategory('${jsq(y.name)}')">
-                             ${esc(y.name)}
-                          </a>
-                        </li>
-                      `).join("")}
-                    </ul>
-                  </li>
-                `
-                : `
-                  <li>
-                    "
-                       onclick="event.preventDefault();openCategory('${jsq(x.name)}')">
-                       ${esc(displayName)}
-                    </a>
-                  </li>
-                `;
+                ? `<li class="relative dropdown-parent"><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(displayName)} ▾</a><ul class="dropdown-child hidden absolute bg-[#4B4038] min-w-[140px] py-2">${ch.map((y) => `<li><a href="${categoryPath(y.name)}" class="block px-4 py-1" onclick="event.preventDefault();openCategory('${jsq(y.name)}')">${esc(y.name)}</a></li>`).join("")}</ul></li>`
+                : `<li><a href="${categoryPath(x.name)}" onclick="event.preventDefault();openCategory('${jsq(x.name)}')">${esc(displayName)}</a></li>`;
             })
-            .join("")
-          +
-          navSearchHtml();
-      
+            .join("") + navSearchHtml();
         setupSiteSearch();
       }
       function openCategory(name) {
@@ -1971,14 +1918,6 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         scrollTo({ top: 0 });
       }
       async function handleCurrentRoute() {
-        if (
-          location.pathname === "/about_me"
-          ) {
-          viewJourney({
-          updateHistory:false
-          });
-          return;
-          }
         const parts = decodeURIComponent(location.pathname).split("/").filter(Boolean);
         if (!parts.length || parts[0] === "index.html") {
           await fetchArticles();
@@ -2034,18 +1973,10 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         taiwan.classList.toggle("journey-column-mobile-hidden", type !== "taiwan");
       }
       function viewJourney(opt = {}) {
-
-         if (opt.updateHistory !== false) {
-           safePushState(
-            { journey: true },
-            "/about_me"
-          );
-        }
-        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:
-            settingsCache.full_intro ||
-            settingsCache.bio ||
-            DEFAULT_PAGE_DESCRIPTION,
-          path:"/about_me"});
+        const cat = categoryByName("我的旅途") || categoryByName("關於我");
+        if (opt.updateHistory !== false && cat)
+          safePushState({ journey: true }, categoryPath(cat.name));
+        updateDynamicSeo(null,{title:"關於我｜一葉知途 的旅遊部落格",description:settingsCache.full_intro||settingsCache.bio||DEFAULT_PAGE_DESCRIPTION,path:cat?categoryPath(cat.name):location.pathname});
         $("floating-toc").classList.add("hidden");
         toggleTOC(false);
         hideRelatedArticles();
