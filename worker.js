@@ -28,21 +28,10 @@ export default {
     // 首頁與後台直接回傳靜態資源。
     if (
       url.pathname === '/' ||
-      url.pathname === '/index.html'
-    ) {
-      return env.ASSETS.fetch(request);
-    }
-    
-    if (
-      url.pathname === '/admin' ||
+      url.pathname === '/index.html' ||
       url.pathname === '/admin.html'
     ) {
-      return env.ASSETS.fetch(
-        new Request(
-          new URL('/admin.html', request.url),
-          request
-        )
-      );
+      return env.ASSETS.fetch(request);
     }
 
     // 重要：乾淨網址先查文章，再交給 ASSETS。
