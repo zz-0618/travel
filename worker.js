@@ -14,8 +14,14 @@ export default {
       return generateRobots(request);
     }
 
-    // 有副檔名的路徑視為實體資源，例如圖片、CSS、JS、favicon。
-    if (hasFileExtension(url.pathname)) {
+    // 靜態資源完全交給 ASSETS，不做 HTMLRewriter。
+    // 這可避免 CSS、字型、圖片被文章路由或 SPA fallback 誤判。
+    if (
+      url.pathname.startsWith('/css/') ||
+      url.pathname.startsWith('/fonts/') ||
+      url.pathname === '/favicon.png' ||
+      hasFileExtension(url.pathname)
+    ) {
       return env.ASSETS.fetch(request);
     }
 
