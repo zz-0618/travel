@@ -81,8 +81,11 @@
       .custom-card {
         background: var(--card);
       }
-      .dropdown-parent:hover .dropdown-child {
-        display: block;
+      /* 只有桌機才使用滑鼠移入展開 */
+      @media (min-width: 768px) {
+        .dropdown-parent:hover .dropdown-child {
+          display: block !important;
+        }
       }
       .line-clamp-2 {
         display: -webkit-box;
@@ -867,34 +870,68 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
       button.discount-code-card{display:grid!important;grid-template-columns:58px minmax(0,1fr);gap:.8rem;align-items:center;width:100%;padding:.7rem!important;border:0!important;border-radius:12px!important;color:#fff!important;text-align:left;cursor:pointer;box-shadow:0 3px 10px rgba(69,40,41,.12);transition:.2s}.discount-code-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(69,40,41,.18)}.discount-code-logo{display:block;width:58px;height:58px;border-radius:10px;object-fit:cover;background:#fff}.discount-code-logo-placeholder{display:grid;place-items:center;color:#452829;font-weight:700}.discount-code-value{display:block;color:#fff!important;font-size:1.15rem;font-weight:700;overflow-wrap:anywhere}.discount-code-expiry{display:block;margin-top:.2rem;color:rgba(255,255,255,.9)!important;font-size:.72rem}.discount-code-note{margin-top:.75rem;font-size:.72rem;color:#7b6a5b;text-align:center}.discount-copy-toast{position:fixed;left:50%;bottom:2rem;z-index:150;transform:translate(-50%,12px);padding:.65rem 1rem;border-radius:999px;background:#452829;color:#fff;opacity:0;pointer-events:none;transition:.2s}.discount-copy-toast.show{opacity:1;transform:translate(-50%,0)}
 
       .social-platforms-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}.social-platform-icon-link{display:block;aspect-ratio:1;border:0;background:transparent;text-decoration:none;transition:transform .2s ease,filter .2s ease}.social-platform-icon-link:hover{transform:translateY(-2px);filter:drop-shadow(0 7px 8px rgba(69,40,41,.16))}.social-platform-icon{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;background:#fff}.sidebar-ads-box{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}.sidebar-ads-list{display:flex;flex-direction:column;gap:1rem}.sidebar-ad-link{display:block;width:100%;background:transparent;text-decoration:none;transition:transform .2s ease,filter .2s ease}.sidebar-ad-link:hover{transform:translateY(-2px);filter:drop-shadow(0 8px 10px rgba(69,40,41,.16))}.sidebar-ad-image{display:block;width:100%;height:auto;border-radius:0!important;background:transparent}
-      @media (max-width:767px){
+      /* =========================
+         手機版分類點擊展開
+         ========================= */
+      @media (max-width: 767px) {
       
-        .dropdown-child{
-          display:none;
-          position:absolute;
-          top:100%;
-          left:0;
-      
-          min-width:180px;
-      
-          background:#4B4038;
-      
-          border-radius:10px;
-      
-          z-index:100;
-      
-          overflow:hidden;
-      
-          box-shadow:
-            0 8px 24px rgba(0,0,0,.25);
+        /* 母分類與子分類改成上下排列 */
+        #frontend-nav-tabs > .dropdown-parent {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          position: static !important;
         }
       
-        .dropdown-child a{
-          display:block;
-          padding:.75rem 1rem;
-          white-space:nowrap;
+        /* 母分類連結永遠保留顯示 */
+        #frontend-nav-tabs > .dropdown-parent > a {
+          display: block;
+          width: 100%;
+          position: relative;
+          z-index: 1;
         }
       
+        /*
+         * 手機版不使用 absolute。
+         * 直接在導覽列下方撐開，避免被 overflow-y:hidden 裁掉。
+         */
+        #frontend-nav-tabs .dropdown-child {
+          display: none !important;
+          position: static !important;
+          top: auto !important;
+          left: auto !important;
+          min-width: 180px;
+          margin-top: .55rem;
+          padding: .4rem 0;
+          background: #4B4038;
+          border: 1px solid rgba(255,255,255,.12);
+          border-radius: 10px;
+          box-shadow: 0 8px 24px rgba(0,0,0,.25);
+          overflow: hidden;
+          z-index: auto;
+        }
+      
+        /* 點擊母分類後顯示子分類 */
+        #frontend-nav-tabs .dropdown-parent.open > .dropdown-child {
+          display: block !important;
+        }
+      
+        #frontend-nav-tabs .dropdown-child li {
+          display: block;
+          width: 100%;
+        }
+      
+        #frontend-nav-tabs .dropdown-child a {
+          display: block;
+          width: 100%;
+          padding: .7rem 1rem;
+          color: #fff;
+          white-space: nowrap;
+        }
+      
+        #frontend-nav-tabs .dropdown-child a:active {
+          background: rgba(255,255,255,.1);
+        }
       }
 </style>
   </head>
@@ -1955,35 +1992,51 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           parentLink.textContent =
             `${parent.name} ▾`;
       
+          parentLink.setAttribute("aria-expanded", "false");
+          parentLink.setAttribute("aria-haspopup", "true");
+          
           parentLink.addEventListener(
             "click",
             (event) => {
+              event.preventDefault();
+              event.stopPropagation();
           
-              // 手機版
-              if (window.innerWidth <= 767) {
+              const isMobile =
+                window.matchMedia("(max-width: 767px)").matches;
           
-                event.preventDefault();
-          
-                // 關閉其他已展開選單
-                document
-                  .querySelectorAll(".dropdown-child")
-                  .forEach(menu => {
-                   
-                    if (menu !== childList) {
-                      menu.classList.add("hidden");
-                    }
-          
-                  });
-          
-                // 展開 / 收合
-                parentItem.classList.toggle("hidden");
-          
+              /* 桌機版點母分類，維持原本進入分類頁 */
+              if (!isMobile) {
+                openCategory(parent.name);
                 return;
               }
           
-              // 桌機版維持原本功能
-              event.preventDefault();
-              openCategory(parent.name);
+              const willOpen =
+                !parentItem.classList.contains("open");
+          
+              /* 先收合其他母分類 */
+              document
+                .querySelectorAll(
+                  "#frontend-nav-tabs .dropdown-parent.open"
+                )
+                .forEach((item) => {
+                  if (item === parentItem) return;
+          
+                  item.classList.remove("open");
+          
+                  const link = item.querySelector(":scope > a");
+          
+                  if (link) {
+                    link.setAttribute("aria-expanded", "false");
+                  }
+                });
+          
+              /* 展開或收合目前分類 */
+              parentItem.classList.toggle("open", willOpen);
+          
+              parentLink.setAttribute(
+                "aria-expanded",
+                String(willOpen)
+              );
             }
           );
       
@@ -2021,6 +2074,62 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         );
       
         setupSiteSearch();
+        setupMobileCategoryDropdown();
+      }
+      function setupMobileCategoryDropdown() {
+        if (document.body.dataset.mobileCategoryReady === "true") {
+          return;
+        }
+      
+        document.body.dataset.mobileCategoryReady = "true";
+      
+        document.addEventListener("click", (event) => {
+          const isMobile =
+            window.matchMedia("(max-width: 767px)").matches;
+      
+          if (!isMobile) return;
+      
+          /* 點擊分類本身時，不由這裡收合 */
+          if (event.target.closest("#frontend-nav-tabs .dropdown-parent")) {
+            return;
+          }
+      
+          document
+            .querySelectorAll(
+              "#frontend-nav-tabs .dropdown-parent.open"
+            )
+            .forEach((item) => {
+              item.classList.remove("open");
+      
+              const link = item.querySelector(":scope > a");
+      
+              if (link) {
+                link.setAttribute("aria-expanded", "false");
+              }
+            });
+        });
+      
+        window.addEventListener("resize", () => {
+          if (
+            window.matchMedia("(max-width: 767px)").matches
+          ) {
+            return;
+          }
+      
+          document
+            .querySelectorAll(
+              "#frontend-nav-tabs .dropdown-parent.open"
+            )
+            .forEach((item) => {
+              item.classList.remove("open");
+      
+              const link = item.querySelector(":scope > a");
+      
+              if (link) {
+                link.setAttribute("aria-expanded", "false");
+              }
+            });
+        });
       }
       function openCategory(name) {
         (name === "我的旅途" || name === "關於我") ? viewJourney() : filterCategory(name);
