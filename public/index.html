@@ -1173,10 +1173,22 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
             .replace(/'/g, "\\'");
 
       function preloadImage(id, url, fetchPriority = "high") {
-        const imageUrl = String(url || "").trim();
+        const rawUrl = String(url || "").trim();
         let link = document.getElementById(id);
 
-        if (!imageUrl) {
+        if (!rawUrl) {
+          link?.remove();
+          return;
+        }
+
+        let imageUrl;
+        try {
+          imageUrl = new URL(rawUrl, location.origin);
+          if (!["http:", "https:"].includes(imageUrl.protocol)) {
+            throw new Error("不支援的圖片網址協定");
+          }
+        } catch (error) {
+          console.warn("略過無效的圖片 preload 網址：", rawUrl, error);
           link?.remove();
           return;
         }
@@ -1186,10 +1198,13 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
           link.id = id;
           link.rel = "preload";
           link.as = "image";
+          link.href = imageUrl.href;
+          link.fetchPriority = fetchPriority;
           document.head.appendChild(link);
+          return;
         }
 
-        link.href = imageUrl;
+        link.href = imageUrl.href;
         link.fetchPriority = fetchPriority;
       }
 
