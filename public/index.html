@@ -1517,7 +1517,7 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
               "一葉知途",
       
             "url":
-              "https://travel.aleafpath.workers.dev/about"
+              "https://travel.aleafpath.workers.dev/about_me"
           },
       
           "publisher": {
@@ -2729,8 +2729,8 @@ button:not(.admin-entry):not(.announcement-close-button){background:#8FA28A!impo
         } else {
           $("site-avatar").removeAttribute("src");
         }
-        $("site-nickname").textContent = settingsCache.nickname || "zz";
-        $("site-bio").textContent = settingsCache.bio || "一個隨筆紀錄的人";
+        $("site-nickname").textContent = settingsCache.nickname || "一葉知途";
+        $("site-bio").textContent = settingsCache.bio || "自由行攻略與旅遊心得分享";
         const profileEmail=String(settingsCache.profile_email||"").trim();
         const emailNode=$("site-email");
         if(emailNode){emailNode.textContent=profileEmail;emailNode.href=profileEmail?"mailto:"+profileEmail:"";emailNode.classList.toggle("hidden",!profileEmail);}
