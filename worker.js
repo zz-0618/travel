@@ -50,12 +50,9 @@ export default {
           'categories',
           'id,name,slug,parent_id',
         );
-        const categoryMap = new Map(
-          categories.map((item) => [item.name, item]),
-        );
+        const categoryMap = new Map(categories.map((item) => [item.name, item]));
         const canonicalPath = buildArticlePath(article, categoryMap);
 
-        // 同一篇文章只允許一個正式路徑。其他可解析到相同 slug 的網址一律 301。
         if (!canonicalPath) {
           return new Response('Article canonical path not found', {
             status: 500,
@@ -266,7 +263,6 @@ async function renderArticleHtml(request, env, article, canonicalPath) {
   if (!indexResponse.ok) return indexResponse;
 
   const requestUrl = new URL(request.url);
-  // canonical 不包含 query string 或 hash，避免追蹤參數形成重複網址。
   const articleUrl = `${requestUrl.origin}${canonicalPath}`;
   const title = `${normalizeText(article.title) || SITE_NAME}｜${SITE_NAME}`;
   const description = buildDescription(article);
@@ -293,7 +289,6 @@ async function renderArticleHtml(request, env, article, canonicalPath) {
     .on('meta[name="twitter:image"]', new MetaContentHandler(image))
     .on('link[rel="canonical"]', new AttributeHandler('href', articleUrl))
     .on('#structured-data', new JsonLdHandler(structuredData))
-    // 讓 Google 在尚未執行前端 JavaScript 時，就能讀到每篇不同的正文。
     .on('body', new ServerRenderedArticleHandler(article));
 
   const response = rewriter.transform(indexResponse);
@@ -316,13 +311,11 @@ class ServerRenderedArticleHandler {
 
   element(element) {
     const title = escapeHtml(normalizeText(this.article.title));
-    const content = sanitizeArticleHtml(this.article.content);
     const excerpt = escapeHtml(normalizeText(this.article.excerpt));
+    const content = sanitizeArticleHtml(this.article.content);
 
-    // 前端完成渲染後可移除這個節點，避免畫面出現兩份文章內容：
-    // document.getElementById('server-rendered-article')?.remove();
     element.prepend(
-      `<article id="server-rendered-article" data-server-rendered="true">` +
+      `<article id="server-rendered-article" data-server-rendered="true" hidden aria-hidden="true">` +
         `<header><h1>${title}</h1>` +
         (excerpt ? `<p>${excerpt}</p>` : '') +
         `</header><div class="server-rendered-article-content">${content}</div>` +
@@ -380,7 +373,6 @@ function normalizePathname(pathname) {
 }
 
 function sanitizeArticleHtml(value) {
-  // 保留文章排版 HTML，但移除可執行內容與內嵌事件。
   return String(value || '')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
