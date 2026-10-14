@@ -60,11 +60,18 @@ export default {
           });
         }
 
+        // 同一篇文章只保留一個正式網址。
         if (normalizePathname(url.pathname) !== canonicalPath) {
           return Response.redirect(`${url.origin}${canonicalPath}`, 301);
         }
 
-        return renderArticleHtml(request, env, article, canonicalPath);
+        return renderArticleHtml(
+          request,
+          env,
+          article,
+          canonicalPath,
+          categoryMap,
+        );
       }
     }
 
@@ -255,7 +262,13 @@ function supabaseHeaders(env) {
   };
 }
 
-async function renderArticleHtml(request, env, article, canonicalPath) {
+async function renderArticleHtml(
+  request,
+  env,
+  article,
+  canonicalPath,
+  categoryMap,
+) {
   const indexResponse = await env.ASSETS.fetch(
     new Request(new URL('/', request.url), request),
   );
@@ -289,7 +302,11 @@ async function renderArticleHtml(request, env, article, canonicalPath) {
     .on('meta[name="twitter:image"]', new MetaContentHandler(image))
     .on('link[rel="canonical"]', new AttributeHandler('href', articleUrl))
     .on('#structured-data', new JsonLdHandler(structuredData))
-    .on('body', new ServerRenderedArticleHandler(article));
+    // 真正 SSR：直接把文章寫進原本可見的文章容器，不增加第二份隱藏內容。
+    .on(
+      '#main-content-area',
+      new ArticlePageHandler(article, categoryMap, requestUrl.origin),
+    );
 
   const response = rewriter.transform(indexResponse);
   const headers = new Headers(response.headers);
@@ -304,24 +321,46 @@ async function renderArticleHtml(request, env, article, canonicalPath) {
   });
 }
 
-class ServerRenderedArticleHandler {
-  constructor(article) {
+class ArticlePageHandler {
+  constructor(article, categoryMap, origin) {
     this.article = article;
+    this.categoryMap = categoryMap;
+    this.origin = origin;
   }
 
   element(element) {
-    const title = escapeHtml(normalizeText(this.article.title));
-    const excerpt = escapeHtml(normalizeText(this.article.excerpt));
-    const content = sanitizeArticleHtml(this.article.content);
-
-    element.prepend(
-      `<article id="server-rendered-article" data-server-rendered="true" hidden aria-hidden="true">` +
-        `<header><h1>${title}</h1>` +
-        (excerpt ? `<p>${excerpt}</p>` : '') +
-        `</header><div class="server-rendered-article-content">${content}</div>` +
-      `</article>`,
-      { html: true },
+    const article = this.article;
+    const title = escapeHtml(normalizeText(article.title));
+    const content = sanitizeArticleHtml(article.content);
+    const createdAt = formatDateZhTw(article.created_at);
+    const updatedAt = formatDateZhTw(article.updated_at || article.created_at);
+    const breadcrumbs = buildBreadcrumbHtml(
+      article,
+      this.categoryMap,
+      this.origin,
     );
+
+    const html =
+      `<div class="mb-5 flex items-center justify-between gap-4">` +
+        `<a href="/" class="px-4 py-2 bg-[#EFE9E3] border border-[#C9B59C] rounded-lg">← 返回文章列表</a>` +
+        `<button type="button" onclick="copyUrl()" class="px-3 py-2 bg-white border border-[#C9B59C] rounded-lg text-sm">🔗 複製網址</button>` +
+      `</div>` +
+      `<nav class="mb-4 text-sm article-meta-muted" aria-label="麵包屑">${breadcrumbs}</nav>` +
+      `<article data-ssr-article="true">` +
+        `<h1 class="text-3xl md:text-4xl font-bold leading-[1.5]">${title}</h1>` +
+        `<div class="flex flex-wrap gap-x-5 text-sm article-meta-muted article-title-divider border-b py-4">` +
+          `<span>最初撰寫：${escapeHtml(createdAt)}</span>` +
+          `<span>最後更新：${escapeHtml(updatedAt)}</span>` +
+        `</div>` +
+        `<div id="article-body-content" class="article-content-style pt-6">${content}</div>` +
+        `<section id="article-related-section" class="article-related-section hidden" aria-labelledby="article-related-title">` +
+          `<h2 id="article-related-title" class="article-related-title">延伸閱讀</h2>` +
+          `<div id="article-related-grid" class="article-related-grid"></div>` +
+        `</section>` +
+      `</article>`;
+
+    element.setInnerContent(html, { html: true });
+    element.setAttribute('data-ssr-rendered', 'true');
   }
 }
 
@@ -372,10 +411,38 @@ function normalizePathname(pathname) {
   return decoded.replace(/\/+$/, '') || '/';
 }
 
+function buildBreadcrumbHtml(article, categoryMap, origin) {
+  const items = [`<a href="/">首頁</a>`];
+
+  if (article.category) {
+    const category = categoryMap.get(article.category);
+    if (category) {
+      const path = buildCategoryPath(category, [...categoryMap.values()]);
+      items.push(
+        `<a href="${escapeHtml(origin + path)}">${escapeHtml(article.category)}</a>`,
+      );
+    }
+  }
+
+  if (article.subcategory) {
+    const subcategory = categoryMap.get(article.subcategory);
+    if (subcategory) {
+      const path = buildCategoryPath(subcategory, [...categoryMap.values()]);
+      items.push(
+        `<a href="${escapeHtml(origin + path)}">${escapeHtml(article.subcategory)}</a>`,
+      );
+    }
+  }
+
+  items.push(
+    `<span aria-current="page">${escapeHtml(normalizeText(article.title))}</span>`,
+  );
+  return items.join(' › ');
+}
+
 function sanitizeArticleHtml(value) {
   return String(value || '')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
     .replace(/<object\b[^>]*>[\s\S]*?<\/object>/gi, '')
     .replace(/<embed\b[^>]*\/?\s*>/gi, '')
     .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '')
@@ -389,6 +456,18 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function formatDateZhTw(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
 }
 
 function buildDescription(article) {
